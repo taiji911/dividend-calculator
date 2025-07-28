@@ -1,0 +1,80 @@
+import { Link, useLocation } from "wouter";
+import { Calculator, BarChart3, Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+
+export default function Navigation() {
+  const [location] = useLocation();
+
+  const navItems = [
+    {
+      href: "/calculator",
+      label: "메인 계산기",
+      icon: Calculator,
+      isActive: location === "/" || location === "/calculator",
+    },
+    {
+      href: "/comparison",
+      label: "종목 비교",
+      icon: BarChart3,
+      isActive: location === "/comparison",
+    },
+  ];
+
+  const NavContent = () => (
+    <>
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link key={item.href} href={item.href}>
+            <Button
+              variant={item.isActive ? "default" : "ghost"}
+              className="w-full justify-start"
+            >
+              <Icon className="mr-2 h-4 w-4" />
+              {item.label}
+            </Button>
+          </Link>
+        );
+      })}
+    </>
+  );
+
+  return (
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <Link href="/">
+              <h1 className="text-xl font-bold text-gray-900 flex items-center">
+                <BarChart3 className="mr-2 h-6 w-6 text-primary" />
+                배당 재투자 계산기
+              </h1>
+            </Link>
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-4">
+            <NavContent />
+          </div>
+
+          {/* Mobile Navigation */}
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-64">
+                <div className="flex flex-col space-y-4 mt-4">
+                  <NavContent />
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
