@@ -2,7 +2,17 @@
 
 ## Overview
 
-This is a full-stack web application for calculating dividend reinvestment returns. The application features a React frontend with TypeScript, an Express.js backend, and uses Drizzle ORM for database operations. It's built as a Korean-language financial calculator focused on dividend investment strategies. The stock comparison feature is currently disabled due to API rate limitations.
+This is a full-stack web application for calculating dividend reinvestment returns with tax considerations. The application features a React frontend with TypeScript, an Express.js backend, and uses Drizzle ORM for database operations. It's built as a Korean-language financial calculator focused on dividend investment strategies. The stock comparison feature is currently disabled due to API rate limitations.
+
+## Recent Changes (January 2025)
+
+✓ Removed stock ticker input from main calculator (no auto data loading)
+✓ Set initial investment and monthly investment default values to 0
+✓ Removed USD currency option, KRW only
+✓ Added tax calculation system (Korea 15.4%, US 15%, tax-free accounts 0%)
+✓ Updated preset buttons to only set dividend yield and growth rate
+✓ Added benefits section explaining dividend reinvestment advantages
+✓ Fixed dividend calculation formula to apply tax on net dividends
 
 ## User Preferences
 
@@ -63,10 +73,12 @@ Preferred communication style: Simple, everyday language.
 6. **Visualization**: Charts and tables display results to user
 
 ### Calculation Logic
-- Supports dividend reinvestment (DRIP) calculations
+- Supports dividend reinvestment (DRIP) calculations with tax considerations
 - Handles compound growth with configurable dividend growth rates
-- Supports multiple currencies (USD/KRW)
-- Provides year-over-year breakdown of returns
+- KRW currency only for simplified user experience
+- Provides year-over-year breakdown of returns with net dividend calculations
+- Tax rates: Korea 15.4% (including local tax), US 15% (treaty rate), tax-free accounts 0%
+- Benefits explanation section with visual cards showing DRIP advantages
 
 ## External Dependencies
 
