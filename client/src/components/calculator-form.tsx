@@ -21,7 +21,6 @@ const calculationSchema = z.object({
   dividendYield: z.number().min(0, "배당률은 0% 이상이어야 합니다").max(50, "배당률은 50% 이하여야 합니다"),
   dividendGrowthRate: z.number().min(-10, "배당 성장률은 -10% 이상이어야 합니다").max(50, "배당 성장률은 50% 이하여야 합니다"),
   dripEnabled: z.boolean(),
-  stockTicker: z.string().optional(),
 });
 
 type CalculationFormData = z.infer<typeof calculationSchema>;
@@ -45,7 +44,6 @@ export default function CalculatorForm({ onCalculate, currency, onCurrencyChange
       dividendYield: 3.5,
       dividendGrowthRate: 5.0,
       dripEnabled: true,
-      stockTicker: "",
     },
   });
 
@@ -82,7 +80,6 @@ export default function CalculatorForm({ onCalculate, currency, onCurrencyChange
       dividendYield: 3.0, 
       dividendGrowthRate: 3.0, 
       monthlyInvestment: 300,
-      stockTicker: "",
       label: "보수적",
       description: "배당률 3%, 성장률 3%" 
     },
@@ -90,7 +87,6 @@ export default function CalculatorForm({ onCalculate, currency, onCurrencyChange
       dividendYield: 4.0, 
       dividendGrowthRate: 5.0, 
       monthlyInvestment: 500,
-      stockTicker: "",
       label: "중간",
       description: "배당률 4%, 성장률 5%" 
     },
@@ -98,7 +94,6 @@ export default function CalculatorForm({ onCalculate, currency, onCurrencyChange
       dividendYield: 5.0, 
       dividendGrowthRate: 8.0, 
       monthlyInvestment: 800,
-      stockTicker: "",
       label: "공격적",
       description: "배당률 5%, 성장률 8%" 
     },
@@ -106,7 +101,6 @@ export default function CalculatorForm({ onCalculate, currency, onCurrencyChange
       dividendYield: 3.5, 
       dividendGrowthRate: 12.0, 
       monthlyInvestment: 500,
-      stockTicker: "SCHD",
       label: "SCHD",
       description: "실제 데이터 기반" 
     },
@@ -117,7 +111,6 @@ export default function CalculatorForm({ onCalculate, currency, onCurrencyChange
     form.setValue("dividendYield", preset.dividendYield);
     form.setValue("dividendGrowthRate", preset.dividendGrowthRate);
     form.setValue("monthlyInvestment", preset.monthlyInvestment);
-    form.setValue("stockTicker", preset.stockTicker);
     setSelectedPreset(presetName);
   };
 
@@ -174,10 +167,15 @@ export default function CalculatorForm({ onCalculate, currency, onCurrencyChange
                   {currencySymbol}
                 </span>
                 <Input
-                  type="number"
+                  type="text"
                   placeholder="10,000"
                   className="pl-8"
-                  {...form.register("initialInvestment", { valueAsNumber: true })}
+                  value={form.watch("initialInvestment")?.toLocaleString() || "0"}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/,/g, "");
+                    const numValue = parseFloat(value);
+                    form.setValue("initialInvestment", isNaN(numValue) ? 0 : numValue);
+                  }}
                 />
               </div>
               {form.formState.errors.initialInvestment && (
@@ -203,10 +201,15 @@ export default function CalculatorForm({ onCalculate, currency, onCurrencyChange
                   {currencySymbol}
                 </span>
                 <Input
-                  type="number"
+                  type="text"
                   placeholder="500"
                   className="pl-8"
-                  {...form.register("monthlyInvestment", { valueAsNumber: true })}
+                  value={form.watch("monthlyInvestment")?.toLocaleString() || "0"}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/,/g, "");
+                    const numValue = parseFloat(value);
+                    form.setValue("monthlyInvestment", isNaN(numValue) ? 0 : numValue);
+                  }}
                 />
               </div>
               {form.formState.errors.monthlyInvestment && (
@@ -324,26 +327,7 @@ export default function CalculatorForm({ onCalculate, currency, onCurrencyChange
               </Label>
             </div>
 
-            {/* Stock Ticker */}
-            <div>
-              <Label className="flex items-center">
-                종목 티커 (선택사항)
-                <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="ml-1 h-4 w-4 text-gray-400" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    특정 종목의 과거 데이터를 사용하려면 입력
-                  </TooltipContent>
-                </Tooltip>
-              </Label>
-              <Input
-                type="text"
-                placeholder="SCHD"
-                className="uppercase"
-                {...form.register("stockTicker")}
-              />
-            </div>
+
 
             <Button 
               type="submit" 

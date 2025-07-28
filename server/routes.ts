@@ -13,7 +13,6 @@ const calculateDividendReinvestmentSchema = z.object({
   dividendGrowthRate: z.number().min(-10).max(50),
   currency: z.enum(["USD", "KRW"]).default("USD"),
   dripEnabled: z.boolean().default(true),
-  stockTicker: z.string().optional(),
 });
 
 const compareStocksSchema = z.object({
@@ -62,37 +61,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const input = validation.data;
-      
-      // If stock ticker is provided, use its data
-      let finalDividendYield = input.dividendYield;
-      let finalDividendGrowthRate = input.dividendGrowthRate;
-      
-      if (input.stockTicker) {
-        const stockData = await storage.getStockData(input.stockTicker);
-        if (stockData) {
-          finalDividendYield = stockData.dividendYield;
-          finalDividendGrowthRate = stockData.dividendGrowthRate;
-        }
-      }
 
       // Perform calculation
-      const results = calculateDividendGrowth({
-        ...input,
-        dividendYield: finalDividendYield,
-        dividendGrowthRate: finalDividendGrowthRate,
-      });
+      const results = calculateDividendGrowth(input);
 
-      // Save calculation input
-      const savedInput = await storage.saveCalculationInput({
-        initialInvestment: input.initialInvestment,
-        monthlyInvestment: input.monthlyInvestment,
-        investmentPeriod: input.investmentPeriod,
-        dividendYield: finalDividendYield,
-        dividendGrowthRate: finalDividendGrowthRate,
-        currency: input.currency,
-        dripEnabled: input.dripEnabled,
-        stockTicker: input.stockTicker,
-      });
+      // Save calculation input (optional - remove if not needed)
+      // const savedInput = await storage.saveCalculationInput({
+      //   initialInvestment: input.initialInvestment,
+      //   monthlyInvestment: input.monthlyInvestment,
+      //   investmentPeriod: input.investmentPeriod,
+      //   dividendYield: input.dividendYield,
+      //   dividendGrowthRate: input.dividendGrowthRate,
+      //   currency: input.currency,
+      //   dripEnabled: input.dripEnabled,
+      //   stockTicker: null,
+      // });
 
       res.json(results);
     } catch (error) {
@@ -191,12 +174,7 @@ function calculateDividendGrowth(params: {
   let currentDividendYield = dividendYield / 100;
 
   for (let year = 1; year <= investmentPeriod; year++) {
-    // Add monthly investments
-    const yearlyInvestment = monthlyInvestment * 12;
-    totalValue += yearlyInvestment;
-    totalInvested += yearlyInvestment;
-    
-    // Calculate dividends based on portfolio value at beginning of year
+    // Calculate dividends based on portfolio value at beginning of year (before adding this year's investments)
     const yearlyDividend = totalValue * currentDividendYield;
     totalDividends += yearlyDividend;
     
@@ -204,6 +182,11 @@ function calculateDividendGrowth(params: {
     if (dripEnabled) {
       totalValue += yearlyDividend;
     }
+    
+    // Add monthly investments throughout the year
+    const yearlyInvestment = monthlyInvestment * 12;
+    totalValue += yearlyInvestment;
+    totalInvested += yearlyInvestment;
     
     // Apply dividend growth rate for next year
     currentDividendYield *= (1 + dividendGrowthRate / 100);
