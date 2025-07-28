@@ -13,12 +13,12 @@ export default function Navigation() {
       icon: Calculator,
       isActive: location === "/" || location === "/calculator",
     },
-    {
-      href: "/comparison",
-      label: "종목 비교",
-      icon: BarChart3,
-      isActive: location === "/comparison",
-    },
+    // {
+    //   href: "/comparison",
+    //   label: "종목 비교",
+    //   icon: BarChart3,
+    //   isActive: location === "/comparison",
+    // },
   ];
 
   const NavContent = () => (

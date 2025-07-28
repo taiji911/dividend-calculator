@@ -38,8 +38,8 @@ export default function CalculatorForm({ onCalculate, currency, onCurrencyChange
   const form = useForm<CalculationFormData>({
     resolver: zodResolver(calculationSchema),
     defaultValues: {
-      initialInvestment: 10000,
-      monthlyInvestment: 500,
+      initialInvestment: 0,
+      monthlyInvestment: 0,
       investmentPeriod: 10,
       dividendYield: 3.5,
       dividendGrowthRate: 5.0,

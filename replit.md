@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a full-stack web application for calculating dividend reinvestment returns and comparing stock performance. The application features a React frontend with TypeScript, an Express.js backend, and uses Drizzle ORM for database operations. It's built as a Korean-language financial calculator focused on dividend investment strategies.
+This is a full-stack web application for calculating dividend reinvestment returns. The application features a React frontend with TypeScript, an Express.js backend, and uses Drizzle ORM for database operations. It's built as a Korean-language financial calculator focused on dividend investment strategies. The stock comparison feature is currently disabled due to API rate limitations.
 
 ## User Preferences
 
@@ -37,10 +37,10 @@ Preferred communication style: Simple, everyday language.
 
 ### Frontend Components
 1. **Calculator Form**: Main dividend calculation interface with form validation
-2. **Comparison Form**: Stock comparison functionality
-3. **Results Charts**: Data visualization using Recharts
-4. **Results Table**: Tabular display of yearly calculations
-5. **Navigation**: Mobile-responsive navigation with sheet components
+2. **Results Charts**: Data visualization using Recharts
+3. **Results Table**: Tabular display of yearly calculations
+4. **Navigation**: Mobile-responsive navigation with sheet components
+5. **Comparison Form**: Stock comparison functionality (currently disabled)
 
 ### Backend Components
 1. **Storage Layer**: Abstracted storage interface with in-memory implementation
