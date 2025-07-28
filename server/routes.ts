@@ -11,8 +11,10 @@ const calculateDividendReinvestmentSchema = z.object({
   investmentPeriod: z.number().min(1).max(50),
   dividendYield: z.number().min(0).max(50),
   dividendGrowthRate: z.number().min(-10).max(50),
-  currency: z.enum(["USD", "KRW"]).default("USD"),
+  currency: z.enum(["USD", "KRW"]).default("KRW"),
   dripEnabled: z.boolean().default(true),
+  taxCountry: z.enum(["KR", "US"]).default("KR"),
+  taxType: z.enum(["taxable", "tax_free"]).default("taxable"),
 });
 
 const compareStocksSchema = z.object({
@@ -115,6 +117,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         dividendGrowthRate: stockDataA.dividendGrowthRate,
         currency: "USD",
         dripEnabled: true,
+        taxCountry: "US",
+        taxType: "taxable",
       });
 
       const resultsB = calculateDividendGrowth({
@@ -125,6 +129,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         dividendGrowthRate: stockDataB.dividendGrowthRate,
         currency: "USD",
         dripEnabled: true,
+        taxCountry: "US",
+        taxType: "taxable",
       });
 
       res.json({
@@ -156,6 +162,8 @@ function calculateDividendGrowth(params: {
   dividendGrowthRate: number;
   currency: string;
   dripEnabled: boolean;
+  taxCountry: "KR" | "US";
+  taxType: "taxable" | "tax_free";
 }) {
   const {
     initialInvestment,
@@ -164,7 +172,22 @@ function calculateDividendGrowth(params: {
     dividendYield,
     dividendGrowthRate,
     dripEnabled,
+    taxCountry,
+    taxType,
   } = params;
+
+  // Tax rates based on country and account type
+  const getTaxRate = (country: "KR" | "US", accountType: "taxable" | "tax_free"): number => {
+    if (accountType === "tax_free") return 0;
+    
+    if (country === "KR") {
+      return 0.154; // 한국 배당세율 15.4% (지방세 포함)
+    } else {
+      return 0.15; // 미국 배당세율 15% (한미조세협정 기준)
+    }
+  };
+
+  const taxRate = getTaxRate(taxCountry, taxType);
 
   let totalValue = initialInvestment;
   let totalDividends = 0;
@@ -174,13 +197,16 @@ function calculateDividendGrowth(params: {
   let currentDividendYield = dividendYield / 100;
 
   for (let year = 1; year <= investmentPeriod; year++) {
-    // Calculate dividends based on portfolio value at beginning of year (before adding this year's investments)
-    const yearlyDividend = totalValue * currentDividendYield;
-    totalDividends += yearlyDividend;
+    // Calculate gross dividends based on portfolio value at beginning of year (before adding this year's investments)
+    const grossYearlyDividend = totalValue * currentDividendYield;
     
-    // Reinvest dividends if DRIP is enabled
+    // Apply tax to dividends
+    const netYearlyDividend = grossYearlyDividend * (1 - taxRate);
+    totalDividends += netYearlyDividend;
+    
+    // Reinvest dividends if DRIP is enabled (using net dividends after tax)
     if (dripEnabled) {
-      totalValue += yearlyDividend;
+      totalValue += netYearlyDividend;
     }
     
     // Add monthly investments throughout the year
@@ -198,7 +224,7 @@ function calculateDividendGrowth(params: {
       year,
       totalAssets: totalValue + (dripEnabled ? 0 : totalDividends),
       cumulativeDividends: totalDividends,
-      annualDividends: yearlyDividend,
+      annualDividends: netYearlyDividend,
       totalInvested,
       returnPercentage,
     });

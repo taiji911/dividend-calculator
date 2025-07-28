@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calculator, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
@@ -21,19 +22,20 @@ const calculationSchema = z.object({
   dividendYield: z.number().min(0, "배당률은 0% 이상이어야 합니다").max(50, "배당률은 50% 이하여야 합니다"),
   dividendGrowthRate: z.number().min(-10, "배당 성장률은 -10% 이상이어야 합니다").max(50, "배당 성장률은 50% 이하여야 합니다"),
   dripEnabled: z.boolean(),
+  taxCountry: z.enum(["KR", "US"]),
+  taxType: z.enum(["taxable", "tax_free"]),
 });
 
 type CalculationFormData = z.infer<typeof calculationSchema>;
 
 interface CalculatorFormProps {
   onCalculate: (results: CalculationResults) => void;
-  currency: "USD" | "KRW";
-  onCurrencyChange: (currency: "USD" | "KRW") => void;
 }
 
-export default function CalculatorForm({ onCalculate, currency, onCurrencyChange }: CalculatorFormProps) {
+export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
   const { toast } = useToast();
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
+  const currency = "KRW";
 
   const form = useForm<CalculationFormData>({
     resolver: zodResolver(calculationSchema),
@@ -44,6 +46,8 @@ export default function CalculatorForm({ onCalculate, currency, onCurrencyChange
       dividendYield: 3.5,
       dividendGrowthRate: 5.0,
       dripEnabled: true,
+      taxCountry: "KR" as const,
+      taxType: "taxable" as const,
     },
   });
 
@@ -79,28 +83,24 @@ export default function CalculatorForm({ onCalculate, currency, onCurrencyChange
     conservative: { 
       dividendYield: 3.0, 
       dividendGrowthRate: 3.0, 
-      monthlyInvestment: 300,
       label: "보수적",
       description: "배당률 3%, 성장률 3%" 
     },
     moderate: { 
       dividendYield: 4.0, 
       dividendGrowthRate: 5.0, 
-      monthlyInvestment: 500,
       label: "중간",
       description: "배당률 4%, 성장률 5%" 
     },
     aggressive: { 
       dividendYield: 5.0, 
       dividendGrowthRate: 8.0, 
-      monthlyInvestment: 800,
       label: "공격적",
       description: "배당률 5%, 성장률 8%" 
     },
     schd: { 
       dividendYield: 3.5, 
       dividendGrowthRate: 12.0, 
-      monthlyInvestment: 500,
       label: "SCHD",
       description: "실제 데이터 기반" 
     },
@@ -110,11 +110,10 @@ export default function CalculatorForm({ onCalculate, currency, onCurrencyChange
     const preset = presets[presetName];
     form.setValue("dividendYield", preset.dividendYield);
     form.setValue("dividendGrowthRate", preset.dividendGrowthRate);
-    form.setValue("monthlyInvestment", preset.monthlyInvestment);
     setSelectedPreset(presetName);
   };
 
-  const currencySymbol = currency === "USD" ? "$" : "₩";
+  const currencySymbol = "₩";
 
   return (
     <div className="space-y-6">
@@ -125,28 +124,6 @@ export default function CalculatorForm({ onCalculate, currency, onCurrencyChange
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Currency Selection */}
-          <div>
-            <Label className="text-sm font-medium text-gray-700 mb-2 block">통화</Label>
-            <div className="flex rounded-md border border-gray-300 overflow-hidden">
-              <Button
-                type="button"
-                variant={currency === "USD" ? "default" : "outline"}
-                className="flex-1 rounded-none border-0"
-                onClick={() => onCurrencyChange("USD")}
-              >
-                USD ($)
-              </Button>
-              <Button
-                type="button"
-                variant={currency === "KRW" ? "default" : "outline"}
-                className="flex-1 rounded-none border-0 border-l"
-                onClick={() => onCurrencyChange("KRW")}
-              >
-                KRW (₩)
-              </Button>
-            </div>
-          </div>
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Initial Investment */}
@@ -244,6 +221,55 @@ export default function CalculatorForm({ onCalculate, currency, onCurrencyChange
               {form.formState.errors.investmentPeriod && (
                 <p className="text-sm text-red-600">{form.formState.errors.investmentPeriod.message}</p>
               )}
+            </div>
+
+            {/* Tax Options */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="flex items-center">
+                  투자 국가
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="ml-1 h-4 w-4 text-gray-400" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      배당세율이 적용될 국가
+                    </TooltipContent>
+                  </Tooltip>
+                </Label>
+                <Select value={form.watch("taxCountry")} onValueChange={(value: "KR" | "US") => form.setValue("taxCountry", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="국가 선택" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="KR">한국</SelectItem>
+                    <SelectItem value="US">미국</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label className="flex items-center">
+                  계좌 유형
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="ml-1 h-4 w-4 text-gray-400" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      과세 여부에 따른 세금 적용
+                    </TooltipContent>
+                  </Tooltip>
+                </Label>
+                <Select value={form.watch("taxType")} onValueChange={(value: "taxable" | "tax_free") => form.setValue("taxType", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="계좌 유형" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="taxable">과세 계좌</SelectItem>
+                    <SelectItem value="tax_free">비과세 계좌 (ISA, IRP 등)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Dividend Yield */}

@@ -22,12 +22,12 @@ export interface CalculationResults {
 
 export default function Calculator() {
   const [results, setResults] = useState<CalculationResults | null>(null);
-  const [currency, setCurrency] = useState<"USD" | "KRW">("USD");
+  const currency = "KRW";
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat(currency === "USD" ? "en-US" : "ko-KR", {
+    return new Intl.NumberFormat("ko-KR", {
       style: "currency",
-      currency: currency,
+      currency: "KRW",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount);
@@ -46,9 +46,7 @@ export default function Calculator() {
         {/* Input Panel */}
         <div className="lg:col-span-1">
           <CalculatorForm 
-            onCalculate={setResults} 
-            currency={currency}
-            onCurrencyChange={setCurrency}
+            onCalculate={setResults}
           />
         </div>
 
