@@ -272,6 +272,11 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
               </div>
             </div>
 
+            {/* Tax Information */}
+            <div className="text-xs text-gray-500 text-center py-2">
+              세율 정보: 한국 과세 15.4% / 미국 과세 15%
+            </div>
+
             {/* Dividend Yield */}
             <div>
               <Label className="flex items-center">

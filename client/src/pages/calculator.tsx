@@ -158,12 +158,7 @@ export default function Calculator() {
         </div>
       </div>
 
-      {/* Tax Information */}
-      <div className="mt-4 text-center">
-        <p className="text-xs text-gray-500">
-          세율 정보: 한국 과세 15.4% / 미국 과세 15%
-        </p>
-      </div>
+
     </div>
   );
 }
