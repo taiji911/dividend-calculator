@@ -60,7 +60,7 @@ export default function ResultsCharts({
         <CardContent>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
+              <LineChart data={chartData} margin={{ top: 20, right: 30, left: 40, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="year" tick={{ fontSize: 11 }} />
                 <YAxis tickFormatter={(value) => formatCurrency(value)} tick={{ fontSize: 11 }} />
@@ -100,7 +100,7 @@ export default function ResultsCharts({
         <CardContent>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
+              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 40, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="year" tick={{ fontSize: 11 }} />
                 <YAxis tickFormatter={(value) => formatCurrency(value)} tick={{ fontSize: 11 }} />
@@ -135,7 +135,7 @@ export default function ResultsCharts({
           <CardContent>
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
+                <LineChart data={chartData} margin={{ top: 20, right: 30, left: 40, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="year" tick={{ fontSize: 11 }} />
                   <YAxis tickFormatter={(value) => formatCurrency(value)} tick={{ fontSize: 11 }} />
