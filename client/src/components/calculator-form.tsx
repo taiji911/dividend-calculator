@@ -124,6 +124,9 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="text-xs text-gray-500 mb-4">
+            세율 정보: 한국 과세 15.4% / 미국 과세 15%
+          </div>
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Initial Investment */}
@@ -275,7 +278,7 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
             {/* Dividend Yield */}
             <div>
               <Label className="flex items-center">
-                예상 연간 배당률
+                시가 배당률
                 <Tooltip>
                   <TooltipTrigger>
                     <Info className="ml-1 h-4 w-4 text-gray-400" />
@@ -305,7 +308,7 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
             {/* Dividend Growth Rate */}
             <div>
               <Label className="flex items-center">
-                예상 연간 배당 성장률
+                배당 성장률
                 <Tooltip>
                   <TooltipTrigger>
                     <Info className="ml-1 h-4 w-4 text-gray-400" />
