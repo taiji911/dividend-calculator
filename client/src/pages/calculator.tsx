@@ -69,7 +69,7 @@ export default function Calculator() {
                       <div className="ml-4">
                         <p className="text-sm font-medium text-gray-500">총 자산</p>
                         <p className="text-2xl font-semibold text-gray-900">
-                          {formatCurrency(results.finalAssets)}
+                          {formatCurrency(results?.finalAssets || 0)}
                         </p>
                       </div>
                     </div>
@@ -87,7 +87,7 @@ export default function Calculator() {
                       <div className="ml-4">
                         <p className="text-sm font-medium text-gray-500">누적 배당금</p>
                         <p className="text-2xl font-semibold text-gray-900">
-                          {formatCurrency(results.totalDividends)}
+                          {formatCurrency(results?.totalDividends || 0)}
                         </p>
                       </div>
                     </div>
@@ -105,7 +105,7 @@ export default function Calculator() {
                       <div className="ml-4">
                         <p className="text-sm font-medium text-gray-500">연복리 수익률 (CAGR)</p>
                         <p className="text-2xl font-semibold text-gray-900">
-                          {results.cagr.toFixed(1)}%
+                          {results?.cagr?.toFixed(1) || '0.0'}%
                         </p>
                       </div>
                     </div>
