@@ -114,11 +114,14 @@ export default function Calculator() {
               </div>
 
               {/* Charts */}
-              <ResultsCharts results={results} formatCurrency={formatCurrency} />
-
+              {results && results.yearlyData && results.yearlyData.length > 0 && (
+                <ResultsCharts results={results} formatCurrency={formatCurrency} />
+              )}
 
               {/* Results Table */}
-              <ResultsTable results={results} formatCurrency={formatCurrency} />
+              {results && results.yearlyData && results.yearlyData.length > 0 && (
+                <ResultsTable results={results} formatCurrency={formatCurrency} />
+              )}
             </>
           ) : (
             <Card className="h-96 flex items-center justify-center">
