@@ -7,12 +7,12 @@ export default function Navigation() {
   const [location] = useLocation();
 
   const navItems = [
-    {
-      href: "/calculator",
-      label: "메인 계산기",
-      icon: Calculator,
-      isActive: location === "/" || location === "/calculator",
-    },
+    // {
+    //   href: "/calculator",
+    //   label: "메인 계산기",
+    //   icon: Calculator,
+    //   isActive: location === "/" || location === "/calculator",
+    // },
     // {
     //   href: "/comparison",
     //   label: "종목 비교",
@@ -53,26 +53,30 @@ export default function Navigation() {
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4">
-            <NavContent />
-          </div>
+          {/* Desktop Navigation - Hidden when no nav items */}
+          {navItems.length > 0 && (
+            <div className="hidden md:flex items-center space-x-4">
+              <NavContent />
+            </div>
+          )}
 
-          {/* Mobile Navigation */}
-          <div className="md:hidden">
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-64">
-                <div className="flex flex-col space-y-4 mt-4">
-                  <NavContent />
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
+          {/* Mobile Navigation - Hidden when no nav items */}
+          {navItems.length > 0 && (
+            <div className="md:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-64">
+                  <div className="flex flex-col space-y-4 mt-4">
+                    <NavContent />
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+          )}
         </div>
       </div>
     </nav>

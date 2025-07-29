@@ -116,51 +116,6 @@ export default function Calculator() {
               {/* Charts */}
               <ResultsCharts results={results} formatCurrency={formatCurrency} />
 
-              {/* Benefits Section */}
-              <div className="mb-8">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-6">배당 재투자의 장점</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <Card className="text-center p-6">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <Repeat className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">자동 재투자</h3>
-                    <p className="text-sm text-gray-600">
-                      받은 배당금을 자동으로 주식 매수에 활용하여 지속적인 복리 효과 창출
-                    </p>
-                  </Card>
-                  
-                  <Card className="text-center p-6">
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <TrendingUp className="h-6 w-6 text-green-600" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">복리 성장</h3>
-                    <p className="text-sm text-gray-600">
-                      시간이 지날수록 가속화되는 복리 효과로 자산 증식 속도 향상
-                    </p>
-                  </Card>
-                  
-                  <Card className="text-center p-6">
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <Target className="h-6 w-6 text-purple-600" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">수익률 향상</h3>
-                    <p className="text-sm text-gray-600">
-                      장기적으로 단순 배당 수령보다 높은 총 수익률 달성 가능
-                    </p>
-                  </Card>
-                  
-                  <Card className="text-center p-6">
-                    <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <Shield className="h-6 w-6 text-orange-600" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">리스크 분산</h3>
-                    <p className="text-sm text-gray-600">
-                      정기적인 재투자를 통한 달러 코스트 평균화 효과로 변동성 완화
-                    </p>
-                  </Card>
-                </div>
-              </div>
 
               {/* Results Table */}
               <ResultsTable results={results} formatCurrency={formatCurrency} />
