@@ -124,9 +124,6 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="text-xs text-gray-500 mb-4">
-            세율 정보: 한국 과세 15.4% / 미국 과세 15%
-          </div>
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Initial Investment */}
