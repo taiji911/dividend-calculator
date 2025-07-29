@@ -62,8 +62,8 @@ export default function ResultsCharts({
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="year" />
-                <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                <XAxis dataKey="year" tick={{ fontSize: 11 }} />
+                <YAxis tickFormatter={(value) => formatCurrency(value)} tick={{ fontSize: 11 }} />
                 <Tooltip content={<CustomTooltip />} />
                 {isComparison && <Legend />}
                 <Line
@@ -102,8 +102,8 @@ export default function ResultsCharts({
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="year" />
-                <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                <XAxis dataKey="year" tick={{ fontSize: 11 }} />
+                <YAxis tickFormatter={(value) => formatCurrency(value)} tick={{ fontSize: 11 }} />
                 <Tooltip content={<CustomTooltip />} />
                 {isComparison && <Legend />}
                 <Bar
@@ -137,8 +137,8 @@ export default function ResultsCharts({
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="year" />
-                  <YAxis tickFormatter={(value) => formatCurrency(value)} />
+                  <XAxis dataKey="year" tick={{ fontSize: 11 }} />
+                  <YAxis tickFormatter={(value) => formatCurrency(value)} tick={{ fontSize: 11 }} />
                   <Tooltip content={<CustomTooltip />} />
                   <Line
                     type="monotone"

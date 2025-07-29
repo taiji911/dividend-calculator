@@ -6,7 +6,12 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 export default function Navigation() {
   const [location] = useLocation();
 
-  const navItems = [
+  const navItems: Array<{
+    href: string;
+    label: string;
+    icon: any;
+    isActive: boolean;
+  }> = [
     // {
     //   href: "/calculator",
     //   label: "메인 계산기",
