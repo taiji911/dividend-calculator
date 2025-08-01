@@ -14,7 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { CalculationResults } from "@/pages/calculator";
-import { getCurrentLanguage, getTranslation, type Language } from "@/lib/i18n";
+import { getCurrentLanguage, getTranslation, currencyOptions, type Language } from "@/lib/i18n";
 
 const calculationSchema = z.object({
   initialInvestment: z.number().min(0),
@@ -22,6 +22,7 @@ const calculationSchema = z.object({
   investmentPeriod: z.number().min(1).max(50),
   dividendYield: z.number().min(0).max(50),
   dividendGrowthRate: z.number().min(-10).max(50),
+  currency: z.string(),
   dripEnabled: z.boolean(),
   taxCountry: z.enum(["KR", "US", "CUSTOM"]),
   taxType: z.enum(["taxable", "tax_free"]),
@@ -31,13 +32,12 @@ const calculationSchema = z.object({
 type CalculationFormData = z.infer<typeof calculationSchema>;
 
 interface CalculatorFormProps {
-  onCalculate: (results: CalculationResults) => void;
+  onCalculate: (results: CalculationResults, currency?: string) => void;
 }
 
 export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
   const { toast } = useToast();
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
-  const currency = "KRW";
   const language = getCurrentLanguage();
   const t = getTranslation(language);
 
@@ -49,6 +49,7 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
       investmentPeriod: 10,
       dividendYield: 3.5,
       dividendGrowthRate: 5.0,
+      currency: language === 'kr' ? 'KRW' : 'USD',
       dripEnabled: true,
       taxCountry: "KR" as const,
       taxType: "taxable" as const,
@@ -58,14 +59,11 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
 
   const calculateMutation = useMutation({
     mutationFn: async (data: CalculationFormData) => {
-      const response = await apiRequest("POST", "/api/calculate", {
-        ...data,
-        currency,
-      });
+      const response = await apiRequest("POST", "/api/calculate", data);
       return response.json();
     },
     onSuccess: (results: CalculationResults) => {
-      onCalculate(results);
+      onCalculate(results, selectedCurrency);
       toast({
         title: language === 'en' ? "Calculation Complete!" : "계산 완료!",
         description: language === 'en' ? "Dividend reinvestment simulation completed." : "배당 재투자 시뮬레이션이 완료되었습니다.",
@@ -137,7 +135,8 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
     resetPresetIfNeeded();
   }, [watchedValues]);
 
-  const currencySymbol = "₩";
+  const selectedCurrency = form.watch("currency") || (language === 'kr' ? 'KRW' : 'USD');
+  const currencySymbol = currencyOptions[selectedCurrency as keyof typeof currencyOptions]?.symbol || '$';
 
   return (
     <div className="space-y-6">
@@ -252,6 +251,40 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
                 <p className="text-sm text-red-600">{form.formState.errors.investmentPeriod.message}</p>
               )}
             </div>
+
+            {/* Currency Selection (EN only) */}
+            {language === 'en' && (
+              <div>
+                <Label className="flex items-center">
+                  {t.calculator.currency}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button type="button" className="ml-1">
+                        <Info className="h-4 w-4 text-gray-400" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Select your preferred currency for calculations
+                    </TooltipContent>
+                  </Tooltip>
+                </Label>
+                <Select
+                  value={form.watch("currency")}
+                  onValueChange={(value) => form.setValue("currency", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select currency" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(currencyOptions).map(([code, info]) => (
+                      <SelectItem key={code} value={code}>
+                        {info.symbol} {info.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Tax Options */}
             <div className="grid grid-cols-2 gap-4">

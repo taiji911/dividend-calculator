@@ -15,6 +15,7 @@ export interface Translations {
     taxSettings: string;
     taxCountry: string;
     taxType: string;
+    currency: string;
     calculateButton: string;
     results: {
       totalAssets: string;
@@ -87,6 +88,7 @@ export const translations: Record<Language, Translations> = {
       taxSettings: '세금 설정',
       taxCountry: '투자 국가',
       taxType: '계좌 유형',
+      currency: '화폐',
       calculateButton: '계산하기',
       results: {
         totalAssets: '총 자산',
@@ -157,6 +159,7 @@ export const translations: Record<Language, Translations> = {
       taxSettings: 'Tax Settings',
       taxCountry: 'Investment Country',
       taxType: 'Account Type',
+      currency: 'Currency',
       calculateButton: 'Calculate',
       results: {
         totalAssets: 'Total Assets',
@@ -215,6 +218,17 @@ export const translations: Record<Language, Translations> = {
   },
 };
 
+export const currencyOptions = {
+  USD: { symbol: '$', name: 'US Dollar', decimals: 2 },
+  EUR: { symbol: '€', name: 'Euro', decimals: 2 },
+  GBP: { symbol: '£', name: 'British Pound', decimals: 2 },
+  JPY: { symbol: '¥', name: 'Japanese Yen', decimals: 0 },
+  CAD: { symbol: 'C$', name: 'Canadian Dollar', decimals: 2 },
+  AUD: { symbol: 'A$', name: 'Australian Dollar', decimals: 2 },
+  CHF: { symbol: 'CHF', name: 'Swiss Franc', decimals: 2 },
+  KRW: { symbol: '₩', name: 'Korean Won', decimals: 0 },
+};
+
 export function getTranslation(language: Language): Translations {
   return translations[language];
 }
@@ -225,20 +239,20 @@ export function getCurrentLanguage(): Language {
   return 'kr';
 }
 
-export function formatCurrencyByLanguage(amount: number, language: Language): string {
-  if (language === 'en') {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
+export function formatCurrencyByLanguage(amount: number, language: Language, currency?: string): string {
+  if (language === 'kr') {
+    return new Intl.NumberFormat('ko-KR', {
+      style: 'currency',
+      currency: 'KRW',
       maximumFractionDigits: 0,
-    }).format(amount / 1300); // USD 환율 적용 (임시)
+    }).format(amount);
+  } else {
+    const currencyCode = currency || 'USD';
+    const currencyInfo = currencyOptions[currencyCode as keyof typeof currencyOptions];
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currencyCode,
+      maximumFractionDigits: currencyInfo?.decimals || 2,
+    }).format(amount);
   }
-  
-  return new Intl.NumberFormat("ko-KR", {
-    style: "currency",
-    currency: "KRW",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
 }

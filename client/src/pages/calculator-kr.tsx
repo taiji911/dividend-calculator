@@ -59,6 +59,10 @@ export default function CalculatorKR() {
     return formatCurrencyByLanguage(amount, 'kr');
   };
 
+  const handleCalculate = (calculationResults: CalculationResults, currency?: string) => {
+    setResults(calculationResults);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
@@ -72,7 +76,7 @@ export default function CalculatorKR() {
         {/* Input Panel */}
         <div className="lg:col-span-1">
           <CalculatorForm 
-            onCalculate={setResults}
+            onCalculate={handleCalculate}
           />
         </div>
 

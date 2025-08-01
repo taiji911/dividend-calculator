@@ -55,8 +55,17 @@ export default function CalculatorEN() {
     }
   }, []);
 
+  const [selectedCurrency, setSelectedCurrency] = useState('USD');
+  
   const formatCurrency = (amount: number) => {
-    return formatCurrencyByLanguage(amount, 'en');
+    return formatCurrencyByLanguage(amount, 'en', selectedCurrency);
+  };
+
+  const handleCalculate = (calculationResults: CalculationResults, currency?: string) => {
+    setResults(calculationResults);
+    if (currency) {
+      setSelectedCurrency(currency);
+    }
   };
 
   return (
@@ -72,7 +81,7 @@ export default function CalculatorEN() {
         {/* Input Panel */}
         <div className="lg:col-span-1">
           <CalculatorForm 
-            onCalculate={setResults}
+            onCalculate={handleCalculate}
           />
         </div>
 

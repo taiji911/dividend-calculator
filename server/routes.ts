@@ -11,7 +11,7 @@ const calculateDividendReinvestmentSchema = z.object({
   investmentPeriod: z.number().min(1).max(50),
   dividendYield: z.number().min(0).max(50),
   dividendGrowthRate: z.number().min(-10).max(50),
-  currency: z.enum(["USD", "KRW"]).default("KRW"),
+  currency: z.string().default("KRW"),
   dripEnabled: z.boolean().default(true),
   taxCountry: z.enum(["KR", "US", "CUSTOM"]).default("KR"),
   taxType: z.enum(["taxable", "tax_free"]).default("taxable"),

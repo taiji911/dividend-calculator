@@ -16,6 +16,8 @@ This is a full-stack web application for calculating dividend reinvestment retur
 ✓ Removed dividend reinvestment benefits section
 ✓ Enhanced error handling and calculation logic for custom tax scenarios
 ✓ Dynamic SEO meta tags: Korean (/kr) and English (/en) pages with language-specific titles, descriptions, and keywords
+✓ Multi-currency support for English version with 8 major currencies (USD, EUR, GBP, JPY, CAD, AUD, CHF, KRW)
+✓ Dynamic currency formatting and symbol display based on selected currency
 
 ## User Preferences
 
