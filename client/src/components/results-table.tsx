@@ -31,7 +31,7 @@ export default function ResultsTable({ results, formatCurrency }: ResultsTablePr
                   <TableCell className="font-medium">{row.year}년</TableCell>
                   <TableCell>{formatCurrency(row.totalAssets)}</TableCell>
                   <TableCell>{formatCurrency(row.annualDividends)}</TableCell>
-                  <TableCell>{formatCurrency(row.totalAssets - row.cumulativeDividends)}</TableCell>
+                  <TableCell>{formatCurrency(row.holdingAssets || row.totalAssets)}</TableCell>
                   <TableCell>{formatCurrency(row.cumulativeDividends)}</TableCell>
                 </TableRow>
               ))}

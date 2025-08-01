@@ -16,6 +16,7 @@ export interface CalculationResults {
     annualDividends: number;
     totalInvested: number;
     returnPercentage: number;
+    holdingAssets?: number;
   }>;
   totalInvested: number;
 }

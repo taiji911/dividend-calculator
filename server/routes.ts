@@ -230,6 +230,7 @@ function calculateDividendGrowth(params: {
       annualDividends: netYearlyDividend,         // 연초 배당금 (세후)
       totalInvested,                              // 총 투자 원금
       returnPercentage,                           // 총 수익률
+      holdingAssets: totalValue,                  // 연말 보유 자산 (DRIP 비활성화 시에는 순수 투자원금)
     });
     
     // 6. 다음 해 배당 성장률 적용
