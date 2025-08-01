@@ -109,14 +109,14 @@ export default function ResultsCharts({
                 <Bar
                   dataKey="dividends"
                   fill="hsl(142, 76%, 47%)"
-                  name={isComparison ? `${stockATicker} 연간 배당금` : "연간 배당금"}
+                  name={isComparison ? `${stockATicker} 연초 배당금` : "연초 배당금"}
                   radius={[4, 4, 0, 0]}
                 />
                 {comparisonResults && (
                   <Bar
                     dataKey="dividendsB"
                     fill="hsl(25, 95%, 53%)"
-                    name={`${stockBTicker} 연간 배당금`}
+                    name={`${stockBTicker} 연초 배당금`}
                     radius={[4, 4, 0, 0]}
                   />
                 )}

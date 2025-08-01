@@ -20,7 +20,7 @@ export default function ResultsTable({ results, formatCurrency }: ResultsTablePr
               <TableRow>
                 <TableHead>연도</TableHead>
                 <TableHead>총 자산</TableHead>
-                <TableHead>연간 배당금</TableHead>
+                <TableHead>연초 배당금</TableHead>
                 <TableHead>연말 보유 자산</TableHead>
                 <TableHead>누적 배당금</TableHead>
               </TableRow>
