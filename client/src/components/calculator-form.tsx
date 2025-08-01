@@ -266,7 +266,9 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="taxable">과세 계좌</SelectItem>
-                    <SelectItem value="tax_free">비과세 계좌 (ISA, IRP 등)</SelectItem>
+                    <SelectItem value="tax_free">
+                      비과세 계좌{form.watch("taxCountry") === "KR" ? " (ISA, IRP 등)" : ""}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
