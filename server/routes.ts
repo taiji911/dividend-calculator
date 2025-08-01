@@ -189,68 +189,62 @@ function calculateDividendGrowth(params: {
 
   const taxRate = getTaxRate(taxCountry, taxType);
 
-  let totalValue = initialInvestment;
-  let totalDividends = 0;
-  let totalInvested = initialInvestment;
+  // Initialize variables
+  let totalAssets = initialInvestment; // 총 자산 (원금 + 누적 배당금)
+  let totalDividends = 0; // 누적 배당금
+  let totalInvested = initialInvestment; // 누적 투자 원금
   const yearlyData = [];
   
-  let currentDividendYield = dividendYield / 100;
+  let currentDividendYield = dividendYield / 100; // 현재 배당률
 
   for (let year = 1; year <= investmentPeriod; year++) {
-    let yearStartValue = totalValue;
-    let yearlyDividendTotal = 0;
+    // 1. 연초 자산 기준으로 배당 계산
+    const yearStartAssets = totalAssets;
+    const grossAnnualDividend = yearStartAssets * currentDividendYield;
+    const netAnnualDividend = grossAnnualDividend * (1 - taxRate);
     
-    // Calculate monthly dividend yield for this year
-    const monthlyDividendYield = currentDividendYield / 12;
+    // 2. 연간 투자금 추가 (월 투자금 × 12개월)
+    const annualInvestment = monthlyInvestment * 12;
+    totalAssets += annualInvestment;
+    totalInvested += annualInvestment;
     
-    // Process each month of the year
-    for (let month = 1; month <= 12; month++) {
-      // Add monthly investment at the beginning of the month
-      totalValue += monthlyInvestment;
-      totalInvested += monthlyInvestment;
-      
-      // Calculate monthly dividend on current portfolio value (before adding dividend)
-      const grossMonthlyDividend = totalValue * monthlyDividendYield;
-      const netMonthlyDividend = grossMonthlyDividend * (1 - taxRate);
-      
-      yearlyDividendTotal += netMonthlyDividend;
-      
-      // Reinvest monthly dividend if DRIP is enabled (this creates compounding)
-      if (dripEnabled) {
-        totalValue += netMonthlyDividend;
-      }
+    // 3. 배당금 처리
+    totalDividends += netAnnualDividend;
+    
+    if (dripEnabled) {
+      // DRIP 활성화: 배당금을 자산에 재투자
+      totalAssets += netAnnualDividend;
     }
+    // DRIP 비활성화시에는 배당금이 자산에 포함되지 않음
     
-    totalDividends += yearlyDividendTotal;
+    // 4. 수익률 계산
+    const currentTotalValue = dripEnabled ? totalAssets : (totalAssets + totalDividends);
+    const returnPercentage = totalInvested > 0 ? ((currentTotalValue / totalInvested) - 1) * 100 : 0;
     
-    // Calculate return percentage
-    const currentAssets = totalValue + (dripEnabled ? 0 : yearlyDividendTotal);
-    const returnPercentage = totalInvested > 0 ? ((currentAssets / totalInvested) - 1) * 100 : 0;
-    
+    // 5. 연도별 데이터 저장
     yearlyData.push({
       year,
-      totalAssets: totalValue + (dripEnabled ? 0 : totalDividends),
+      totalAssets: currentTotalValue,
       cumulativeDividends: totalDividends,
-      annualDividends: yearlyDividendTotal,
+      annualDividends: netAnnualDividend,
       totalInvested,
       returnPercentage,
     });
     
-    // Apply dividend growth rate for next year
+    // 6. 배당 성장률 적용 (다음 해를 위해)
     currentDividendYield *= (1 + dividendGrowthRate / 100);
   }
 
-  // Calculate CAGR - only if we have initial investment
-  const finalValue = totalValue + (dripEnabled ? 0 : totalDividends);
+  // CAGR 계산
+  const finalValue = dripEnabled ? totalAssets : (totalAssets + totalDividends);
   let cagr = 0;
   
   if (initialInvestment > 0) {
     cagr = (Math.pow(finalValue / initialInvestment, 1 / investmentPeriod) - 1) * 100;
   } else if (totalInvested > 0) {
-    // If no initial investment, calculate based on total invested vs final value
+    // 초기 투자가 없을 때는 평균 연간 투자금 기준으로 계산
     const avgAnnualInvestment = totalInvested / investmentPeriod;
-    const effectiveInitialInvestment = avgAnnualInvestment;
-    cagr = (Math.pow(finalValue / effectiveInitialInvestment, 1 / investmentPeriod) - 1) * 100;
+    cagr = (Math.pow(finalValue / avgAnnualInvestment, 1 / investmentPeriod) - 1) * 100;
   }
 
   return {
