@@ -198,30 +198,28 @@ function calculateDividendGrowth(params: {
   let currentDividendYield = dividendYield / 100; // 현재 배당률
 
   for (let year = 1; year <= investmentPeriod; year++) {
-    // 1. 연초 자산 기준으로 배당 계산
-    const yearStartAssets = totalAssets;
-    const grossAnnualDividend = yearStartAssets * currentDividendYield;
+    // 1. 연초 자산 기준으로 배당금 계산 (전년도 말 자산 기준)
+    const grossAnnualDividend = totalAssets * currentDividendYield;
     const netAnnualDividend = grossAnnualDividend * (1 - taxRate);
     
-    // 2. 연간 투자금 추가 (월 투자금 × 12개월)
+    // 2. 배당금 즉시 재투자 (DRIP 활성화 시)
+    if (dripEnabled) {
+      totalAssets += netAnnualDividend;
+    }
+    
+    // 3. 연간 투자금 추가 (월 투자금 × 12개월)
     const annualInvestment = monthlyInvestment * 12;
     totalAssets += annualInvestment;
     totalInvested += annualInvestment;
     
-    // 3. 배당금 처리
+    // 4. 누적 배당금 기록
     totalDividends += netAnnualDividend;
     
-    if (dripEnabled) {
-      // DRIP 활성화: 배당금을 자산에 재투자
-      totalAssets += netAnnualDividend;
-    }
-    // DRIP 비활성화시에는 배당금이 자산에 포함되지 않음
-    
-    // 4. 수익률 계산
-    const currentTotalValue = dripEnabled ? totalAssets : (totalAssets + totalDividends);
+    // 5. 수익률 계산
+    const currentTotalValue = dripEnabled ? totalAssets : (totalAssets + totalDividends - netAnnualDividend);
     const returnPercentage = totalInvested > 0 ? ((currentTotalValue / totalInvested) - 1) * 100 : 0;
     
-    // 5. 연도별 데이터 저장
+    // 6. 연도별 데이터 저장
     yearlyData.push({
       year,
       totalAssets: currentTotalValue,
@@ -231,7 +229,7 @@ function calculateDividendGrowth(params: {
       returnPercentage,
     });
     
-    // 6. 배당 성장률 적용 (다음 해를 위해)
+    // 7. 다음 해를 위한 배당 성장률 적용
     currentDividendYield *= (1 + dividendGrowthRate / 100);
   }
 
