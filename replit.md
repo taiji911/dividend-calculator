@@ -15,6 +15,7 @@ This is a full-stack web application for calculating dividend reinvestment retur
 ✓ Custom tax rate disables account type selection and applies user-specified rate
 ✓ Removed dividend reinvestment benefits section
 ✓ Enhanced error handling and calculation logic for custom tax scenarios
+✓ Dynamic SEO meta tags: Korean (/kr) and English (/en) pages with language-specific titles, descriptions, and keywords
 
 ## User Preferences
 
