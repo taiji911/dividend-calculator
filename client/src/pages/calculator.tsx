@@ -104,9 +104,12 @@ export default function Calculator() {
                         </div>
                       </div>
                       <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">연복리 수익률 (CAGR)</p>
+                        <p className="text-sm font-medium text-gray-500">연간 배당금</p>
                         <p className="text-2xl font-semibold text-gray-900">
-                          {results?.cagr?.toFixed(1) || '0.0'}%
+                          {results?.yearlyData && results.yearlyData.length > 0 
+                            ? formatCurrency(results.yearlyData[results.yearlyData.length - 1].annualDividends)
+                            : formatCurrency(0)
+                          }
                         </p>
                       </div>
                     </div>
