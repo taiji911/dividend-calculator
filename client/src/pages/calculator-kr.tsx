@@ -156,51 +156,7 @@ export default function CalculatorKR() {
         </div>
       </div>
 
-      {/* Benefits Section */}
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">{t.calculator.benefits.title}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
-            <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Repeat className="h-6 w-6 text-blue-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.calculator.benefits.compound.title}</h3>
-              <p className="text-gray-600 text-sm">{t.calculator.benefits.compound.description}</p>
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Coins className="h-6 w-6 text-green-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.calculator.benefits.cost.title}</h3>
-              <p className="text-gray-600 text-sm">{t.calculator.benefits.cost.description}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Target className="h-6 w-6 text-purple-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.calculator.benefits.automatic.title}</h3>
-              <p className="text-gray-600 text-sm">{t.calculator.benefits.automatic.description}</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6 text-center">
-              <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="h-6 w-6 text-orange-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.calculator.benefits.growth.title}</h3>
-              <p className="text-gray-600 text-sm">{t.calculator.benefits.growth.description}</p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
     </div>
   );
 }
