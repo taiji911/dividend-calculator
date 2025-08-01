@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -23,8 +23,9 @@ const calculationSchema = z.object({
   dividendYield: z.number().min(0).max(50),
   dividendGrowthRate: z.number().min(-10).max(50),
   dripEnabled: z.boolean(),
-  taxCountry: z.enum(["KR", "US"]),
+  taxCountry: z.enum(["KR", "US", "CUSTOM"]),
   taxType: z.enum(["taxable", "tax_free"]),
+  customTaxRate: z.number().min(0).max(100).optional(),
 });
 
 type CalculationFormData = z.infer<typeof calculationSchema>;
@@ -51,6 +52,7 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
       dripEnabled: true,
       taxCountry: "KR" as const,
       taxType: "taxable" as const,
+      customTaxRate: 0,
     },
   });
 
@@ -105,7 +107,7 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
       dividendYield: 3.5, 
       dividendGrowthRate: 12.0, 
       label: language === 'en' ? "SCHD (Example)" : "SCHD (예시)",
-      description: language === 'en' ? "Real data - 3.5% yield, 12% growth" : "실제 데이터 기반 - 배당률 3.5%, 성장률 12%" 
+      description: language === 'en' ? "3.5% yield, 12% growth" : "배당률 3.5%, 성장률 12%" 
     },
   };
 
@@ -115,6 +117,25 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
     form.setValue("dividendGrowthRate", preset.dividendGrowthRate);
     setSelectedPreset(presetName);
   };
+
+  // Watch for manual input changes to reset preset selection
+  const watchedValues = form.watch(["dividendYield", "dividendGrowthRate"]);
+  
+  // Reset preset selection when values are manually changed
+  const resetPresetIfNeeded = () => {
+    if (selectedPreset) {
+      const preset = presets[selectedPreset as keyof typeof presets];
+      const [currentYield, currentGrowth] = watchedValues;
+      if (currentYield !== preset.dividendYield || currentGrowth !== preset.dividendGrowthRate) {
+        setSelectedPreset(null);
+      }
+    }
+  };
+
+  // Call reset function when watched values change
+  React.useEffect(() => {
+    resetPresetIfNeeded();
+  }, [watchedValues]);
 
   const currencySymbol = "₩";
 
@@ -134,8 +155,10 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
               <Label className="flex items-center">
                 {t.calculator.initialInvestment}
                 <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="ml-1 h-4 w-4 text-gray-400" />
+                  <TooltipTrigger asChild>
+                    <button type="button" className="ml-1">
+                      <Info className="h-4 w-4 text-gray-400" />
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent>
                     {language === 'en' ? 'Initial capital to start investing' : '투자를 시작할 때의 초기 자본'}
@@ -168,8 +191,10 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
               <Label className="flex items-center">
                 {t.calculator.monthlyInvestment}
                 <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="ml-1 h-4 w-4 text-gray-400" />
+                  <TooltipTrigger asChild>
+                    <button type="button" className="ml-1">
+                      <Info className="h-4 w-4 text-gray-400" />
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent>
                     {language === 'en' ? 'Regular monthly investment amount' : '매월 정기적으로 투자할 금액'}
@@ -202,8 +227,10 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
               <Label className="flex items-center">
                 {t.calculator.investmentPeriod}
                 <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="ml-1 h-4 w-4 text-gray-400" />
+                  <TooltipTrigger asChild>
+                    <button type="button" className="ml-1">
+                      <Info className="h-4 w-4 text-gray-400" />
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent>
                     {language === 'en' ? 'Total investment period' : '투자를 지속할 총 기간'}
@@ -232,21 +259,30 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
                 <Label className="flex items-center">
                   {t.calculator.taxCountry}
                   <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="ml-1 h-4 w-4 text-gray-400" />
+                    <TooltipTrigger asChild>
+                      <button type="button" className="ml-1">
+                        <Info className="h-4 w-4 text-gray-400" />
+                      </button>
                     </TooltipTrigger>
                     <TooltipContent>
                       {language === 'en' ? 'Country where dividend tax rate applies' : '배당세율이 적용될 국가'}
                     </TooltipContent>
                   </Tooltip>
                 </Label>
-                <Select value={form.watch("taxCountry")} onValueChange={(value: "KR" | "US") => form.setValue("taxCountry", value)}>
+                <Select value={form.watch("taxCountry")} onValueChange={(value: "KR" | "US" | "CUSTOM") => {
+                  form.setValue("taxCountry", value);
+                  if (value === "CUSTOM") {
+                    form.setValue("taxType", "taxable");
+                    form.setValue("customTaxRate", 0);
+                  }
+                }}>
                   <SelectTrigger>
                     <SelectValue placeholder={language === 'en' ? 'Select country' : '국가 선택'} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="KR">{t.calculator.options.korea}</SelectItem>
                     <SelectItem value="US">{t.calculator.options.us}</SelectItem>
+                    <SelectItem value="CUSTOM">{language === 'en' ? 'Custom Input' : '직접 입력'}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -255,15 +291,21 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
                 <Label className="flex items-center">
                   {t.calculator.taxType}
                   <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="ml-1 h-4 w-4 text-gray-400" />
+                    <TooltipTrigger asChild>
+                      <button type="button" className="ml-1">
+                        <Info className="h-4 w-4 text-gray-400" />
+                      </button>
                     </TooltipTrigger>
                     <TooltipContent>
                       {language === 'en' ? 'Tax application based on account type' : '과세 여부에 따른 세금 적용'}
                     </TooltipContent>
                   </Tooltip>
                 </Label>
-                <Select value={form.watch("taxType")} onValueChange={(value: "taxable" | "tax_free") => form.setValue("taxType", value)}>
+                <Select 
+                  value={form.watch("taxType")} 
+                  onValueChange={(value: "taxable" | "tax_free") => form.setValue("taxType", value)}
+                  disabled={form.watch("taxCountry") === "CUSTOM"}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder={language === 'en' ? 'Account type' : '계좌 유형'} />
                   </SelectTrigger>
@@ -276,6 +318,40 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
                 </Select>
               </div>
             </div>
+
+            {/* Custom Tax Rate Input */}
+            {form.watch("taxCountry") === "CUSTOM" && (
+              <div>
+                <Label className="flex items-center">
+                  {language === 'en' ? 'Tax Rate' : '세율'}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button type="button" className="ml-1">
+                        <Info className="h-4 w-4 text-gray-400" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {language === 'en' ? 'Enter your custom dividend tax rate' : '배당세율을 직접 입력하세요'}
+                    </TooltipContent>
+                  </Tooltip>
+                </Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    step="0.1"
+                    placeholder={language === 'en' ? '15.0' : '15.0'}
+                    className="pr-8"
+                    {...form.register("customTaxRate", { valueAsNumber: true })}
+                  />
+                  <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                    %
+                  </span>
+                </div>
+                {form.formState.errors.customTaxRate && (
+                  <p className="text-sm text-red-600">{form.formState.errors.customTaxRate.message}</p>
+                )}
+              </div>
+            )}
 
             {/* Tax Information */}
             <div className="text-xs text-gray-500 py-2 space-y-1">
@@ -296,8 +372,10 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
               <Label className="flex items-center">
                 {t.calculator.dividendYield}
                 <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="ml-1 h-4 w-4 text-gray-400" />
+                  <TooltipTrigger asChild>
+                    <button type="button" className="ml-1">
+                      <Info className="h-4 w-4 text-gray-400" />
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent>
                     {language === 'en' ? 'Annual dividend yield relative to current stock price' : '현재 주가 대비 연간 배당 수익률'}
@@ -311,6 +389,10 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
                   placeholder={t.calculator.placeholders.yieldPercent}
                   className="pr-8"
                   {...form.register("dividendYield", { valueAsNumber: true })}
+                  onChange={(e) => {
+                    form.setValue("dividendYield", parseFloat(e.target.value) || 0);
+                    setSelectedPreset(null); // Reset preset on manual input
+                  }}
                 />
                 <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
                   %
@@ -326,8 +408,10 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
               <Label className="flex items-center">
                 {t.calculator.dividendGrowthRate}
                 <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="ml-1 h-4 w-4 text-gray-400" />
+                  <TooltipTrigger asChild>
+                    <button type="button" className="ml-1">
+                      <Info className="h-4 w-4 text-gray-400" />
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent>
                     {language === 'en' ? 'Annual dividend growth rate' : '매년 배당금이 증가하는 비율'}
@@ -341,6 +425,10 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
                   placeholder={t.calculator.placeholders.growthPercent}
                   className="pr-8"
                   {...form.register("dividendGrowthRate", { valueAsNumber: true })}
+                  onChange={(e) => {
+                    form.setValue("dividendGrowthRate", parseFloat(e.target.value) || 0);
+                    setSelectedPreset(null); // Reset preset on manual input
+                  }}
                 />
                 <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
                   %
@@ -362,8 +450,10 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
               <Label htmlFor="drip" className="flex items-center">
                 {t.calculator.dripEnabled}
                 <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="ml-1 h-4 w-4 text-gray-400" />
+                  <TooltipTrigger asChild>
+                    <button type="button" className="ml-1">
+                      <Info className="h-4 w-4 text-gray-400" />
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent>
                     {language === 'en' ? 'Automatically reinvest dividends instead of receiving cash' : '배당금을 현금으로 받지 않고 자동으로 재투자'}

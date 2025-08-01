@@ -13,8 +13,9 @@ const calculateDividendReinvestmentSchema = z.object({
   dividendGrowthRate: z.number().min(-10).max(50),
   currency: z.enum(["USD", "KRW"]).default("KRW"),
   dripEnabled: z.boolean().default(true),
-  taxCountry: z.enum(["KR", "US"]).default("KR"),
+  taxCountry: z.enum(["KR", "US", "CUSTOM"]).default("KR"),
   taxType: z.enum(["taxable", "tax_free"]).default("taxable"),
+  customTaxRate: z.number().min(0).max(100).optional(),
 });
 
 const compareStocksSchema = z.object({
@@ -162,8 +163,9 @@ function calculateDividendGrowth(params: {
   dividendGrowthRate: number;
   currency: string;
   dripEnabled: boolean;
-  taxCountry: "KR" | "US";
+  taxCountry: "KR" | "US" | "CUSTOM";
   taxType: "taxable" | "tax_free";
+  customTaxRate?: number;
 }) {
   const {
     initialInvestment,
@@ -174,20 +176,23 @@ function calculateDividendGrowth(params: {
     dripEnabled,
     taxCountry,
     taxType,
+    customTaxRate,
   } = params;
 
   // Tax rates based on country and account type
-  const getTaxRate = (country: "KR" | "US", accountType: "taxable" | "tax_free"): number => {
+  const getTaxRate = (country: "KR" | "US" | "CUSTOM", accountType: "taxable" | "tax_free", customRate?: number): number => {
     if (accountType === "tax_free") return 0;
 
-    if (country === "KR") {
+    if (country === "CUSTOM") {
+      return (customRate || 0) / 100; // Convert percentage to decimal
+    } else if (country === "KR") {
       return 0.154; // 한국 배당세율 15.4% (지방세 포함)
     } else {
       return 0.15; // 미국 배당세율 15% (한미조세협정 기준)
     }
   };
 
-  const taxRate = getTaxRate(taxCountry, taxType);
+  const taxRate = getTaxRate(taxCountry, taxType, customTaxRate);
 
   let totalValue = initialInvestment;  // 총 자산 가치
   let cashDividends = 0;               // 현금으로 수령한 배당금 (DRIP 비활성화 시만)

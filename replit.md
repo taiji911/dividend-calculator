@@ -4,15 +4,17 @@
 
 This is a full-stack web application for calculating dividend reinvestment returns with tax considerations. The application features a React frontend with TypeScript, an Express.js backend, and uses Drizzle ORM for database operations. It's built as a Korean-language financial calculator focused on dividend investment strategies. The stock comparison feature is currently disabled due to API rate limitations.
 
-## Recent Changes (January 2025)
+## Recent Changes (August 2025)
 
-✓ Removed stock ticker input from main calculator (no auto data loading)
-✓ Set initial investment and monthly investment default values to 0
-✓ Removed USD currency option, KRW only
-✓ Added tax calculation system (Korea 15.4%, US 15%, tax-free accounts 0%)
-✓ Updated preset buttons to only set dividend yield and growth rate
-✓ Added benefits section explaining dividend reinvestment advantages
-✓ Fixed dividend calculation formula to apply tax on net dividends
+✓ Complete multilingual support with URL-based routing (/kr, /en)
+✓ All form labels and UI elements fully translated
+✓ Fixed tooltip clicks preventing form calculation (Info icons now properly prevent form submission)
+✓ Quick preset buttons reset when manually editing values
+✓ Simplified SCHD preset description (removed "실제 데이터 기반" text)
+✓ Added custom tax rate input option for international users
+✓ Custom tax rate disables account type selection and applies user-specified rate
+✓ Removed dividend reinvestment benefits section
+✓ Enhanced error handling and calculation logic for custom tax scenarios
 
 ## User Preferences
 
