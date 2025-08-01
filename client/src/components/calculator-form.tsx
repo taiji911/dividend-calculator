@@ -278,8 +278,7 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
             <div className="text-xs text-gray-500 py-2 space-y-1">
               <div className="font-medium">세율 정보: 한국 과세 15.4% / 미국 과세 15%</div>
               <div className="text-gray-400">
-                • 비과세 계좌 선택 시 세금이 적용되지 않습니다<br/>
-                • 본 계산기는 연 배당 기준으로 계산됩니다 (분기배당 ETF도 연환산 배당률 사용)
+                • 비과세 계좌 선택 시 세금이 적용되지 않습니다
               </div>
             </div>
 

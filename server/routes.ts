@@ -190,8 +190,9 @@ function calculateDividendGrowth(params: {
   const taxRate = getTaxRate(taxCountry, taxType);
 
   let totalValue = initialInvestment;  // 총 자산 가치
-  let totalDividends = 0;              // 누적 배당금 (현금 수령분)
+  let cashDividends = 0;               // 현금으로 수령한 배당금 (DRIP 비활성화 시만)
   let totalInvested = initialInvestment; // 총 투자 원금
+  let allDividendsReceived = 0;        // 모든 배당금 누적 (표시용)
   const yearlyData = [];
   
   let currentDividendYield = dividendYield / 100; // 현재 시가 배당률
@@ -201,36 +202,32 @@ function calculateDividendGrowth(params: {
     const grossYearlyDividend = totalValue * currentDividendYield;
     const netYearlyDividend = grossYearlyDividend * (1 - taxRate); // 세후 배당금
     
-    // 2. 배당금 처리
+    // 2. 모든 배당금 누적 (표시용)
+    allDividendsReceived += netYearlyDividend;
+    
+    // 3. 배당금 처리
     if (dripEnabled) {
       // DRIP: 세후 배당금을 자산에 재투자 (복리 효과 발생)
       totalValue += netYearlyDividend;
     } else {
       // 비DRIP: 배당금을 현금으로 수령
-      totalDividends += netYearlyDividend;
+      cashDividends += netYearlyDividend;
     }
     
-    // 3. 연간 월투자금 추가 (12개월분)
+    // 4. 연간 월투자금 추가 (12개월분)
     const yearlyInvestment = monthlyInvestment * 12;
     totalValue += yearlyInvestment;
     totalInvested += yearlyInvestment;
     
-    // 4. 누적 배당금 업데이트 (DRIP 여부와 관계없이 모든 배당금 누적 표시)
-    if (dripEnabled) {
-      // DRIP일 때는 totalDividends를 별도로 관리하지 않으므로 누적 계산
-      totalDividends += netYearlyDividend;
-    }
-    const cumulativeDividends = totalDividends;
-    
     // 5. 수익률 계산
-    const totalPortfolioValue = dripEnabled ? totalValue : (totalValue + totalDividends);
+    const totalPortfolioValue = dripEnabled ? totalValue : (totalValue + cashDividends);
     const returnPercentage = totalInvested > 0 ? ((totalPortfolioValue / totalInvested) - 1) * 100 : 0;
 
     yearlyData.push({
       year,
-      totalAssets: totalValue,                    // 자산 가치 (재투자된 배당금 포함)
-      cumulativeDividends: cumulativeDividends,   // 누적 배당금
-      annualDividends: netYearlyDividend,         // 연간 배당금 (세후)
+      totalAssets: totalValue,                    // 자산 가치 (DRIP 시 재투자된 배당금 포함)
+      cumulativeDividends: allDividendsReceived,  // 누적 배당금 (모든 배당금)
+      annualDividends: netYearlyDividend,         // 연초 배당금 (세후)
       totalInvested,                              // 총 투자 원금
       returnPercentage,                           // 총 수익률
     });
@@ -240,7 +237,7 @@ function calculateDividendGrowth(params: {
   }
 
   // 최종 결과값 계산
-  const finalPortfolioValue = dripEnabled ? totalValue : (totalValue + totalDividends);
+  const finalPortfolioValue = dripEnabled ? totalValue : (totalValue + cashDividends);
   
   // CAGR 계산 (연평균 복합 성장률)
   const cagr = totalInvested > 0 && investmentPeriod > 0 ? 
@@ -248,8 +245,7 @@ function calculateDividendGrowth(params: {
 
   return {
     finalAssets: finalPortfolioValue,
-    totalDividends: dripEnabled ? 
-      yearlyData.reduce((sum, data) => sum + data.annualDividends, 0) : totalDividends,
+    totalDividends: allDividendsReceived,  // 모든 배당금 누적
     cagr,
     yearlyData,
     totalInvested,
