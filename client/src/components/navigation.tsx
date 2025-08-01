@@ -1,10 +1,28 @@
 import { Link, useLocation } from "wouter";
-import { Calculator, BarChart3, Menu } from "lucide-react";
+import { Calculator, BarChart3, Menu, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
 
 export default function Navigation() {
   const [location] = useLocation();
+
+  const getCurrentLanguage = () => {
+    if (location.startsWith('/en')) return 'EN';
+    if (location.startsWith('/kr')) return 'KR';
+    return 'KR'; // default
+  };
+  
+  const getLanguageRedirect = (newLang: string) => {
+    if (newLang === 'en') return '/en';
+    if (newLang === 'kr') return '/kr';
+    return '/';
+  };
 
   const navItems: Array<{
     href: string;
@@ -53,9 +71,33 @@ export default function Navigation() {
             <Link href="/">
               <h1 className="text-xl font-bold text-gray-900 flex items-center">
                 <BarChart3 className="mr-2 h-6 w-6 text-primary" />
-                배당 재투자 계산기
+                {getCurrentLanguage() === 'EN' ? 'Dividend Reinvestment Calculator' : '배당 재투자 계산기'}
               </h1>
             </Link>
+          </div>
+
+          {/* Language Selector */}
+          <div className="flex items-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="ml-4">
+                  <Globe className="mr-2 h-4 w-4" />
+                  {getCurrentLanguage()}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href={getLanguageRedirect('kr')}>
+                    🇰🇷 한국어
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={getLanguageRedirect('en')}>
+                    🇺🇸 English
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Desktop Navigation - Hidden when no nav items */}

@@ -5,6 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Calculator from "@/pages/calculator";
+import CalculatorKR from "@/pages/calculator-kr";
+import CalculatorEN from "@/pages/calculator-en";
 import Comparison from "@/pages/comparison";
 import Navigation from "@/components/navigation";
 
@@ -12,6 +14,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Calculator} />
+      <Route path="/kr" component={CalculatorKR} />
+      <Route path="/en" component={CalculatorEN} />
       <Route path="/calculator" component={Calculator} />
       {/* <Route path="/comparison" component={Comparison} /> */}
       <Route component={NotFound} />
