@@ -195,10 +195,13 @@ function calculateDividendGrowth(params: {
   const yearlyData = [];
   
   let currentDividendYield = dividendYield / 100;
-  const monthlyDividendYield = currentDividendYield / 12;
 
   for (let year = 1; year <= investmentPeriod; year++) {
+    let yearStartValue = totalValue;
     let yearlyDividendTotal = 0;
+    
+    // Calculate monthly dividend yield for this year
+    const monthlyDividendYield = currentDividendYield / 12;
     
     // Process each month of the year
     for (let month = 1; month <= 12; month++) {
@@ -206,13 +209,13 @@ function calculateDividendGrowth(params: {
       totalValue += monthlyInvestment;
       totalInvested += monthlyInvestment;
       
-      // Calculate monthly dividend on current portfolio value
+      // Calculate monthly dividend on current portfolio value (before adding dividend)
       const grossMonthlyDividend = totalValue * monthlyDividendYield;
       const netMonthlyDividend = grossMonthlyDividend * (1 - taxRate);
       
       yearlyDividendTotal += netMonthlyDividend;
       
-      // Reinvest monthly dividend if DRIP is enabled
+      // Reinvest monthly dividend if DRIP is enabled (this creates compounding)
       if (dripEnabled) {
         totalValue += netMonthlyDividend;
       }
@@ -220,11 +223,9 @@ function calculateDividendGrowth(params: {
     
     totalDividends += yearlyDividendTotal;
     
-    // Apply dividend growth rate for next year
-    currentDividendYield *= (1 + dividendGrowthRate / 100);
-    
     // Calculate return percentage
-    const returnPercentage = ((totalValue + (dripEnabled ? 0 : totalDividends)) / totalInvested - 1) * 100;
+    const currentAssets = totalValue + (dripEnabled ? 0 : yearlyDividendTotal);
+    const returnPercentage = totalInvested > 0 ? ((currentAssets / totalInvested) - 1) * 100 : 0;
     
     yearlyData.push({
       year,
@@ -234,11 +235,23 @@ function calculateDividendGrowth(params: {
       totalInvested,
       returnPercentage,
     });
+    
+    // Apply dividend growth rate for next year
+    currentDividendYield *= (1 + dividendGrowthRate / 100);
   }
 
-  // Calculate CAGR
+  // Calculate CAGR - only if we have initial investment
   const finalValue = totalValue + (dripEnabled ? 0 : totalDividends);
-  const cagr = (Math.pow(finalValue / initialInvestment, 1 / investmentPeriod) - 1) * 100;
+  let cagr = 0;
+  
+  if (initialInvestment > 0) {
+    cagr = (Math.pow(finalValue / initialInvestment, 1 / investmentPeriod) - 1) * 100;
+  } else if (totalInvested > 0) {
+    // If no initial investment, calculate based on total invested vs final value
+    const avgAnnualInvestment = totalInvested / investmentPeriod;
+    const effectiveInitialInvestment = avgAnnualInvestment;
+    cagr = (Math.pow(finalValue / effectiveInitialInvestment, 1 / investmentPeriod) - 1) * 100;
+  }
 
   return {
     finalAssets: finalValue,
