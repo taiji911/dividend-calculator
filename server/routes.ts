@@ -189,82 +189,75 @@ function calculateDividendGrowth(params: {
 
   const taxRate = getTaxRate(taxCountry, taxType);
 
-  // Initialize variables
-  let An = initialInvestment; // A₀: 현재 자산
-  let Cn = 0; // C₀: 누적 배당금
-  let Tn = initialInvestment; // T₀: 누적 투자 원금
+  // [초기값]
+  let A = initialInvestment;  // A₀ = I₀
+  let D = dividendYield / 100;  // D₁ = D₀ 
+  let T = initialInvestment;  // T₀ = I₀
+  let C = 0;  // C₀ = 0
+
   const yearlyData = [];
 
-  let Dn = dividendYield / 100; // D₁: 현재 배당률
-
+  // [연도별 반복 계산: for n in 1 to Y]
   for (let year = 1; year <= investmentPeriod; year++) {
-    // 연간 투자금 (M × 12)
-    const annualInvestment = monthlyInvestment * 12;
+    const M_annual = monthlyInvestment * 12;  // M × 12
 
     if (dripEnabled) {
-      // DRIP 활성화: Aₙ = (Aₙ₋₁ + M × 12) + Bₙ
-      // 1. 연초 자산에 연간 투자금 더하기
-      const beginningAssets = An + annualInvestment;
-
-      // 2. 연초 자산 기준으로 배당금 계산: Bₙ = (Aₙ₋₁ + M × 12) × Dₙ
-      const grossDividend = beginningAssets * Dn;
-      const netDividend = grossDividend * (1 - taxRate);
-
-      // 3. 최종 자산 = 연초 자산 + 배당금 재투자
-      An = beginningAssets + netDividend;
-
-      // 4. 누적값 업데이트
-      Tn += annualInvestment;
-      Cn += netDividend;
+      // 1) DRIP == True (배당 재투자):
+      const A_base = A + M_annual;  // A_base = Aₙ₋₁ + (M × 12)
+      const B_gross = A_base * D;   // Bₙ = A_base × Dₙ (세전)
+      const B = B_gross * (1 - taxRate);  // 세후 배당금
+      
+      A = A_base + B;  // Aₙ = A_base + Bₙ
+      T = T + M_annual;  // Tₙ = Tₙ₋₁ + (M × 12)
+      C = C + B;  // Cₙ = Cₙ₋₁ + Bₙ
 
       // 수익률 계산
-      const returnPercentage = Tn > 0 ? ((An / Tn) - 1) * 100 : 0;
+      const returnPercentage = T > 0 ? ((A / T) - 1) * 100 : 0;
 
       yearlyData.push({
         year,
-        totalAssets: An,
-        cumulativeDividends: Cn,
-        annualDividends: netDividend,
-        totalInvested: Tn,
+        totalAssets: A,
+        cumulativeDividends: C,
+        annualDividends: B,
+        totalInvested: T,
         returnPercentage,
       });
 
     } else {
-      // DRIP 비활성화: Aₙ = Aₙ₋₁ + M × 12
-      // 1. 자산은 원금만 누적
-      An = An + annualInvestment;
-
-      // 2. 연초 자산 기준으로 배당금 계산: Bₙ = Aₙ × Dₙ
-      const grossDividend = An * Dn;
-      const netDividend = grossDividend * (1 - taxRate);
-
-      // 3. 누적값 업데이트
-      Tn += annualInvestment;
-      Cn += netDividend;
+      // 2) DRIP == False (배당 미재투자):
+      A = A + M_annual;  // Aₙ = Aₙ₋₁ + (M × 12)
+      const B_gross = A * D;  // Bₙ = Aₙ × Dₙ (세전)
+      const B = B_gross * (1 - taxRate);  // 세후 배당금
+      
+      T = T + M_annual;  // Tₙ = Tₙ₋₁ + (M × 12)
+      C = C + B;  // Cₙ = Cₙ₋₁ + Bₙ
 
       // 수익률 계산 (총 가치 = 자산 + 누적 배당금)
-      const totalValue = An + Cn;
-      const returnPercentage = Tn > 0 ? ((totalValue / Tn) - 1) * 100 : 0;
+      const totalValue = A + C;
+      const returnPercentage = T > 0 ? ((totalValue / T) - 1) * 100 : 0;
 
       yearlyData.push({
         year,
-        totalAssets: totalValue,
-        cumulativeDividends: Cn,
-        annualDividends: netDividend,
-        totalInvested: Tn,
+        totalAssets: A,  // DRIP 비활성화시에는 순수 자산만 표시
+        cumulativeDividends: C,
+        annualDividends: B,
+        totalInvested: T,
         returnPercentage,
       });
     }
 
-    // 5. 다음 해 배당률 성장: Dₙ₊₁ = Dₙ × (1 + G)
-    Dn *= (1 + dividendGrowthRate / 100);
+    // Dₙ₊₁ = Dₙ × (1 + G)
+    D = D * (1 + dividendGrowthRate / 100);
   }
 
+  // 최종 결과값 계산
+  const finalAssets = dripEnabled ? A : (A + C);
+
   return {
-    finalAssets: An,
-    totalDividends: Cn,
+    finalAssets,
+    totalDividends: C,
     cagr: 0, // TODO: Implement CAGR calculation
     yearlyData,
-    totalInvested: Tn,
+    totalInvested: T,
   };
 }
