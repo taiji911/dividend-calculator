@@ -189,75 +189,66 @@ function calculateDividendGrowth(params: {
 
   const taxRate = getTaxRate(taxCountry, taxType);
 
-  // [초기값]
-  let A = initialInvestment;  // A₀ = I₀
-  let D = dividendYield / 100;  // D₁ = D₀ 
-  let T = initialInvestment;  // T₀ = I₀
-  let C = 0;  // C₀ = 0
-
+  let totalValue = initialInvestment;  // 총 자산 가치
+  let totalDividends = 0;              // 누적 배당금 (현금 수령분)
+  let totalInvested = initialInvestment; // 총 투자 원금
   const yearlyData = [];
+  
+  let currentDividendYield = dividendYield / 100; // 현재 시가 배당률
 
-  // [연도별 반복 계산: for n in 1 to Y]
   for (let year = 1; year <= investmentPeriod; year++) {
-    const M_annual = monthlyInvestment * 12;  // M × 12
-
+    // 1. 연초 자산 기준으로 배당금 계산 (중요: 월투자금 추가 전 자산)
+    const grossYearlyDividend = totalValue * currentDividendYield;
+    const netYearlyDividend = grossYearlyDividend * (1 - taxRate); // 세후 배당금
+    
+    // 2. 배당금 처리
     if (dripEnabled) {
-      // 1) DRIP == True (배당 재투자):
-      const A_base = A + M_annual;  // A_base = Aₙ₋₁ + (M × 12)
-      const B_gross = A_base * D;   // Bₙ = A_base × Dₙ (세전)
-      const B = B_gross * (1 - taxRate);  // 세후 배당금
-      
-      A = A_base + B;  // Aₙ = A_base + Bₙ
-      T = T + M_annual;  // Tₙ = Tₙ₋₁ + (M × 12)
-      C = C + B;  // Cₙ = Cₙ₋₁ + Bₙ
-
-      // 수익률 계산
-      const returnPercentage = T > 0 ? ((A / T) - 1) * 100 : 0;
-
-      yearlyData.push({
-        year,
-        totalAssets: A,
-        cumulativeDividends: C,
-        annualDividends: B,
-        totalInvested: T,
-        returnPercentage,
-      });
-
+      // DRIP: 세후 배당금을 자산에 재투자 (복리 효과 발생)
+      totalValue += netYearlyDividend;
     } else {
-      // 2) DRIP == False (배당 미재투자):
-      A = A + M_annual;  // Aₙ = Aₙ₋₁ + (M × 12)
-      const B_gross = A * D;  // Bₙ = Aₙ × Dₙ (세전)
-      const B = B_gross * (1 - taxRate);  // 세후 배당금
-      
-      T = T + M_annual;  // Tₙ = Tₙ₋₁ + (M × 12)
-      C = C + B;  // Cₙ = Cₙ₋₁ + Bₙ
-
-      // 수익률 계산 (총 가치 = 자산 + 누적 배당금)
-      const totalValue = A + C;
-      const returnPercentage = T > 0 ? ((totalValue / T) - 1) * 100 : 0;
-
-      yearlyData.push({
-        year,
-        totalAssets: A,  // DRIP 비활성화시에는 순수 자산만 표시
-        cumulativeDividends: C,
-        annualDividends: B,
-        totalInvested: T,
-        returnPercentage,
-      });
+      // 비DRIP: 배당금을 현금으로 수령
+      totalDividends += netYearlyDividend;
     }
+    
+    // 3. 연간 월투자금 추가 (12개월분)
+    const yearlyInvestment = monthlyInvestment * 12;
+    totalValue += yearlyInvestment;
+    totalInvested += yearlyInvestment;
+    
+    // 4. 누적 배당금 업데이트 (DRIP/비DRIP 구분 없이 모든 배당금 누적)
+    const cumulativeDividends = dripEnabled ? 
+      totalDividends + netYearlyDividend : totalDividends;
+    
+    // 5. 수익률 계산
+    const totalPortfolioValue = dripEnabled ? totalValue : (totalValue + totalDividends);
+    const returnPercentage = totalInvested > 0 ? ((totalPortfolioValue / totalInvested) - 1) * 100 : 0;
 
-    // Dₙ₊₁ = Dₙ × (1 + G)
-    D = D * (1 + dividendGrowthRate / 100);
+    yearlyData.push({
+      year,
+      totalAssets: totalValue,                    // 자산 가치 (재투자된 배당금 포함)
+      cumulativeDividends: cumulativeDividends,   // 누적 배당금
+      annualDividends: netYearlyDividend,         // 연간 배당금 (세후)
+      totalInvested,                              // 총 투자 원금
+      returnPercentage,                           // 총 수익률
+    });
+    
+    // 6. 다음 해 배당 성장률 적용
+    currentDividendYield = currentDividendYield * (1 + dividendGrowthRate / 100);
   }
 
   // 최종 결과값 계산
-  const finalAssets = dripEnabled ? A : (A + C);
+  const finalPortfolioValue = dripEnabled ? totalValue : (totalValue + totalDividends);
+  
+  // CAGR 계산 (연평균 복합 성장률)
+  const cagr = totalInvested > 0 && investmentPeriod > 0 ? 
+    (Math.pow(finalPortfolioValue / totalInvested, 1 / investmentPeriod) - 1) * 100 : 0;
 
   return {
-    finalAssets,
-    totalDividends: C,
-    cagr: 0, // TODO: Implement CAGR calculation
+    finalAssets: finalPortfolioValue,
+    totalDividends: dripEnabled ? 
+      yearlyData.reduce((sum, data) => sum + data.annualDividends, 0) : totalDividends,
+    cagr,
     yearlyData,
-    totalInvested: T,
+    totalInvested,
   };
 }
