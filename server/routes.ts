@@ -215,9 +215,12 @@ function calculateDividendGrowth(params: {
     totalValue += yearlyInvestment;
     totalInvested += yearlyInvestment;
     
-    // 4. 누적 배당금 업데이트 (DRIP/비DRIP 구분 없이 모든 배당금 누적)
-    const cumulativeDividends = dripEnabled ? 
-      totalDividends + netYearlyDividend : totalDividends;
+    // 4. 누적 배당금 업데이트 (DRIP 여부와 관계없이 모든 배당금 누적 표시)
+    if (dripEnabled) {
+      // DRIP일 때는 totalDividends를 별도로 관리하지 않으므로 누적 계산
+      totalDividends += netYearlyDividend;
+    }
+    const cumulativeDividends = totalDividends;
     
     // 5. 수익률 계산
     const totalPortfolioValue = dripEnabled ? totalValue : (totalValue + totalDividends);
