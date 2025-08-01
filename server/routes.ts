@@ -195,24 +195,30 @@ function calculateDividendGrowth(params: {
   const yearlyData = [];
   
   let currentDividendYield = dividendYield / 100;
+  const monthlyDividendYield = currentDividendYield / 12;
 
   for (let year = 1; year <= investmentPeriod; year++) {
-    // Calculate gross dividends based on portfolio value at beginning of year (before adding this year's investments)
-    const grossYearlyDividend = totalValue * currentDividendYield;
+    let yearlyDividendTotal = 0;
     
-    // Apply tax to dividends
-    const netYearlyDividend = grossYearlyDividend * (1 - taxRate);
-    totalDividends += netYearlyDividend;
-    
-    // Reinvest dividends if DRIP is enabled (using net dividends after tax)
-    if (dripEnabled) {
-      totalValue += netYearlyDividend;
+    // Process each month of the year
+    for (let month = 1; month <= 12; month++) {
+      // Add monthly investment at the beginning of the month
+      totalValue += monthlyInvestment;
+      totalInvested += monthlyInvestment;
+      
+      // Calculate monthly dividend on current portfolio value
+      const grossMonthlyDividend = totalValue * monthlyDividendYield;
+      const netMonthlyDividend = grossMonthlyDividend * (1 - taxRate);
+      
+      yearlyDividendTotal += netMonthlyDividend;
+      
+      // Reinvest monthly dividend if DRIP is enabled
+      if (dripEnabled) {
+        totalValue += netMonthlyDividend;
+      }
     }
     
-    // Add monthly investments throughout the year
-    const yearlyInvestment = monthlyInvestment * 12;
-    totalValue += yearlyInvestment;
-    totalInvested += yearlyInvestment;
+    totalDividends += yearlyDividendTotal;
     
     // Apply dividend growth rate for next year
     currentDividendYield *= (1 + dividendGrowthRate / 100);
@@ -224,7 +230,7 @@ function calculateDividendGrowth(params: {
       year,
       totalAssets: totalValue + (dripEnabled ? 0 : totalDividends),
       cumulativeDividends: totalDividends,
-      annualDividends: netYearlyDividend,
+      annualDividends: yearlyDividendTotal,
       totalInvested,
       returnPercentage,
     });
