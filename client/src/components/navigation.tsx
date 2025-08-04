@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Calculator, BarChart3, Menu, Globe, CalendarDays } from "lucide-react";
+import { Calculator, BarChart3, Menu, Globe, CalendarDays, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { 
@@ -30,12 +30,18 @@ export default function Navigation() {
     icon: any;
     isActive: boolean;
   }> = [
-    // {
-    //   href: "/calculator",
-    //   label: "메인 계산기",
-    //   icon: Calculator,
-    //   isActive: location === "/" || location === "/calculator",
-    // },
+    {
+      href: getCurrentLanguage() === 'EN' ? "/en" : "/kr",
+      label: getCurrentLanguage() === 'EN' ? "Dividend Calculator" : "배당 재투자 계산기",
+      icon: Calculator,
+      isActive: location === "/" || location === "/kr" || location === "/en" || location === "/calculator",
+    },
+    {
+      href: getCurrentLanguage() === 'EN' ? "/en/fire" : "/fire",
+      label: getCurrentLanguage() === 'EN' ? "FIRE Calculator" : "FIRE 계산기",
+      icon: Target,
+      isActive: location === "/fire" || location === "/kr/fire" || location === "/en/fire",
+    },
     // {
     //   href: "/comparison",
     //   label: "종목 비교",

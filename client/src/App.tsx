@@ -21,6 +21,7 @@ function Router() {
       <Route path="/calculator" component={Calculator} />
       <Route path="/fire" component={FireCalculator} />
       <Route path="/kr/fire" component={FireCalculator} />
+      <Route path="/en/fire" component={FireCalculator} />
       
       {/* <Route path="/comparison" component={Comparison} /> */}
       <Route component={NotFound} />

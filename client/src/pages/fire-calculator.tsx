@@ -1,10 +1,11 @@
 
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Calculator, TrendingUp, Calendar, Target, Info } from "lucide-react";
+import { Calculator, TrendingUp, Calendar, Target, Info, Share2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, ReferenceLine } from "recharts";
 
@@ -18,12 +19,28 @@ interface FireData {
 }
 
 export default function FireCalculator() {
-  const [income, setIncome] = useState<number>(50000000);
-  const [expenses, setExpenses] = useState<number>(30000000);
-  const [initialAssets, setInitialAssets] = useState<number>(10000000);
-  const [returnRate, setReturnRate] = useState<number>(5);
-  const [withdrawalRate, setWithdrawalRate] = useState<number>(4);
-  const [currentAge, setCurrentAge] = useState<number>(30);
+  const [location] = useLocation();
+  
+  // Initialize state from URL parameters or defaults
+  const getUrlParams = () => {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      income: Number(params.get('income')) || 50000000,
+      expenses: Number(params.get('expenses')) || 30000000,
+      initialAssets: Number(params.get('initialAssets')) || 10000000,
+      returnRate: Number(params.get('returnRate')) || 5,
+      withdrawalRate: Number(params.get('withdrawalRate')) || 4,
+      currentAge: Number(params.get('currentAge')) || 30,
+    };
+  };
+
+  const urlParams = getUrlParams();
+  const [income, setIncome] = useState<number>(urlParams.income);
+  const [expenses, setExpenses] = useState<number>(urlParams.expenses);
+  const [initialAssets, setInitialAssets] = useState<number>(urlParams.initialAssets);
+  const [returnRate, setReturnRate] = useState<number>(urlParams.returnRate);
+  const [withdrawalRate, setWithdrawalRate] = useState<number>(urlParams.withdrawalRate);
+  const [currentAge, setCurrentAge] = useState<number>(urlParams.currentAge);
   const [results, setResults] = useState<{
     yearsToFire: number;
     fireYear: number;
@@ -132,12 +149,45 @@ export default function FireCalculator() {
   useEffect(() => {
     if (income > 0 && expenses > 0 && income > expenses) {
       calculateFire();
+      updateUrlParams();
     }
   }, [income, expenses, initialAssets, returnRate, withdrawalRate, currentAge]);
 
   const formatNumberInput = (value: string) => {
     const num = parseFloat(value.replace(/,/g, ""));
     return isNaN(num) ? 0 : num;
+  };
+
+  // Update URL parameters when inputs change
+  const updateUrlParams = () => {
+    const params = new URLSearchParams();
+    params.set('income', income.toString());
+    params.set('expenses', expenses.toString());
+    params.set('initialAssets', initialAssets.toString());
+    params.set('returnRate', returnRate.toString());
+    params.set('withdrawalRate', withdrawalRate.toString());
+    params.set('currentAge', currentAge.toString());
+    
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState({}, '', newUrl);
+  };
+
+  // Share current calculation
+  const shareCalculation = () => {
+    const params = new URLSearchParams();
+    params.set('income', income.toString());
+    params.set('expenses', expenses.toString());
+    params.set('initialAssets', initialAssets.toString());
+    params.set('returnRate', returnRate.toString());
+    params.set('withdrawalRate', withdrawalRate.toString());
+    params.set('currentAge', currentAge.toString());
+    
+    const shareUrl = `${window.location.origin}${window.location.pathname}?${params.toString()}`;
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      alert('링크가 클립보드에 복사되었습니다!');
+    }).catch(() => {
+      alert(`공유 링크: ${shareUrl}`);
+    });
   };
 
   return (
@@ -329,13 +379,26 @@ export default function FireCalculator() {
                 </div>
               </div>
 
-              <Button 
-                onClick={calculateFire} 
-                className="w-full"
-              >
-                <Calculator className="mr-2 h-4 w-4" />
-                FIRE 계산하기
-              </Button>
+              <div className="space-y-2">
+                <Button 
+                  onClick={calculateFire} 
+                  className="w-full"
+                >
+                  <Calculator className="mr-2 h-4 w-4" />
+                  FIRE 계산하기
+                </Button>
+                
+                {results && (
+                  <Button 
+                    onClick={shareCalculation} 
+                    variant="outline"
+                    className="w-full"
+                  >
+                    <Share2 className="mr-2 h-4 w-4" />
+                    계산 결과 공유
+                  </Button>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
