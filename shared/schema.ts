@@ -72,3 +72,15 @@ export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
 });
+
+// Dividend Calendar Types
+export interface DividendEvent {
+  symbol: string;
+  date: string;
+  label: string;
+  adjDividend: number;
+  dividend: number;
+  recordDate: string;
+  paymentDate: string;
+  declarationDate: string;
+}

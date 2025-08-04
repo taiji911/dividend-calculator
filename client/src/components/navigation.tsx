@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Calculator, BarChart3, Menu, Globe } from "lucide-react";
+import { Calculator, BarChart3, Menu, Globe, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { 
@@ -68,7 +68,7 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link href="/">
+            <Link href={getCurrentLanguage() === 'EN' ? '/en' : '/kr'}>
               <h1 className="text-xl font-bold text-gray-900 flex items-center">
                 <BarChart3 className="mr-2 h-6 w-6 text-primary" />
                 {getCurrentLanguage() === 'EN' ? 'Dividend Reinvestment Calculator' : '배당 재투자 계산기'}
@@ -76,11 +76,23 @@ export default function Navigation() {
             </Link>
           </div>
 
-          {/* Language Selector */}
-          <div className="flex items-center">
+          <div className="flex items-center space-x-4">
+            {/* Calendar Link */}
+            <Link href={getCurrentLanguage() === 'EN' ? '/en/calendar' : '/calendar'}>
+              <Button 
+                variant={location.includes('calendar') ? "default" : "ghost"} 
+                size="sm"
+                className="flex items-center"
+              >
+                <CalendarDays className="h-4 w-4 mr-2" />
+                {getCurrentLanguage() === 'EN' ? 'Dividend Calendar' : '배당 달력'}
+              </Button>
+            </Link>
+            
+            {/* Language Selector */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="ml-4">
+                <Button variant="outline" size="sm">
                   <Globe className="mr-2 h-4 w-4" />
                   {getCurrentLanguage()}
                 </Button>

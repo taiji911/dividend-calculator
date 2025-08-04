@@ -150,6 +150,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Dividend Calendar API
+  app.get("/api/dividend-calendar", async (req, res) => {
+    try {
+      const { from, to } = req.query;
+      
+      if (!from || !to) {
+        return res.status(400).json({ error: "from and to dates are required" });
+      }
+
+      const apiKey = process.env.FMP_API_KEY || "demo";
+      const url = `https://financialmodelingprep.com/api/v3/stock_dividend_calendar?from=${from}&to=${to}&apikey=${apiKey}`;
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Transform the data to match our DividendEvent interface
+      const transformedData = Array.isArray(data) ? data.map((item: any) => ({
+        symbol: item.symbol || '',
+        date: item.date || '',
+        label: item.label || '',
+        adjDividend: item.adjDividend || 0,
+        dividend: item.dividend || 0,
+        recordDate: item.recordDate || '',
+        paymentDate: item.paymentDate || '',
+        declarationDate: item.declarationDate || ''
+      })) : [];
+      
+      res.json(transformedData);
+    } catch (error) {
+      console.error("Dividend calendar API error:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch dividend calendar data",
+        message: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
@@ -257,3 +299,4 @@ function calculateDividendGrowth(params: {
     totalInvested,
   };
 }
+
