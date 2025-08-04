@@ -8,7 +8,8 @@ import Calculator from "@/pages/calculator";
 import CalculatorKR from "@/pages/calculator-kr";
 import CalculatorEN from "@/pages/calculator-en";
 import Comparison from "@/pages/comparison";
-import DividendCalendar from "@/pages/dividend-calendar";
+import FireCalculator from "@/pages/fire-calculator";
+
 import Navigation from "@/components/navigation";
 
 function Router() {
@@ -18,8 +19,9 @@ function Router() {
       <Route path="/kr" component={CalculatorKR} />
       <Route path="/en" component={CalculatorEN} />
       <Route path="/calculator" component={Calculator} />
-      <Route path="/calendar" component={DividendCalendar} />
-      <Route path="/en/calendar" component={DividendCalendar} />
+      <Route path="/fire" component={FireCalculator} />
+      <Route path="/kr/fire" component={FireCalculator} />
+      
       {/* <Route path="/comparison" component={Comparison} /> */}
       <Route component={NotFound} />
     </Switch>

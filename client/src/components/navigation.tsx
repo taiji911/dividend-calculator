@@ -17,7 +17,7 @@ export default function Navigation() {
     if (location.startsWith('/kr')) return 'KR';
     return 'KR'; // default
   };
-  
+
   const getLanguageRedirect = (newLang: string) => {
     if (newLang === 'en') return '/en';
     if (newLang === 'kr') return '/kr';
@@ -78,17 +78,8 @@ export default function Navigation() {
 
           <div className="flex items-center space-x-4">
             {/* Calendar Link */}
-            <Link href={getCurrentLanguage() === 'EN' ? '/en/calendar' : '/calendar'}>
-              <Button 
-                variant={location.includes('calendar') ? "default" : "ghost"} 
-                size="sm"
-                className="flex items-center"
-              >
-                <CalendarDays className="h-4 w-4 mr-2" />
-                {getCurrentLanguage() === 'EN' ? 'Dividend Calendar' : '배당 달력'}
-              </Button>
-            </Link>
             
+
             {/* Language Selector */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -141,3 +132,842 @@ export default function Navigation() {
     </nav>
   );
 }
+```
+
+```
+import { Link, useLocation } from "wouter";
+import { Calculator, BarChart3, Menu, Globe, CalendarDays } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+
+export default function Navigation() {
+  const [location] = useLocation();
+
+  const getCurrentLanguage = () => {
+    if (location.startsWith('/en')) return 'EN';
+    if (location.startsWith('/kr')) return 'KR';
+    return 'KR'; // default
+  };
+
+  const getLanguageRedirect = (newLang: string) => {
+    if (newLang === 'en') return '/en';
+    if (newLang === 'kr') return '/kr';
+    return '/';
+  };
+
+  const navItems: Array<{
+    href: string;
+    label: string;
+    icon: any;
+    isActive: boolean;
+  }> = [
+    // {
+    //   href: "/calculator",
+    //   label: "메인 계산기",
+    //   icon: Calculator,
+    //   isActive: location === "/" || location === "/calculator",
+    // },
+    // {
+    //   href: "/comparison",
+    //   label: "종목 비교",
+    //   icon: BarChart3,
+    //   isActive: location === "/comparison",
+    // },
+  ];
+
+  const NavContent = () => (
+    <>
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link key={item.href} href={item.href}>
+            <Button
+              variant={item.isActive ? "default" : "ghost"}
+              className="w-full justify-start"
+            >
+              <Icon className="mr-2 h-4 w-4" />
+              {item.label}
+            </Button>
+          </Link>
+        );
+      })}
+    </>
+  );
+
+  return (
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <Link href={getCurrentLanguage() === 'EN' ? '/en' : '/kr'}>
+              <h1 className="text-xl font-bold text-gray-900 flex items-center">
+                <BarChart3 className="mr-2 h-6 w-6 text-primary" />
+                {getCurrentLanguage() === 'EN' ? 'Dividend Reinvestment Calculator' : '배당 재투자 계산기'}
+              </h1>
+            </Link>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            {/* Calendar Link */}
+            
+
+            {/* Language Selector */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Globe className="mr-2 h-4 w-4" />
+                  {getCurrentLanguage()}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href={getLanguageRedirect('kr')}>
+                    🇰🇷 한국어
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={getLanguageRedirect('en')}>
+                    🇺🇸 English
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Desktop Navigation - Hidden when no nav items */}
+          {navItems.length > 0 && (
+            <div className="hidden md:flex items-center space-x-4">
+              <NavContent />
+            </div>
+          )}
+
+          {/* Mobile Navigation - Hidden when no nav items */}
+          
+        </div>
+      </div>
+    </nav>
+  );
+}
+```
+
+```typescript
+import { Link, useLocation } from "wouter";
+import { Calculator, BarChart3, Menu, Globe, CalendarDays } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+
+export default function Navigation() {
+  const [location] = useLocation();
+
+  const getCurrentLanguage = () => {
+    if (location.startsWith('/en')) return 'EN';
+    if (location.startsWith('/kr')) return 'KR';
+    return 'KR'; // default
+  };
+
+  const getLanguageRedirect = (newLang: string) => {
+    if (newLang === 'en') return '/en';
+    if (newLang === 'kr') return '/kr';
+    return '/';
+  };
+
+  const navItems: Array<{
+    href: string;
+    label: string;
+    icon: any;
+    isActive: boolean;
+  }> = [
+    // {
+    //   href: "/calculator",
+    //   label: "메인 계산기",
+    //   icon: Calculator,
+    //   isActive: location === "/" || location === "/calculator",
+    // },
+    // {
+    //   href: "/comparison",
+    //   label: "종목 비교",
+    //   icon: BarChart3,
+    //   isActive: location === "/comparison",
+    // },
+  ];
+
+  const NavContent = () => (
+    <>
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link key={item.href} href={item.href}>
+            <Button
+              variant={item.isActive ? "default" : "ghost"}
+              className="w-full justify-start"
+            >
+              <Icon className="mr-2 h-4 w-4" />
+              {item.label}
+            </Button>
+          </Link>
+        );
+      })}
+    </>
+  );
+
+  return (
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <Link href={getCurrentLanguage() === 'EN' ? '/en' : '/kr'}>
+              <h1 className="text-xl font-bold text-gray-900 flex items-center">
+                <BarChart3 className="mr-2 h-6 w-6 text-primary" />
+                {getCurrentLanguage() === 'EN' ? 'Dividend Reinvestment Calculator' : '배당 재투자 계산기'}
+              </h1>
+            </Link>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            {/* Calendar Link */}
+            
+
+            {/* Language Selector */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Globe className="mr-2 h-4 w-4" />
+                  {getCurrentLanguage()}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href={getLanguageRedirect('kr')}>
+                    🇰🇷 한국어
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={getLanguageRedirect('en')}>
+                    🇺🇸 English
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Desktop Navigation - Hidden when no nav items */}
+          {navItems.length > 0 && (
+            <div className="hidden md:flex items-center space-x-4">
+              <NavContent />
+            </div>
+          )}
+
+          {/* Mobile Navigation - Hidden when no nav items */}
+          {navItems.length > 0 && (
+            <div className="md:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-64">
+                  <div className="flex flex-col space-y-4 mt-4">
+                  <SheetClose asChild>
+                <Link href="/kr" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900">
+                  배당 재투자 계산기
+                </Link>
+              </SheetClose>
+              <SheetClose asChild>
+                <Link href="/fire" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900">
+                  FIRE 계산기
+                </Link>
+              </SheetClose>
+                    <NavContent />
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+          )}
+        </div>
+      </div>
+    </nav>
+  );
+}
+```
+
+```typescript
+import { Link, useLocation } from "wouter";
+import { Calculator, BarChart3, Menu, Globe, CalendarDays } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+
+export default function Navigation() {
+  const [location] = useLocation();
+
+  const getCurrentLanguage = () => {
+    if (location.startsWith('/en')) return 'EN';
+    if (location.startsWith('/kr')) return 'KR';
+    return 'KR'; // default
+  };
+
+  const getLanguageRedirect = (newLang: string) => {
+    if (newLang === 'en') return '/en';
+    if (newLang === 'kr') return '/kr';
+    return '/';
+  };
+
+  const navItems: Array<{
+    href: string;
+    label: string;
+    icon: any;
+    isActive: boolean;
+  }> = [
+    // {
+    //   href: "/calculator",
+    //   label: "메인 계산기",
+    //   icon: Calculator,
+    //   isActive: location === "/" || location === "/calculator",
+    // },
+    // {
+    //   href: "/comparison",
+    //   label: "종목 비교",
+    //   icon: BarChart3,
+    //   isActive: location === "/comparison",
+    // },
+  ];
+
+  const NavContent = () => (
+    <>
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link key={item.href} href={item.href}>
+            <Button
+              variant={item.isActive ? "default" : "ghost"}
+              className="w-full justify-start"
+            >
+              <Icon className="mr-2 h-4 w-4" />
+              {item.label}
+            </Button>
+          </Link>
+        );
+      })}
+    </>
+  );
+
+  return (
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <Link href={getCurrentLanguage() === 'EN' ? '/en' : '/kr'}>
+              <h1 className="text-xl font-bold text-gray-900 flex items-center">
+                <BarChart3 className="mr-2 h-6 w-6 text-primary" />
+                {getCurrentLanguage() === 'EN' ? 'Dividend Reinvestment Calculator' : '배당 재투자 계산기'}
+              </h1>
+            </Link>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            {/* Calendar Link */}
+            
+
+            {/* Language Selector */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Globe className="mr-2 h-4 w-4" />
+                  {getCurrentLanguage()}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href={getLanguageRedirect('kr')}>
+                    🇰🇷 한국어
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={getLanguageRedirect('en')}>
+                    🇺🇸 English
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Desktop Navigation - Hidden when no nav items */}
+          {navItems.length > 0 && (
+            <div className="hidden md:flex items-center space-x-4">
+              
+            </div>
+          )}
+
+          {/* Mobile Navigation - Hidden when no nav items */}
+          {navItems.length > 0 && (
+            <div className="md:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-64">
+                  <div className="flex flex-col space-y-4 mt-4">
+                  <SheetClose asChild>
+                <Link href="/kr" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900">
+                  배당 재투자 계산기
+                </Link>
+              </SheetClose>
+              <SheetClose asChild>
+                <Link href="/fire" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900">
+                  FIRE 계산기
+                </Link>
+              </SheetClose>
+                    
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+          )}
+        </div>
+      </div>
+    </nav>
+  );
+}
+```
+
+```typescript
+import { Link, useLocation } from "wouter";
+import { Calculator, BarChart3, Menu, Globe, CalendarDays } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+
+export default function Navigation() {
+  const [location] = useLocation();
+
+  const getCurrentLanguage = () => {
+    if (location.startsWith('/en')) return 'EN';
+    if (location.startsWith('/kr')) return 'KR';
+    return 'KR'; // default
+  };
+
+  const getLanguageRedirect = (newLang: string) => {
+    if (newLang === 'en') return '/en';
+    if (newLang === 'kr') return '/kr';
+    return '/';
+  };
+
+  const navItems: Array<{
+    href: string;
+    label: string;
+    icon: any;
+    isActive: boolean;
+  }> = [
+    // {
+    //   href: "/calculator",
+    //   label: "메인 계산기",
+    //   icon: Calculator,
+    //   isActive: location === "/" || location === "/calculator",
+    // },
+    // {
+    //   href: "/comparison",
+    //   label: "종목 비교",
+    //   icon: BarChart3,
+    //   isActive: location === "/comparison",
+    // },
+  ];
+
+  const NavContent = () => (
+    <>
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link key={item.href} href={item.href}>
+            <Button
+              variant={item.isActive ? "default" : "ghost"}
+              className="w-full justify-start"
+            >
+              <Icon className="mr-2 h-4 w-4" />
+              {item.label}
+            </Button>
+          </Link>
+        );
+      })}
+    </>
+  );
+
+  return (
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <Link href={getCurrentLanguage() === 'EN' ? '/en' : '/kr'}>
+              <h1 className="text-xl font-bold text-gray-900 flex items-center">
+                <BarChart3 className="mr-2 h-6 w-6 text-primary" />
+                {getCurrentLanguage() === 'EN' ? 'Dividend Reinvestment Calculator' : '배당 재투자 계산기'}
+              </h1>
+            </Link>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            {/* Calendar Link */}
+            
+
+            {/* Language Selector */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Globe className="mr-2 h-4 w-4" />
+                  {getCurrentLanguage()}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href={getLanguageRedirect('kr')}>
+                    🇰🇷 한국어
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={getLanguageRedirect('en')}>
+                    🇺🇸 English
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* Desktop Navigation - Hidden when no nav items */}
+          
+          {/* Mobile Navigation - Hidden when no nav items */}
+          {navItems.length > 0 && (
+            <div className="md:hidden">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-64">
+                  <div className="flex flex-col space-y-4 mt-4">
+                  <SheetClose asChild>
+                <Link href="/kr" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900">
+                  배당 재투자 계산기
+                </Link>
+              </SheetClose>
+              <SheetClose asChild>
+                <Link href="/fire" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900">
+                  FIRE 계산기
+                </Link>
+              </SheetClose>
+                    
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+          )}
+        </div>
+      </div>
+    </nav>
+  );
+}
+```
+
+```typescript
+import { Link, useLocation } from "wouter";
+import { Calculator, BarChart3, Menu, Globe, CalendarDays } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+
+export default function Navigation() {
+  const [location] = useLocation();
+
+  const getCurrentLanguage = () => {
+    if (location.startsWith('/en')) return 'EN';
+    if (location.startsWith('/kr')) return 'KR';
+    return 'KR'; // default
+  };
+
+  const getLanguageRedirect = (newLang: string) => {
+    if (newLang === 'en') return '/en';
+    if (newLang === 'kr') return '/kr';
+    return '/';
+  };
+
+  const navItems: Array<{
+    href: string;
+    label: string;
+    icon: any;
+    isActive: boolean;
+  }> = [
+    // {
+    //   href: "/calculator",
+    //   label: "메인 계산기",
+    //   icon: Calculator,
+    //   isActive: location === "/" || location === "/calculator",
+    // },
+    // {
+    //   href: "/comparison",
+    //   label: "종목 비교",
+    //   icon: BarChart3,
+    //   isActive: location === "/comparison",
+    // },
+  ];
+
+  const NavContent = () => (
+    <>
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link key={item.href} href={item.href}>
+            <Button
+              variant={item.isActive ? "default" : "ghost"}
+              className="w-full justify-start"
+            >
+              <Icon className="mr-2 h-4 w-4" />
+              {item.label}
+            </Button>
+          </Link>
+        );
+      })}
+    </>
+  );
+
+  return (
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <Link href={getCurrentLanguage() === 'EN' ? '/en' : '/kr'}>
+              <h1 className="text-xl font-bold text-gray-900 flex items-center">
+                <BarChart3 className="mr-2 h-6 w-6 text-primary" />
+                {getCurrentLanguage() === 'EN' ? 'Dividend Reinvestment Calculator' : '배당 재투자 계산기'}
+              </h1>
+            </Link>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            {/* Calendar Link */}
+            
+
+            {/* Language Selector */}
+            
+          </div>
+
+          {/* Desktop Navigation - Hidden when no nav items */}
+          
+          {/* Mobile Navigation - Hidden when no nav items */}
+          
+        </div>
+      </div>
+    </nav>
+  );
+}
+```
+
+```typescript
+import { Link, useLocation } from "wouter";
+import { Calculator, BarChart3, Menu, Globe, CalendarDays } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+
+export default function Navigation() {
+  const [location] = useLocation();
+
+  const getCurrentLanguage = () => {
+    if (location.startsWith('/en')) return 'EN';
+    if (location.startsWith('/kr')) return 'KR';
+    return 'KR'; // default
+  };
+
+  const getLanguageRedirect = (newLang: string) => {
+    if (newLang === 'en') return '/en';
+    if (newLang === 'kr') return '/kr';
+    return '/';
+  };
+
+  const navItems: Array<{
+    href: string;
+    label: string;
+    icon: any;
+    isActive: boolean;
+  }> = [
+    // {
+    //   href: "/calculator",
+    //   label: "메인 계산기",
+    //   icon: Calculator,
+    //   isActive: location === "/" || location === "/calculator",
+    // },
+    // {
+    //   href: "/comparison",
+    //   label: "종목 비교",
+    //   icon: BarChart3,
+    //   isActive: location === "/comparison",
+    // },
+  ];
+
+  const NavContent = () => (
+    <>
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link key={item.href} href={item.href}>
+            <Button
+              variant={item.isActive ? "default" : "ghost"}
+              className="w-full justify-start"
+            >
+              <Icon className="mr-2 h-4 w-4" />
+              {item.label}
+            </Button>
+          </Link>
+        );
+      })}
+    </>
+  );
+
+  return (
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <Link href={getCurrentLanguage() === 'EN' ? '/en' : '/kr'}>
+              <h1 className="text-xl font-bold text-gray-900 flex items-center">
+                <BarChart3 className="mr-2 h-6 w-6 text-primary" />
+                {getCurrentLanguage() === 'EN' ? 'Dividend Reinvestment Calculator' : '배당 재투자 계산기'}
+              </h1>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+}
+```
+```typescript
+import { Link, useLocation } from "wouter";
+import { Calculator, BarChart3, Menu, Globe, CalendarDays } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+
+export default function Navigation() {
+  const [location] = useLocation();
+
+  const getCurrentLanguage = () => {
+    if (location.startsWith('/en')) return 'EN';
+    if (location.startsWith('/kr')) return 'KR';
+    return 'KR'; // default
+  };
+
+  const getLanguageRedirect = (newLang: string) => {
+    if (newLang === 'en') return '/en';
+    if (newLang === 'kr') return '/kr';
+    return '/';
+  };
+
+  const navItems: Array<{
+    href: string;
+    label: string;
+    icon: any;
+    isActive: boolean;
+  }> = [
+    // {
+    //   href: "/calculator",
+    //   label: "메인 계산기",
+    //   icon: Calculator,
+    //   isActive: location === "/" || location === "/calculator",
+    // },
+    // {
+    //   href: "/comparison",
+    //   label: "종목 비교",
+    //   icon: BarChart3,
+    //   isActive: location === "/comparison",
+    // },
+  ];
+
+  const NavContent = () => (
+    <>
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link key={item.href} href={item.href}>
+            <Button
+              variant={item.isActive ? "default" : "ghost"}
+              className="w-full justify-start"
+            >
+              <Icon className="mr-2 h-4 w-4" />
+              {item.label}
+            </Button>
+          </Link>
+        );
+      })}
+    </>
+  );
+
+  return (
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <Link href={getCurrentLanguage() === 'EN' ? '/en' : '/kr'}>
+              <h1 className="text-xl font-bold text-gray-900 flex items-center">
+                <BarChart3 className="mr-2 h-6 w-6 text-primary" />
+                {getCurrentLanguage() === 'EN' ? 'Dividend Reinvestment Calculator' : '배당 재투자 계산기'}
+              </h1>
+            </Link>
+          </div>
+
+          <div className="flex items-center space-x-4">
+            {/* Calendar Link */}
+            
+
+            {/* Language Selector */}
+            
+          </div>
+
+          {/* Desktop Navigation - Hidden when no nav items */}
+          
+          {/* Mobile Navigation - Hidden when no nav items */}
+          
+        </div>
+      </div>
+    </nav>
+  );
+}
+```

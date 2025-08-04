@@ -150,48 +150,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Dividend Calendar API
-  app.get("/api/dividend-calendar", async (req, res) => {
-    try {
-      const { from, to } = req.query;
-      
-      if (!from || !to) {
-        return res.status(400).json({ error: "from and to dates are required" });
-      }
-
-      const apiKey = process.env.FMP_API_KEY || "demo";
-      const url = `https://financialmodelingprep.com/api/v3/stock_dividend_calendar?from=${from}&to=${to}&apikey=${apiKey}`;
-      
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      // Transform the data to match our DividendEvent interface
-      const transformedData = Array.isArray(data) ? data.map((item: any) => ({
-        symbol: item.symbol || '',
-        date: item.date || '',
-        label: item.label || '',
-        adjDividend: item.adjDividend || 0,
-        dividend: item.dividend || 0,
-        recordDate: item.recordDate || '',
-        paymentDate: item.paymentDate || '',
-        declarationDate: item.declarationDate || ''
-      })) : [];
-      
-      res.json(transformedData);
-    } catch (error) {
-      console.error("Dividend calendar API error:", error);
-      res.status(500).json({ 
-        error: "Failed to fetch dividend calendar data",
-        message: error instanceof Error ? error.message : "Unknown error"
-      });
-    }
-  });
-
   const httpServer = createServer(app);
   return httpServer;
 }
@@ -241,17 +199,17 @@ function calculateDividendGrowth(params: {
   let totalInvested = initialInvestment; // 총 투자 원금
   let allDividendsReceived = 0;        // 모든 배당금 누적 (표시용)
   const yearlyData = [];
-  
+
   let currentDividendYield = dividendYield / 100; // 현재 시가 배당률
 
   for (let year = 1; year <= investmentPeriod; year++) {
     // 1. 연초 자산 기준으로 배당금 계산 (중요: 월투자금 추가 전 자산)
     const grossYearlyDividend = totalValue * currentDividendYield;
     const netYearlyDividend = grossYearlyDividend * (1 - taxRate); // 세후 배당금
-    
+
     // 2. 모든 배당금 누적 (표시용)
     allDividendsReceived += netYearlyDividend;
-    
+
     // 3. 배당금 처리
     if (dripEnabled) {
       // DRIP: 세후 배당금을 자산에 재투자 (복리 효과 발생)
@@ -260,12 +218,12 @@ function calculateDividendGrowth(params: {
       // 비DRIP: 배당금을 현금으로 수령
       cashDividends += netYearlyDividend;
     }
-    
+
     // 4. 연간 월투자금 추가 (12개월분)
     const yearlyInvestment = monthlyInvestment * 12;
     totalValue += yearlyInvestment;
     totalInvested += yearlyInvestment;
-    
+
     // 5. 수익률 계산
     const totalPortfolioValue = dripEnabled ? totalValue : (totalValue + cashDividends);
     const returnPercentage = totalInvested > 0 ? ((totalPortfolioValue / totalInvested) - 1) * 100 : 0;
@@ -279,14 +237,14 @@ function calculateDividendGrowth(params: {
       returnPercentage,                           // 총 수익률
       holdingAssets: totalValue,                  // 연말 보유 자산 (DRIP 비활성화 시에는 순수 투자원금)
     });
-    
+
     // 6. 다음 해 배당 성장률 적용
     currentDividendYield = currentDividendYield * (1 + dividendGrowthRate / 100);
   }
 
   // 최종 결과값 계산
   const finalPortfolioValue = dripEnabled ? totalValue : (totalValue + cashDividends);
-  
+
   // CAGR 계산 (연평균 복합 성장률)
   const cagr = totalInvested > 0 && investmentPeriod > 0 ? 
     (Math.pow(finalPortfolioValue / totalInvested, 1 / investmentPeriod) - 1) * 100 : 0;
@@ -299,4 +257,3 @@ function calculateDividendGrowth(params: {
     totalInvested,
   };
 }
-
