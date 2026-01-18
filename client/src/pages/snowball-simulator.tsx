@@ -125,10 +125,10 @@ export default function SnowballSimulator() {
     insights: {
       title: isEnglish ? "Key Insights" : "참고 사항",
       points: isEnglish ? [
-        "Higher monthly contributions may delay the transition point (as the contribution threshold is higher).",
+        "Higher monthly contributions mean a higher annual threshold to exceed, which may delay the transition point.",
         "Changes in dividend yield or growth rate assumptions will shift the transition point.",
       ] : [
-        "월 추가 투자금이 커질수록 전환점이 늦어질 수 있습니다 (기여 기준이 커지기 때문).",
+        "월 투자금이 클수록 넘어야 할 연간 기준이 높아져 전환점이 늦어질 수 있습니다.",
         "배당률/성장률 가정이 달라지면 전환점도 달라집니다.",
       ],
     },
