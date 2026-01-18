@@ -479,13 +479,6 @@ export default function Guide() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <h4 className="font-semibold text-gray-900 mb-2">{t.section4.simpleTitle}</h4>
-            <div className="bg-gray-50 p-4 rounded-lg mb-2">
-              <code className="text-sm text-gray-800">{t.section4.simpleContent}</code>
-            </div>
-            <p className="text-sm text-gray-600">{t.section4.simpleNote}</p>
-          </div>
-          <div>
             <h4 className="font-semibold text-gray-900 mb-3">{t.section4.taxTitle}</h4>
             <ul className="space-y-2">
               {t.section4.taxContent.map((tax, index) => (
