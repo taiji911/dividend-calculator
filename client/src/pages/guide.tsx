@@ -357,7 +357,7 @@ export default function Guide() {
           <Calculator className="h-6 w-6" />
           {t.section2.title}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="border-2 border-primary/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -402,6 +402,31 @@ export default function Guide() {
               <Link href={goalHref}>
                 <Button variant="outline" className="w-full mt-4 border-green-300 text-green-700 hover:bg-green-50">
                   {t.section2.goal.cta}
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="border-2 border-blue-200">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Snowflake className="h-5 w-5 text-blue-500" />
+                {t.section2.snowball.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-1">{t.section2.snowball.when}</h4>
+                <p className="text-gray-600 text-sm">{t.section2.snowball.whenContent}</p>
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900 mb-1">{t.section2.snowball.what}</h4>
+                <p className="text-gray-600 text-sm">{t.section2.snowball.whatContent}</p>
+              </div>
+              <Link href={snowballHref}>
+                <Button variant="outline" className="w-full mt-4 border-blue-300 text-blue-700 hover:bg-blue-50">
+                  {t.section2.snowball.cta}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
