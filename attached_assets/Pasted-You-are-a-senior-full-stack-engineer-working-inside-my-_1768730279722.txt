@@ -1,0 +1,151 @@
+You are a senior full-stack engineer working inside my existing Replit project for https://dividendcalcul.jayinform.com.
+
+Context:
+- The app already has a working “배당 재투자 계산기” page (current main calculator).
+- I want to add a second calculator page “배당 목표 금액 계산기”.
+- IMPORTANT: I want a TAB-style UI so both calculators feel like two tabs in the same product.
+- Keep routes for SEO and direct access:
+  - Main reinvestment calculator: keep existing route (do not break)
+  - Goal calculator: /goal
+
+PRIMARY REQUIREMENT (Tab placement must be consistent):
+- On BOTH calculator pages, place the Tabs component at the EXACT same position:
+  1) Page header (H1 + subtitle)
+  2) Immediately BELOW the subtitle, insert the TOP ad placeholder comment:
+     <!-- ADSENSE_SLOT_TOP -->
+  3) Immediately BELOW that ad placeholder, render the Tabs UI:
+     [ 재투자 계산기 ] [ 목표 배당금 계산기 ]
+  4) Immediately BELOW the Tabs UI, render the form card and then the results card.
+- Do not place tabs anywhere else. Do not place tabs below the form or below results.
+
+Goal:
+1) Implement a reusable “CalculatorTabs” component (or equivalent) that appears on BOTH pages at the position specified above.
+2) Tabs must navigate via routing (URL changes), not by hiding/showing content:
+   - “재투자 계산기” tab navigates to the existing main calculator route
+   - “목표 배당금 계산기” tab navigates to /goal
+3) Tabs must clearly show active state (selected tab) based on current route.
+4) Design must match the existing site (spacing, typography, card/button styles, container width, responsive rules). Reuse existing components/styles.
+
+================================================================================
+PART A) Build the new /goal page (배당 목표 금액 계산기)
+================================================================================
+A1) Route
+- Path: /goal
+- H1: 배당 목표 금액 계산기
+- Subtitle: “월 목표 배당금을 달성하려면 필요한 투자 원금을 계산합니다.”
+
+A2) Form inputs (mobile-first)
+- 목표 월 배당금 (KRW): number, default 1000000
+- 예상 배당률 (연 %, gross): number, default 4.0
+- 배당 성장률 (연 %, optional): number, default 0.0
+- 투자 기간 (년, optional): number, default 0
+- 재투자 여부 (toggle): default ON
+- 월 추가 투자금 (KRW, optional): number, default 0
+
+Validation (inline, Korean):
+- No negative numbers
+- Dividend yield must be > 0
+- 투자 기간(년) must be an integer >= 0 (allow 0)
+- Show friendly, field-level messages near each invalid input.
+
+A3) Results (always visible after valid input; update live or on submit, following existing patterns)
+Always show:
+1) “목표 달성에 필요한 현재 원금” (KRW)
+2) “연 배당금(현재 기준)” (KRW)
+
+Logic:
+Case 1) If 투자 기간 = 0 AND 월 추가 투자금 = 0 AND 배당 성장률 = 0:
+- requiredPrincipal = (targetMonthlyDividend * 12) / (dividendYield/100)
+- annualDividendNow = targetMonthlyDividend * 12
+
+Case 2) Otherwise (if any of 기간>0 OR 월추가>0 OR 성장률>0):
+- Show a projection table for each year 1..N (where N = 투자 기간, but if 투자 기간=0 and 월추가>0 or 성장률>0, set N to a sensible default like 10 and explain in assumptions).
+- Table columns:
+  - Year
+  - Estimated Portfolio Value
+  - Estimated Annual Dividend
+  - Estimated Monthly Dividend
+
+You must SOLVE for required initial principal P0 such that by year N:
+estimatedMonthlyDividend(year N) >= targetMonthlyDividend
+
+Use binary search:
+- low = 0
+- high = a large number (start at e.g. 1e9 KRW) and increase until condition is met
+- iterate until within a small tolerance (e.g. 1,000 KRW) or max iterations (e.g. 60)
+
+Annual simulation assumptions (choose ONE approach and document it in the page UI):
+Option A (recommended):
+- Base yield is constant.
+- Dividend growth increases payout amount over time:
+  annualDividend(year) = portfolioValue * (yield/100) * (1+growth/100)^(year-1)
+
+Portfolio update per year:
+- contributionAnnual = 12 * monthlyContribution
+- if reinvest ON:
+  portfolioEnd = portfolioStart + contributionAnnual + annualDividend
+- if reinvest OFF:
+  portfolioEnd = portfolioStart + contributionAnnual
+
+No taxes/fees.
+
+Formatting:
+- KRW: thousands separators
+- Percent: one decimal
+- Table: mobile-friendly (horizontal scroll allowed)
+
+A4) Bottom ad placeholder
+- Immediately BELOW the results card, insert:
+  <!-- ADSENSE_SLOT_BOTTOM -->
+
+A5) “가정/Disclaimer” section (collapsible if the existing UI supports it; otherwise a small card)
+Include:
+- The chosen assumption wording in Korean
+- “세금/수수료/환율 변동 등은 고려하지 않았습니다.”
+- If you use default N when 투자 기간=0, disclose it.
+
+A6) Interlink
+- Add a small link/button under the tabs or near the footer to navigate back to the reinvestment calculator page.
+
+A7) SEO
+- document title: “배당 목표 금액 계산기 | 월 배당금 달성 시뮬레이션”
+- meta description: “목표 월 배당금(예: 100만원)을 달성하려면 필요한 투자 원금과 기간별 시뮬레이션을 계산해보세요.”
+Reuse existing SEO/head utilities/components if present.
+
+================================================================================
+PART B) Update the existing reinvestment calculator page
+================================================================================
+B1) Add the SAME tab placement as specified in PRIMARY REQUIREMENT:
+- Header (H1 + subtitle)
+- <!-- ADSENSE_SLOT_TOP -->
+- Tabs
+- Form card
+- Results card
+- <!-- ADSENSE_SLOT_BOTTOM --> (place below results card; if the existing page already has an ad slot, align to this exact placement)
+
+B2) Ensure active tab state works:
+- On main calculator route: “재투자 계산기” is active.
+- On /goal: “목표 배당금 계산기” is active.
+
+B3) Add CTA card (matching existing design) somewhere below results (but ABOVE the bottom ad placeholder if possible; if not, place it above results):
+Text:
+“월 100만원 배당, 원금이 얼마 필요할까? 목표 배당금 계산기 바로가기”
+Link to: /goal
+
+================================================================================
+Implementation constraints
+================================================================================
+- First inspect the repo to identify the framework and routing approach (Next.js app router/pages router, React Router, etc.).
+- Do NOT introduce a new framework or a new design system.
+- Reuse existing components/styles wherever possible.
+- Keep changes minimal and consistent with repo patterns.
+- Ensure the app builds and runs with no lint errors.
+
+================================================================================
+Deliverables (in your response)
+================================================================================
+1) List files changed/added
+2) Confirm routes work: main calculator route and /goal
+3) Confirm tabs appear in the exact same position on both pages (as specified)
+4) Explain the math assumptions in Korean (short)
+Proceed now.
