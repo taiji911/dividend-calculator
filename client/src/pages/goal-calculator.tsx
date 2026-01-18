@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { AlertTriangle, Target, Wallet, Calculator, BookOpen } from "lucide-react";
+import { AlertTriangle, Target, Wallet, Calculator, BookOpen, Snowflake, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CalculatorTabs from "@/components/calculator-tabs";
 
@@ -393,31 +393,29 @@ export default function GoalCalculator() {
         )}
       </div>
 
-      {/* Guide CTA Card */}
-      <Card className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+      {/* Snowball CTA Card */}
+      <Card className="mt-8 bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
         <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <BookOpen className="h-6 w-6 text-blue-600" />
+          <Link href={isEnglish ? "/en/snowball" : "/snowball"}>
+            <div className="flex items-center justify-between cursor-pointer">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Snowflake className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">
+                    {isEnglish ? "When will dividends start rolling on their own?" : "배당이 스스로 굴러가는 시점은 언제일까?"}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    {isEnglish 
+                      ? "Find out when dividends exceed your contributions"
+                      : "배당이 기여금을 초과하는 전환점을 확인하세요"}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">
-                  {isEnglish ? "Need help using the calculator?" : "계산기 사용법이 궁금하신가요?"}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  {isEnglish 
-                    ? "Learn how to interpret results and understand assumptions"
-                    : "결과 해석 방법과 계산 가정을 확인하세요"}
-                </p>
-              </div>
+              <ArrowRight className="h-5 w-5 text-blue-600" />
             </div>
-            <Link href={guideHref}>
-              <Button variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-100">
-                {t.guideLink}
-              </Button>
-            </Link>
-          </div>
+          </Link>
         </CardContent>
       </Card>
 

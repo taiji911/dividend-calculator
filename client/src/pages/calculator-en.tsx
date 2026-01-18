@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wallet, Coins, TrendingUp, AlertTriangle, Repeat, Target, BarChart3, Shield, ArrowRight, BookOpen } from "lucide-react";
+import { Wallet, Coins, TrendingUp, AlertTriangle, Repeat, Target, BarChart3, Shield, ArrowRight, BookOpen, Snowflake } from "lucide-react";
 import CalculatorForm from "@/components/calculator-form";
 import ResultsCharts from "@/components/results-charts";
 import ResultsTable from "@/components/results-table";
@@ -201,17 +201,17 @@ export default function CalculatorEN() {
             </CardContent>
           </Card>
         </Link>
-        <Link href="/en/guide">
-          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 hover:border-blue-400 transition-colors cursor-pointer h-full">
+        <Link href="/en/snowball">
+          <Card className="bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200 hover:border-blue-400 transition-colors cursor-pointer h-full">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                    <BookOpen className="h-5 w-5 text-blue-600" />
+                    <Snowflake className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Need help using the calculator?</h3>
-                    <p className="text-sm text-gray-600">View Usage Guide</p>
+                    <h3 className="font-semibold text-gray-900">When will dividends start rolling on their own?</h3>
+                    <p className="text-sm text-gray-600">Try the Snowball Simulator</p>
                   </div>
                 </div>
                 <ArrowRight className="h-5 w-5 text-blue-600" />

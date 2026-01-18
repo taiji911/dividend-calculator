@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { BarChart3, Menu, Globe, Target, BookOpen, TrendingUp, HelpCircle } from "lucide-react";
+import { BarChart3, Menu, Globe, Target, BookOpen, TrendingUp, HelpCircle, Snowflake } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { 
@@ -40,6 +40,12 @@ export default function Navigation() {
       label: isEnglish ? 'Goal Calculator' : '목표 배당금 계산기',
       icon: Target,
       isActive: location.includes('/goal')
+    },
+    {
+      href: `${locale}/snowball`,
+      label: isEnglish ? 'Snowball Simulator' : '스노우볼 시뮬레이터',
+      icon: Snowflake,
+      isActive: location.includes('/snowball')
     }
   ];
 

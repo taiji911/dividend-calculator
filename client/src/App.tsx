@@ -11,6 +11,7 @@ import Comparison from "@/pages/comparison";
 import FireCalculator from "@/pages/fire-calculator";
 import GoalCalculator from "@/pages/goal-calculator";
 import Guide from "@/pages/guide";
+import SnowballSimulator from "@/pages/snowball-simulator";
 
 import Navigation from "@/components/navigation";
 
@@ -30,6 +31,9 @@ function Router() {
       <Route path="/guide" component={Guide} />
       <Route path="/kr/guide" component={Guide} />
       <Route path="/en/guide" component={Guide} />
+      <Route path="/snowball" component={SnowballSimulator} />
+      <Route path="/kr/snowball" component={SnowballSimulator} />
+      <Route path="/en/snowball" component={SnowballSimulator} />
       
       {/* <Route path="/comparison" component={Comparison} /> */}
       <Route component={NotFound} />
