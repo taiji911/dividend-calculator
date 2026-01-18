@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +37,31 @@ export default function GoalCalculator() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [isAssumptionsOpen, setIsAssumptionsOpen] = useState(false);
+
+  useEffect(() => {
+    document.title = "배당 목표 금액 계산기 | 월 배당금 달성 시뮬레이션";
+    document.documentElement.lang = "ko";
+    
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', '목표 월 배당금(예: 100만원)을 달성하려면 필요한 투자 원금과 기간별 시뮬레이션을 계산해보세요.');
+    }
+
+    const metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (metaKeywords) {
+      metaKeywords.setAttribute('content', '배당, 목표 배당금, 월 배당, 투자 원금, 배당 계산기, 파이어, FIRE, 경제적 자유');
+    }
+
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) {
+      ogTitle.setAttribute('content', '배당 목표 금액 계산기 | 월 배당금 달성 시뮬레이션');
+    }
+
+    const ogDescription = document.querySelector('meta[property="og:description"]');
+    if (ogDescription) {
+      ogDescription.setAttribute('content', '목표 월 배당금(예: 100만원)을 달성하려면 필요한 투자 원금과 기간별 시뮬레이션을 계산해보세요.');
+    }
+  }, []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("ko-KR", {

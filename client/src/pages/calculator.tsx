@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wallet, Coins, TrendingUp, AlertTriangle, Repeat, Target, BarChart3, Shield } from "lucide-react";
+import { Wallet, Coins, TrendingUp, AlertTriangle, Repeat, Target, BarChart3, Shield, ArrowRight } from "lucide-react";
 import CalculatorForm from "@/components/calculator-form";
 import ResultsCharts from "@/components/results-charts";
 import ResultsTable from "@/components/results-table";
+import CalculatorTabs from "@/components/calculator-tabs";
 
 export interface CalculationResults {
   finalAssets: number;
@@ -36,14 +38,16 @@ export default function Calculator() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
+      <div className="mb-4">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">배당 재투자 계산기</h1>
         <p className="text-gray-600">
           배당금 재투자를 통한 복리 효과를 시뮬레이션해보세요
         </p>
       </div>
 
+      {/* ADSENSE_SLOT_TOP */}
 
+      <CalculatorTabs />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Input Panel */}
@@ -143,8 +147,32 @@ export default function Calculator() {
         </div>
       </div>
 
+      {/* CTA Card */}
+      <div className="mt-8">
+        <Link href="/goal">
+          <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20 hover:border-primary/40 transition-colors cursor-pointer">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <Target className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">월 100만원 배당, 원금이 얼마 필요할까?</h3>
+                    <p className="text-sm text-gray-600">목표 배당금 계산기 바로가기</p>
+                  </div>
+                </div>
+                <ArrowRight className="h-5 w-5 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
+
+      {/* ADSENSE_SLOT_BOTTOM */}
+
       {/* Risk Disclaimer */}
-      <div className="mt-12 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+      <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
         <div className="flex">
           <div className="flex-shrink-0">
             <AlertTriangle className="h-5 w-5 text-yellow-400" />
@@ -161,8 +189,6 @@ export default function Calculator() {
           </div>
         </div>
       </div>
-
-
     </div>
   );
 }
