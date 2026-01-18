@@ -13,7 +13,8 @@ import {
   HelpCircle,
   Lightbulb,
   TrendingUp,
-  Repeat
+  Repeat,
+  Snowflake
 } from "lucide-react";
 import {
   Accordion,
@@ -28,6 +29,7 @@ export default function Guide() {
 
   const reinvestHref = isEnglish ? "/en" : "/kr";
   const goalHref = isEnglish ? "/en/goal" : "/goal";
+  const snowballHref = isEnglish ? "/en/snowball" : "/snowball";
 
   useEffect(() => {
     if (isEnglish) {
@@ -94,7 +96,7 @@ export default function Guide() {
     },
 
     section2: {
-      title: isEnglish ? "Two Calculators at a Glance" : "계산기 2종 한눈에 보기",
+      title: isEnglish ? "Three Calculators at a Glance" : "계산기 3종 한눈에 보기",
       reinvest: {
         title: isEnglish ? "Dividend Reinvestment Calculator" : "배당 재투자 계산기",
         when: isEnglish ? "When to use" : "언제 사용하나요?",
@@ -118,6 +120,18 @@ export default function Guide() {
           ? "The required investment amount to achieve your target monthly dividend, considering tax rates."
           : "목표 월 배당금을 받기 위해 필요한 투자금을 세금을 고려하여 계산합니다.",
         cta: isEnglish ? "Go to Goal Calculator" : "목표 배당금 계산기 바로가기"
+      },
+      snowball: {
+        title: isEnglish ? "Snowball Simulator" : "스노우볼 시뮬레이터",
+        when: isEnglish ? "When to use" : "언제 사용하나요?",
+        whenContent: isEnglish
+          ? "When you want to find out when your annual dividends will exceed your annual contributions—the 'snowball transition point'."
+          : "연 배당금이 연간 투자금을 초과하는 '스노우볼 전환점'이 언제인지 확인하고 싶을 때 사용합니다.",
+        what: isEnglish ? "What it shows" : "무엇을 보여주나요?",
+        whatContent: isEnglish
+          ? "The year when dividends start exceeding your contributions, with a visual chart showing the transition point."
+          : "배당금이 투자금을 넘는 시점과 연도별 추이를 차트로 보여줍니다.",
+        cta: isEnglish ? "Go to Snowball Simulator" : "스노우볼 시뮬레이터 바로가기"
       }
     },
 
