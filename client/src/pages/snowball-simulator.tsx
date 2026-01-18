@@ -133,7 +133,7 @@ export default function SnowballSimulator() {
       ],
     },
     assumptions: {
-      title: isEnglish ? "Assumptions & Disclaimer" : "가정 및 면책사항",
+      title: isEnglish ? "Notes" : "참고사항",
       points: isEnglish ? [
         "Dividend rates and amounts are not fixed and may fluctuate.",
         "Taxes, fees, exchange rates, and capital gains/losses from price changes are not reflected.",
