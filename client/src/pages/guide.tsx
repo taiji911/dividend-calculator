@@ -400,7 +400,7 @@ export default function Guide() {
                 <p className="text-gray-600 text-sm">{t.section2.goal.whatContent}</p>
               </div>
               <Link href={goalHref}>
-                <Button variant="outline" className="w-full mt-4 border-green-300 text-green-700 hover:bg-green-50">
+                <Button className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white">
                   {t.section2.goal.cta}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -425,7 +425,7 @@ export default function Guide() {
                 <p className="text-gray-600 text-sm">{t.section2.snowball.whatContent}</p>
               </div>
               <Link href={snowballHref}>
-                <Button variant="outline" className="w-full mt-4 border-blue-300 text-blue-700 hover:bg-blue-50">
+                <Button className="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white">
                   {t.section2.snowball.cta}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
