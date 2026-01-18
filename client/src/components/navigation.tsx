@@ -1,12 +1,13 @@
 import { Link, useLocation } from "wouter";
-import { Calculator, BarChart3, Menu, Globe, CalendarDays, Target } from "lucide-react";
+import { BarChart3, Menu, Globe, Target, BookOpen, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
-  DropdownMenuTrigger 
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 
 export default function Navigation() {
@@ -15,57 +16,79 @@ export default function Navigation() {
   const getCurrentLanguage = () => {
     if (location.startsWith('/en')) return 'EN';
     if (location.startsWith('/kr')) return 'KR';
-    return 'KR'; // default
+    return 'KR';
   };
+
+  const isEnglish = getCurrentLanguage() === 'EN';
+  const locale = isEnglish ? '/en' : '/kr';
 
   const getLanguageRedirect = (newLang: string) => {
-    if (newLang === 'en') return '/en';
-    if (newLang === 'kr') return '/kr';
-    return '/';
+    const currentPath = location.replace(/^\/(en|kr)/, '');
+    if (newLang === 'en') return '/en' + currentPath;
+    if (newLang === 'kr') return '/kr' + currentPath;
+    return currentPath || '/kr';
   };
 
-  const navItems: Array<{
-    href: string;
-    label: string;
-    icon: any;
-    isActive: boolean;
-  }> = [
-    // 현재 탭 네비게이션(CalculatorTabs)을 사용하므로 상단 네비게이션 항목은 비활성화
+  const menuItems = [
+    {
+      href: locale,
+      label: isEnglish ? 'Reinvestment Calculator' : '재투자 계산기',
+      icon: TrendingUp,
+      isActive: location === "/" || location === "/kr" || location === "/en" || location === "/calculator"
+    },
+    {
+      href: `${locale}/goal`,
+      label: isEnglish ? 'Goal Calculator' : '목표 배당금 계산기',
+      icon: Target,
+      isActive: location.includes('/goal')
+    },
+    {
+      href: `${locale}/guide`,
+      label: isEnglish ? 'Usage Guide' : '사용 가이드',
+      icon: BookOpen,
+      isActive: location.includes('/guide')
+    }
   ];
-
-  const NavContent = () => (
-    <>
-      {navItems.map((item) => {
-        const Icon = item.icon;
-        return (
-          <Link key={item.href} href={item.href}>
-            <Button
-              variant={item.isActive ? "default" : "ghost"}
-              className="w-full justify-start"
-            >
-              <Icon className="mr-2 h-4 w-4" />
-              {item.label}
-            </Button>
-          </Link>
-        );
-      })}
-    </>
-  );
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link href={getCurrentLanguage() === 'EN' ? '/en' : '/kr'}>
+            <Link href={locale}>
               <h1 className="text-xl font-bold text-gray-900 flex items-center">
                 <BarChart3 className="mr-2 h-6 w-6 text-primary" />
-                {getCurrentLanguage() === 'EN' ? 'Dividend Reinvestment Calculator' : '배당 재투자 계산기'}
+                <span className="hidden sm:inline">
+                  {isEnglish ? 'Dividend Calculator' : '배당 계산기'}
+                </span>
               </h1>
             </Link>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
+            {/* Menu Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <Menu className="mr-2 h-4 w-4" />
+                  {isEnglish ? 'Menu' : '메뉴'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {menuItems.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <DropdownMenuItem key={item.href} asChild>
+                      <Link href={item.href} className={item.isActive ? 'bg-gray-100' : ''}>
+                        <Icon className="mr-2 h-4 w-4" />
+                        {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             {/* Language Selector */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -77,42 +100,17 @@ export default function Navigation() {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
                   <Link href={getLanguageRedirect('kr')}>
-                    🇰🇷 한국어
+                    한국어
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href={getLanguageRedirect('en')}>
-                    🇺🇸 English
+                    English
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-
-          {/* Desktop Navigation - Hidden when no nav items */}
-          {navItems.length > 0 && (
-            <div className="hidden md:flex items-center space-x-4">
-              <NavContent />
-            </div>
-          )}
-
-          {/* Mobile Navigation - Hidden when no nav items */}
-          {navItems.length > 0 && (
-            <div className="md:hidden">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-64">
-                  <div className="flex flex-col space-y-4 mt-4">
-                    <NavContent />
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-          )}
         </div>
       </div>
     </nav>
