@@ -122,7 +122,7 @@ export default function Guide() {
         cta: isEnglish ? "Go to Goal Calculator" : "목표 배당금 계산기 바로가기"
       },
       snowball: {
-        title: isEnglish ? "Snowball Simulator" : "스노우볼 시뮬레이터",
+        title: isEnglish ? "Dividend Snowball Simulator" : "배당 스노우볼 시뮬레이터",
         when: isEnglish ? "When to use" : "언제 사용하나요?",
         whenContent: isEnglish
           ? "When you want to find out when your annual dividends will exceed your annual contributions—the 'snowball transition point'."
@@ -131,7 +131,7 @@ export default function Guide() {
         whatContent: isEnglish
           ? "The year when dividends start exceeding your contributions, with a visual chart showing the transition point."
           : "배당금이 투자금을 넘는 시점과 연도별 추이를 차트로 보여줍니다.",
-        cta: isEnglish ? "Go to Snowball Simulator" : "스노우볼 시뮬레이터 바로가기"
+        cta: isEnglish ? "Go to Snowball Simulator" : "배당 스노우볼 시뮬레이터 바로가기"
       }
     },
 
