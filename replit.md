@@ -4,7 +4,15 @@
 
 This is a full-stack web application for calculating dividend reinvestment returns with tax considerations. The application features a React frontend with TypeScript, an Express.js backend, and uses Drizzle ORM for database operations. It's built as a Korean-language financial calculator focused on dividend investment strategies. The stock comparison feature is currently disabled due to API rate limitations.
 
-## Recent Changes (August 2025)
+## Recent Changes (January 2026)
+
+✓ Added Dividend Goal Calculator (/goal, /kr/goal, /en/goal) - calculates required investment for target monthly dividend
+✓ Created CalculatorTabs component for navigation between reinvestment and goal calculators
+✓ Hidden FIRE calculator from navigation (still in development)
+✓ Updated sitemap.xml with goal calculator routes
+✓ Bilingual support for goal calculator (Korean/English)
+
+## Previous Changes (August 2025)
 
 ✓ Complete multilingual support with URL-based routing (/kr, /en)
 ✓ All form labels and UI elements fully translated
