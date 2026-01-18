@@ -110,7 +110,7 @@ export default function SnowballSimulator() {
       disclaimer: isEnglish
         ? "This result is a simulation based on your assumptions and may differ from actual results."
         : "본 결과는 입력한 가정에 따른 시뮬레이션이며, 실제 결과와 다를 수 있습니다.",
-      annualContribution: isEnglish ? "Annual Contribution" : "연간 추가 투자금",
+      annualContribution: isEnglish ? "Annual Contribution" : "연간 투자금",
       annualDividend: isEnglish ? "Annual Dividend" : "해당 연도 연 배당금",
       exceeds: isEnglish ? "Exceeds" : "초과",
       timeline: isEnglish ? "Transition Timeline" : "전환점 타임라인",
@@ -118,9 +118,9 @@ export default function SnowballSimulator() {
       notYet: isEnglish ? "Not yet" : "미도달",
       yearlyTable: isEnglish ? "Yearly Breakdown" : "연도별 상세",
       year: isEnglish ? "Year" : "연도",
-      portfolioValue: isEnglish ? "Portfolio Value" : "포트폴리오 가치",
-      dividendContributionRatio: isEnglish ? "Dividend/Contribution" : "배당/기여 비율",
-      gap: isEnglish ? "Gap (Dividend - Contribution)" : "차이 (배당-기여)",
+      portfolioValue: isEnglish ? "Total Assets" : "총 자산",
+      dividendContributionRatio: isEnglish ? "Dividend/Contribution" : "배당/투자 비율",
+      gap: isEnglish ? "Gap (Dividend - Contribution)" : "차이 (배당-투자)",
     },
     insights: {
       title: isEnglish ? "Key Insights" : "참고 사항",
@@ -497,7 +497,7 @@ export default function SnowballSimulator() {
                         <Line
                           type="monotone"
                           dataKey="contributionAnnual"
-                          name={isEnglish ? "Annual Contribution" : "연 기여금"}
+                          name={isEnglish ? "Annual Contribution" : "연간 투자금"}
                           stroke="#f97316"
                           strokeWidth={2}
                           strokeDasharray="5 5"
@@ -527,7 +527,7 @@ export default function SnowballSimulator() {
                           <th className="text-left py-2 px-2">{t.results.year}</th>
                           <th className="text-right py-2 px-2">{t.results.portfolioValue}</th>
                           <th className="text-right py-2 px-2">{isEnglish ? "Dividend" : "연 배당금"}</th>
-                          <th className="text-right py-2 px-2">{isEnglish ? "Contribution" : "연 기여금"}</th>
+                          <th className="text-right py-2 px-2">{isEnglish ? "Contribution" : "연간 투자금"}</th>
                           <th className="text-right py-2 px-2">{t.results.dividendContributionRatio}</th>
                           <th className="text-right py-2 px-2">{t.results.gap}</th>
                         </tr>
