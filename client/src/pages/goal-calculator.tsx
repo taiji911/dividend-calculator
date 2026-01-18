@@ -16,11 +16,20 @@ export default function GoalCalculator() {
   const [location] = useLocation();
   const isEnglish = location.startsWith('/en');
   
-  const [targetMonthlyDividendStr, setTargetMonthlyDividendStr] = useState("1,000,000");
+  const [targetMonthlyDividendStr, setTargetMonthlyDividendStr] = useState(isEnglish ? "1,000" : "1,000,000");
   const [dividendYieldStr, setDividendYieldStr] = useState("4.0");
+  const [initializedForLanguage, setInitializedForLanguage] = useState(isEnglish ? 'en' : 'kr');
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [result, setResult] = useState<CalculationResult | null>(null);
+
+  useEffect(() => {
+    const currentLang = isEnglish ? 'en' : 'kr';
+    if (initializedForLanguage !== currentLang) {
+      setTargetMonthlyDividendStr(isEnglish ? "1,000" : "1,000,000");
+      setInitializedForLanguage(currentLang);
+    }
+  }, [isEnglish, initializedForLanguage]);
 
   const parseNumber = (str: string): number => {
     const cleaned = str.replace(/,/g, '');
@@ -42,7 +51,7 @@ export default function GoalCalculator() {
     subtitle: isEnglish 
       ? "How much do I need to invest to receive my target monthly dividend?"
       : "목표 월 배당금을 받으려면 얼마를 투자해야 할까요?",
-    targetMonthlyDividend: isEnglish ? "Target Monthly Dividend" : "목표 월 배당금",
+    targetMonthlyDividend: isEnglish ? "Target Monthly Dividend (USD)" : "목표 월 배당금 (원)",
     dividendYield: isEnglish ? "Expected Dividend Yield (%/year)" : "예상 배당률 (연 %)",
     dividendYieldHelper: isEnglish ? "e.g., SCHD: ~3.5%, High-yield ETFs: ~8%" : "예: SCHD 약 3.5%, 고배당 ETF 약 8%",
     resultTitle: isEnglish ? "Calculation Result" : "계산 결과",
@@ -126,7 +135,7 @@ export default function GoalCalculator() {
         currency: "USD",
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
-      }).format(amount / 1300);
+      }).format(amount);
     }
     return new Intl.NumberFormat("ko-KR", {
       style: "currency",
@@ -211,7 +220,7 @@ export default function GoalCalculator() {
                 inputMode="numeric"
                 value={targetMonthlyDividendStr}
                 onChange={(e) => setTargetMonthlyDividendStr(formatWithCommas(e.target.value))}
-                placeholder="1,000,000"
+                placeholder={isEnglish ? "1,000" : "1,000,000"}
                 className="text-lg h-12"
               />
               {errors.targetMonthlyDividend && (
