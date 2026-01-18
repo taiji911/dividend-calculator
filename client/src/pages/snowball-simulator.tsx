@@ -427,47 +427,6 @@ export default function SnowballSimulator() {
                 </Card>
               </div>
 
-              {/* Timeline Visualization */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">{t.results.timeline}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-1 overflow-x-auto pb-2">
-                    {simulationResult.yearlyData.map((data, index) => {
-                      const isTransitionPoint = simulationResult.snowballYear === data.year;
-                      const isAfterTransition = simulationResult.snowballYear && data.year >= simulationResult.snowballYear;
-                      
-                      return (
-                        <div key={data.year} className="flex flex-col items-center min-w-[40px]">
-                          <div 
-                            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all ${
-                              isTransitionPoint 
-                                ? 'bg-blue-500 text-white ring-4 ring-blue-200' 
-                                : isAfterTransition 
-                                  ? 'bg-green-400 text-white' 
-                                  : 'bg-gray-200 text-gray-600'
-                            }`}
-                          >
-                            {data.year}
-                          </div>
-                          {isTransitionPoint && (
-                            <span className="text-xs text-blue-600 font-bold mt-1 whitespace-nowrap">
-                              {t.results.transitionPoint}
-                            </span>
-                          )}
-                          {index === simulationResult.yearlyData.length - 1 && !simulationResult.snowballYear && (
-                            <span className="text-xs text-gray-400 mt-1 whitespace-nowrap">
-                              {t.results.notYet}
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-
               {/* Transition Chart */}
               <Card>
                 <CardHeader>
