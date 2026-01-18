@@ -213,26 +213,31 @@ export default function GoalCalculator() {
     years: number
   ): YearlyProjection[] => {
     const projections: YearlyProjection[] = [];
-    let portfolioValue = initialPrincipal;
+    let portfolioValueStart = initialPrincipal;
     const annualContribution = monthlyContribution * 12;
 
     for (let year = 1; year <= years; year++) {
+      const avgPortfolioValue = portfolioValueStart + (annualContribution / 2);
+      
       const growthMultiplier = Math.pow(1 + dividendGrowthRate / 100, year - 1);
-      const annualDividend = portfolioValue * (dividendYield / 100) * growthMultiplier;
+      const annualDividend = avgPortfolioValue * (dividendYield / 100) * growthMultiplier;
       const monthlyDividend = annualDividend / 12;
+
+      let portfolioValueEnd: number;
+      if (reinvest) {
+        portfolioValueEnd = portfolioValueStart + annualContribution + annualDividend;
+      } else {
+        portfolioValueEnd = portfolioValueStart + annualContribution;
+      }
 
       projections.push({
         year,
-        portfolioValue: Math.round(portfolioValue),
+        portfolioValue: Math.round(portfolioValueEnd),
         annualDividend: Math.round(annualDividend),
         monthlyDividend: Math.round(monthlyDividend),
       });
 
-      if (reinvest) {
-        portfolioValue = portfolioValue + annualContribution + annualDividend;
-      } else {
-        portfolioValue = portfolioValue + annualContribution;
-      }
+      portfolioValueStart = portfolioValueEnd;
     }
 
     return projections;
