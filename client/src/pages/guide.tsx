@@ -408,10 +408,10 @@ export default function Guide() {
             </CardContent>
           </Card>
 
-          <Card className="border-2 border-blue-200">
+          <Card className="border-2 border-cyan-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Snowflake className="h-5 w-5 text-blue-500" />
+                <Snowflake className="h-5 w-5 text-cyan-600" />
                 {t.section2.snowball.title}
               </CardTitle>
             </CardHeader>
@@ -425,7 +425,7 @@ export default function Guide() {
                 <p className="text-gray-600 text-sm">{t.section2.snowball.whatContent}</p>
               </div>
               <Link href={snowballHref}>
-                <Button className="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white">
+                <Button className="w-full mt-4 bg-cyan-600 hover:bg-cyan-700 text-white">
                   {t.section2.snowball.cta}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
