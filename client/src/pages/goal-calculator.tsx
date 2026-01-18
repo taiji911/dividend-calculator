@@ -32,16 +32,34 @@ export default function GoalCalculator() {
   const [location] = useLocation();
   const isEnglish = location.startsWith('/en');
   
-  const [targetMonthlyDividend, setTargetMonthlyDividend] = useState(1000000);
-  const [dividendYield, setDividendYield] = useState(4.0);
-  const [dividendGrowthRate, setDividendGrowthRate] = useState(0.0);
-  const [investmentPeriod, setInvestmentPeriod] = useState(0);
+  const [targetMonthlyDividendStr, setTargetMonthlyDividendStr] = useState("1,000,000");
+  const [dividendYieldStr, setDividendYieldStr] = useState("4.0");
+  const [dividendGrowthRateStr, setDividendGrowthRateStr] = useState("0.0");
+  const [investmentPeriodStr, setInvestmentPeriodStr] = useState("0");
   const [reinvest, setReinvest] = useState(true);
-  const [monthlyContribution, setMonthlyContribution] = useState(0);
+  const [monthlyContributionStr, setMonthlyContributionStr] = useState("0");
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [isAssumptionsOpen, setIsAssumptionsOpen] = useState(false);
+
+  const parseNumber = (str: string): number => {
+    const cleaned = str.replace(/,/g, '');
+    const num = parseFloat(cleaned);
+    return isNaN(num) ? 0 : num;
+  };
+
+  const formatWithCommas = (value: string): string => {
+    const cleaned = value.replace(/,/g, '').replace(/[^0-9]/g, '');
+    if (cleaned === '') return '';
+    return Number(cleaned).toLocaleString('ko-KR');
+  };
+
+  const targetMonthlyDividend = parseNumber(targetMonthlyDividendStr);
+  const dividendYield = parseNumber(dividendYieldStr);
+  const dividendGrowthRate = parseNumber(dividendGrowthRateStr);
+  const investmentPeriod = parseNumber(investmentPeriodStr);
+  const monthlyContribution = parseNumber(monthlyContributionStr);
 
   const t = {
     title: isEnglish ? "Dividend Goal Calculator" : "배당 목표 금액 계산기",
@@ -290,7 +308,7 @@ export default function GoalCalculator() {
     if (dividendYield > 0 && targetMonthlyDividend > 0) {
       calculate();
     }
-  }, [targetMonthlyDividend, dividendYield, dividendGrowthRate, investmentPeriod, reinvest, monthlyContribution]);
+  }, [targetMonthlyDividendStr, dividendYieldStr, dividendGrowthRateStr, investmentPeriodStr, reinvest, monthlyContributionStr]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -317,9 +335,10 @@ export default function GoalCalculator() {
                 <Label htmlFor="targetMonthlyDividend">{t.targetMonthlyDividend}</Label>
                 <Input
                   id="targetMonthlyDividend"
-                  type="number"
-                  value={targetMonthlyDividend}
-                  onChange={(e) => setTargetMonthlyDividend(Number(e.target.value))}
+                  type="text"
+                  inputMode="numeric"
+                  value={targetMonthlyDividendStr}
+                  onChange={(e) => setTargetMonthlyDividendStr(formatWithCommas(e.target.value))}
                   placeholder="1,000,000"
                 />
                 {errors.targetMonthlyDividend && (
@@ -331,10 +350,10 @@ export default function GoalCalculator() {
                 <Label htmlFor="dividendYield">{t.dividendYield}</Label>
                 <Input
                   id="dividendYield"
-                  type="number"
-                  step="0.1"
-                  value={dividendYield}
-                  onChange={(e) => setDividendYield(Number(e.target.value))}
+                  type="text"
+                  inputMode="decimal"
+                  value={dividendYieldStr}
+                  onChange={(e) => setDividendYieldStr(e.target.value)}
                   placeholder="4.0"
                 />
                 {errors.dividendYield && (
@@ -346,10 +365,10 @@ export default function GoalCalculator() {
                 <Label htmlFor="dividendGrowthRate">{t.dividendGrowthRate}</Label>
                 <Input
                   id="dividendGrowthRate"
-                  type="number"
-                  step="0.1"
-                  value={dividendGrowthRate}
-                  onChange={(e) => setDividendGrowthRate(Number(e.target.value))}
+                  type="text"
+                  inputMode="decimal"
+                  value={dividendGrowthRateStr}
+                  onChange={(e) => setDividendGrowthRateStr(e.target.value)}
                   placeholder="0.0"
                 />
                 {errors.dividendGrowthRate && (
@@ -361,9 +380,10 @@ export default function GoalCalculator() {
                 <Label htmlFor="investmentPeriod">{t.investmentPeriod}</Label>
                 <Input
                   id="investmentPeriod"
-                  type="number"
-                  value={investmentPeriod}
-                  onChange={(e) => setInvestmentPeriod(Number(e.target.value))}
+                  type="text"
+                  inputMode="numeric"
+                  value={investmentPeriodStr}
+                  onChange={(e) => setInvestmentPeriodStr(e.target.value.replace(/[^0-9]/g, ''))}
                   placeholder="0"
                 />
                 {errors.investmentPeriod && (
@@ -384,9 +404,10 @@ export default function GoalCalculator() {
                 <Label htmlFor="monthlyContribution">{t.monthlyContribution}</Label>
                 <Input
                   id="monthlyContribution"
-                  type="number"
-                  value={monthlyContribution}
-                  onChange={(e) => setMonthlyContribution(Number(e.target.value))}
+                  type="text"
+                  inputMode="numeric"
+                  value={monthlyContributionStr}
+                  onChange={(e) => setMonthlyContributionStr(formatWithCommas(e.target.value))}
                   placeholder="0"
                 />
                 {errors.monthlyContribution && (
