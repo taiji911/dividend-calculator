@@ -81,7 +81,7 @@ export default function Guide() {
       : "배당 재투자 계산기와 목표 배당금 계산기를 올바르게 사용하는 방법과, 결과를 해석할 때 필요한 가정/한계를 정리했습니다.",
     
     section1: {
-      title: isEnglish ? "Who is this guide for?" : "이 가이드는 누구를 위한가",
+      title: isEnglish ? "For Those Interested in Dividend Investing" : "배당 투자에 관심있는 분들께",
       content: isEnglish ? [
         "This guide is for users interested in dividend investing who want to understand how these calculators work.",
         "The calculators are tools for simulating scenarios and understanding potential outcomes based on your assumptions. They are not investment advice.",
