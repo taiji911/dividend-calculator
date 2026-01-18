@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wallet, Coins, TrendingUp, AlertTriangle, Repeat, Target, BarChart3, Shield, ArrowRight } from "lucide-react";
+import { Wallet, Coins, TrendingUp, AlertTriangle, Repeat, Target, BarChart3, Shield, ArrowRight, BookOpen } from "lucide-react";
 import CalculatorForm from "@/components/calculator-form";
 import ResultsCharts from "@/components/results-charts";
 import ResultsTable from "@/components/results-table";
@@ -181,10 +181,10 @@ export default function CalculatorEN() {
         </div>
       </div>
 
-      {/* CTA Card */}
-      <div className="mt-8">
+      {/* CTA Cards */}
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
         <Link href="/en/goal">
-          <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20 hover:border-primary/40 transition-colors cursor-pointer">
+          <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20 hover:border-primary/40 transition-colors cursor-pointer h-full">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -197,6 +197,24 @@ export default function CalculatorEN() {
                   </div>
                 </div>
                 <ArrowRight className="h-5 w-5 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/en/guide">
+          <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 hover:border-blue-400 transition-colors cursor-pointer h-full">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <BookOpen className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Need help using the calculator?</h3>
+                    <p className="text-sm text-gray-600">View Usage Guide</p>
+                  </div>
+                </div>
+                <ArrowRight className="h-5 w-5 text-blue-600" />
               </div>
             </CardContent>
           </Card>
