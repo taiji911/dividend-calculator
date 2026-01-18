@@ -36,12 +36,13 @@ export default function Navigation() {
       icon: Calculator,
       isActive: location === "/" || location === "/kr" || location === "/en" || location === "/calculator",
     },
-    {
-      href: getCurrentLanguage() === 'EN' ? "/en/fire" : "/fire",
-      label: getCurrentLanguage() === 'EN' ? "FIRE Calculator" : "FIRE 계산기",
-      icon: Target,
-      isActive: location === "/fire" || location === "/kr/fire" || location === "/en/fire",
-    },
+    // FIRE Calculator - 개발 중 비공개 처리
+    // {
+    //   href: getCurrentLanguage() === 'EN' ? "/en/fire" : "/fire",
+    //   label: getCurrentLanguage() === 'EN' ? "FIRE Calculator" : "FIRE 계산기",
+    //   icon: Target,
+    //   isActive: location === "/fire" || location === "/kr/fire" || location === "/en/fire",
+    // },
     // {
     //   href: "/comparison",
     //   label: "종목 비교",
