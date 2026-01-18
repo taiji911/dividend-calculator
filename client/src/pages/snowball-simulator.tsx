@@ -23,6 +23,19 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import CalculatorTabs from "@/components/calculator-tabs";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  ReferenceLine,
+  Area,
+  ComposedChart,
+} from "recharts";
 
 interface YearlyData {
   year: number;
@@ -452,6 +465,88 @@ export default function SnowballSimulator() {
                       );
                     })}
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Transition Chart */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">
+                    {isEnglish ? "Dividend vs Contribution Chart" : "배당금 vs 기여금 추이"}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <ComposedChart data={simulationResult.yearlyData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis 
+                          dataKey="year" 
+                          tick={{ fontSize: 12 }}
+                          label={{ 
+                            value: isEnglish ? 'Year' : '연도', 
+                            position: 'insideBottomRight', 
+                            offset: -5,
+                            fontSize: 12 
+                          }}
+                        />
+                        <YAxis 
+                          tick={{ fontSize: 12 }}
+                          tickFormatter={(value) => {
+                            if (value >= 100000000) return `${(value / 100000000).toFixed(0)}${isEnglish ? 'B' : '억'}`;
+                            if (value >= 10000000) return `${(value / 10000).toFixed(0)}${isEnglish ? 'K' : '만'}`;
+                            if (value >= 1000000) return `${(value / 10000).toFixed(0)}${isEnglish ? 'K' : '만'}`;
+                            return value.toLocaleString();
+                          }}
+                        />
+                        <Tooltip 
+                          formatter={(value: number, name: string) => [
+                            formatCurrency(value),
+                            name
+                          ]}
+                          labelFormatter={(label) => `${label}${isEnglish ? ' Year' : '년차'}`}
+                        />
+                        <Legend />
+                        {simulationResult.snowballYear && (
+                          <ReferenceLine 
+                            x={simulationResult.snowballYear} 
+                            stroke="#3b82f6" 
+                            strokeWidth={2}
+                            strokeDasharray="5 5"
+                            label={{ 
+                              value: isEnglish ? 'Transition' : '전환점', 
+                              position: 'top',
+                              fill: '#3b82f6',
+                              fontSize: 12
+                            }}
+                          />
+                        )}
+                        <Area
+                          type="monotone"
+                          dataKey="annualDividend"
+                          name={isEnglish ? "Annual Dividend" : "연 배당금"}
+                          fill="#22c55e"
+                          fillOpacity={0.3}
+                          stroke="#22c55e"
+                          strokeWidth={2}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="contributionAnnual"
+                          name={isEnglish ? "Annual Contribution" : "연 기여금"}
+                          stroke="#f97316"
+                          strokeWidth={2}
+                          strokeDasharray="5 5"
+                          dot={false}
+                        />
+                      </ComposedChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2 text-center">
+                    {isEnglish 
+                      ? "The transition point is where the green area crosses above the orange line"
+                      : "녹색 영역이 주황색 선을 넘는 지점이 전환점입니다"}
+                  </p>
                 </CardContent>
               </Card>
 
