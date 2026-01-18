@@ -192,7 +192,7 @@ export default function SnowballSimulator() {
     }).format(amount);
   };
 
-  const validateInputs = (): boolean => {
+  const validationErrors = useMemo(() => {
     const newErrors: Record<string, string> = {};
 
     if (initialInvestment < 0) newErrors.initialInvestment = t.errors.negative;
@@ -201,12 +201,17 @@ export default function SnowballSimulator() {
     if (dividendGrowth < 0) newErrors.dividendGrowth = t.errors.negative;
     if (investmentPeriod < 1 || investmentPeriod > 60) newErrors.investmentPeriod = t.errors.periodRange;
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    return newErrors;
+  }, [initialInvestment, monthlyContribution, dividendYield, dividendGrowth, investmentPeriod, t.errors]);
+
+  useEffect(() => {
+    setErrors(validationErrors);
+  }, [validationErrors]);
+
+  const isValid = Object.keys(validationErrors).length === 0;
 
   const simulationResult: SimulationResult | null = useMemo(() => {
-    if (!validateInputs()) return null;
+    if (!isValid) return null;
     if (dividendYield <= 0 || investmentPeriod < 1) return null;
 
     const contributionAnnual = monthlyContribution * 12;
@@ -252,7 +257,7 @@ export default function SnowballSimulator() {
       finalPortfolio: Math.round(portfolioEnd),
       totalDividends: Math.round(totalDividends),
     };
-  }, [initialInvestment, dividendYield, dividendGrowth, monthlyContribution, investmentPeriod, reinvestDividends]);
+  }, [initialInvestment, dividendYield, dividendGrowth, monthlyContribution, investmentPeriod, reinvestDividends, isValid]);
 
   const reinvestHref = isEnglish ? "/en" : "/kr";
   const goalHref = isEnglish ? "/en/goal" : "/goal";
