@@ -30,25 +30,7 @@ export default function Navigation() {
     icon: any;
     isActive: boolean;
   }> = [
-    {
-      href: getCurrentLanguage() === 'EN' ? "/en" : "/kr",
-      label: getCurrentLanguage() === 'EN' ? "Dividend Calculator" : "배당 재투자 계산기",
-      icon: Calculator,
-      isActive: location === "/" || location === "/kr" || location === "/en" || location === "/calculator",
-    },
-    // FIRE Calculator - 개발 중 비공개 처리
-    // {
-    //   href: getCurrentLanguage() === 'EN' ? "/en/fire" : "/fire",
-    //   label: getCurrentLanguage() === 'EN' ? "FIRE Calculator" : "FIRE 계산기",
-    //   icon: Target,
-    //   isActive: location === "/fire" || location === "/kr/fire" || location === "/en/fire",
-    // },
-    // {
-    //   href: "/comparison",
-    //   label: "종목 비교",
-    //   icon: BarChart3,
-    //   isActive: location === "/comparison",
-    // },
+    // 현재 탭 네비게이션(CalculatorTabs)을 사용하므로 상단 네비게이션 항목은 비활성화
   ];
 
   const NavContent = () => (
