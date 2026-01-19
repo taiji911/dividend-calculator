@@ -421,19 +421,10 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
                   step="0.1"
                   placeholder={t.calculator.placeholders.yieldPercent}
                   className="pr-8"
-                  value={form.watch("dividendYield") ?? ""}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === "" || value === "-") {
-                      form.setValue("dividendYield", 0, { shouldValidate: true });
-                    } else {
-                      const numValue = parseFloat(value);
-                      if (!isNaN(numValue)) {
-                        form.setValue("dividendYield", numValue, { shouldValidate: true });
-                      }
-                    }
-                    setSelectedPreset(null);
-                  }}
+                  {...form.register("dividendYield", { 
+                    valueAsNumber: true,
+                    onChange: () => setSelectedPreset(null)
+                  })}
                 />
                 <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
                   %
@@ -465,19 +456,10 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
                   step="0.1"
                   placeholder={t.calculator.placeholders.growthPercent}
                   className="pr-8"
-                  value={form.watch("dividendGrowthRate") ?? ""}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === "" || value === "-") {
-                      form.setValue("dividendGrowthRate", 0, { shouldValidate: true });
-                    } else {
-                      const numValue = parseFloat(value);
-                      if (!isNaN(numValue)) {
-                        form.setValue("dividendGrowthRate", numValue, { shouldValidate: true });
-                      }
-                    }
-                    setSelectedPreset(null);
-                  }}
+                  {...form.register("dividendGrowthRate", { 
+                    valueAsNumber: true,
+                    onChange: () => setSelectedPreset(null)
+                  })}
                 />
                 <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
                   %
