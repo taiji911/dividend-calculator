@@ -1,6 +1,4 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -16,8 +14,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const response = await fetch(url, {
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
       },
     });
 
@@ -40,12 +37,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ? summaryDetail.dividendYield.raw * 100
         : null;
 
-    const trailingAnnualDividendYield =
+    const trailingYield =
       summaryDetail?.trailingAnnualDividendYield?.raw != null
         ? summaryDetail.trailingAnnualDividendYield.raw * 100
         : null;
 
-    const finalYield = dividendYield ?? trailingAnnualDividendYield;
+    const finalYield = dividendYield ?? trailingYield;
 
     if (finalYield == null) {
       return res.status(200).json({
