@@ -10,11 +10,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    const url = `https://query2.finance.yahoo.com/v10/finance/quoteSummary/${ticker.toUpperCase()}?modules=summaryDetail,price`;
+    const symbol = ticker.toUpperCase().trim();
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1d&includePrePost=false`;
 
     const response = await fetch(url, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "application/json",
+        "Accept-Language": "en-US,en;q=0.9",
       },
     });
 
@@ -23,42 +26,38 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    const result = data?.quoteSummary?.result?.[0];
+    const meta = data?.chart?.result?.[0]?.meta;
 
-    if (!result) {
+    if (!meta) {
       return res.status(404).json({ error: "No data found for this ticker" });
     }
 
-    const summaryDetail = result.summaryDetail;
-    const price = result.price;
-
     const dividendYield =
-      summaryDetail?.dividendYield?.raw != null
-        ? summaryDetail.dividendYield.raw * 100
+      meta.dividendYield != null
+        ? Math.round(meta.dividendYield * 100) / 100
         : null;
 
     const trailingYield =
-      summaryDetail?.trailingAnnualDividendYield?.raw != null
-        ? summaryDetail.trailingAnnualDividendYield.raw * 100
+      meta.trailingAnnualDividendYield != null
+        ? Math.round(meta.trailingAnnualDividendYield * 10000) / 100
         : null;
 
     const finalYield = dividendYield ?? trailingYield;
 
-    if (finalYield == null) {
+    if (finalYield == null || finalYield === 0) {
       return res.status(200).json({
-        ticker: ticker.toUpperCase(),
-        name: price?.longName || price?.shortName || ticker.toUpperCase(),
+        ticker: symbol,
+        name: meta.longName || meta.shortName || symbol,
         dividendYield: null,
         message: "이 종목은 배당금을 지급하지 않거나 데이터가 없습니다.",
       });
     }
 
     return res.status(200).json({
-      ticker: ticker.toUpperCase(),
-      name: price?.longName || price?.shortName || ticker.toUpperCase(),
-      dividendYield: Math.round(finalYield * 100) / 100,
-      currency: summaryDetail?.currency || "USD",
-      exDividendDate: summaryDetail?.exDividendDate?.fmt || null,
+      ticker: symbol,
+      name: meta.longName || meta.shortName || symbol,
+      dividendYield: finalYield,
+      currency: meta.currency || "USD",
     });
   } catch (error) {
     return res.status(500).json({ error: "Failed to fetch stock data" });
