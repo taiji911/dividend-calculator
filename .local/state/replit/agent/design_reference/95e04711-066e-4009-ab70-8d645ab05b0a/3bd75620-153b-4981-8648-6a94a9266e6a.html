@@ -1,0 +1,585 @@
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>배당 재투자 계산기 - 복리 효과로 자산 증식 시뮬레이션</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563EB',
+                        secondary: '#64748B',
+                        success: '#059669',
+                        warning: '#D97706',
+                        error: '#DC2626'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 font-sans">
+    <!-- @COMPONENT: Header [Navigation and branding] -->
+    <header class="bg-white shadow-sm border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-800">배당 재투자 계산기</h1>
+                        <p class="text-sm text-slate-500">복리 효과로 자산 증식 시뮬레이션</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-slate-500 hover:text-slate-700">
+                        <i class="fas fa-question-circle text-lg"></i>
+                    </button>
+                    <button class="text-slate-500 hover:text-slate-700">
+                        <i class="fas fa-cog text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- @COMPONENT: InputForm [Main calculator inputs] -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Basic Investment Parameters -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex items-center space-x-2 mb-6">
+                        <i class="fas fa-calculator text-primary"></i>
+                        <h2 class="text-lg font-semibold text-slate-800">기본 투자 설정</h2>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- Currency Selection -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">통화 선택</label>
+                            <div class="flex space-x-3">
+                                <button data-event="click:selectCurrency" data-implementation="Toggle between USD/KRW" class="flex-1 px-4 py-2 border-2 border-primary text-primary bg-primary/5 rounded-lg font-medium">USD</button>
+                                <button data-event="click:selectCurrency" data-implementation="Toggle between USD/KRW" class="flex-1 px-4 py-2 border-2 border-slate-300 text-slate-600 rounded-lg font-medium hover:border-slate-400">KRW</button>
+                            </div>
+                        </div>
+
+                        <!-- Initial Investment -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                초기 투자 자산 (선택)
+                                <i class="fas fa-info-circle text-slate-400 ml-1 cursor-help" title="현재 보유한 투자 자산 또는 처음 투입할 금액"></i>
+                            </label>
+                            <div class="relative">
+                                <input type="number" data-bind="initialInvestment" placeholder="10,000" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                                <span class="absolute right-3 top-3 text-slate-500 font-medium">USD</span>
+                            </div>
+                        </div>
+
+                        <!-- Monthly Investment -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                매월 투자 금액
+                                <i class="fas fa-info-circle text-slate-400 ml-1 cursor-help" title="매월 정기적으로 투자할 금액"></i>
+                            </label>
+                            <div class="relative">
+                                <input type="number" data-bind="monthlyInvestment" placeholder="500" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                                <span class="absolute right-3 top-3 text-slate-500 font-medium">USD</span>
+                            </div>
+                        </div>
+
+                        <!-- Investment Period -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                투자 기간
+                                <i class="fas fa-info-circle text-slate-400 ml-1 cursor-help" title="총 투자할 기간(년)"></i>
+                            </label>
+                            <div class="relative">
+                                <input type="number" data-bind="investmentPeriod" placeholder="10" min="1" max="50" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                                <span class="absolute right-3 top-3 text-slate-500 font-medium">년</span>
+                            </div>
+                            <div class="mt-2">
+                                <input type="range" data-bind="investmentPeriodSlider" min="1" max="50" value="10" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                            </div>
+                        </div>
+
+                        <!-- Dividend Rate -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                예상 연간 배당률
+                                <i class="fas fa-info-circle text-slate-400 ml-1 cursor-help" title="연간 배당 수익률 (예: SCHD 평균 3.5%)"></i>
+                            </label>
+                            <div class="relative">
+                                <input type="number" data-bind="dividendRate" placeholder="3.5" step="0.1" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                                <span class="absolute right-3 top-3 text-slate-500 font-medium">%</span>
+                            </div>
+                        </div>
+
+                        <!-- Dividend Growth Rate -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">
+                                예상 연간 배당 성장률
+                                <i class="fas fa-info-circle text-slate-400 ml-1 cursor-help" title="매년 배당금이 증가하는 비율 (예: SCHD 평균 12%)"></i>
+                            </label>
+                            <div class="relative">
+                                <input type="number" data-bind="dividendGrowthRate" placeholder="8.0" step="0.1" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" required>
+                                <span class="absolute right-3 top-3 text-slate-500 font-medium">%</span>
+                            </div>
+                        </div>
+
+                        <!-- DRIP Toggle -->
+                        <div>
+                            <label class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-slate-700">
+                                    배당금 재투자 (DRIP)
+                                    <i class="fas fa-info-circle text-slate-400 ml-1 cursor-help" title="배당금을 자동으로 재투자하여 복리 효과 극대화"></i>
+                                </span>
+                                <div class="relative">
+                                    <input type="checkbox" data-bind="dripEnabled" checked class="sr-only">
+                                    <div class="w-12 h-6 bg-primary rounded-full shadow-inner cursor-pointer">
+                                        <div class="w-5 h-5 bg-white rounded-full shadow transform transition-transform translate-x-6 mt-0.5"></div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Tax Settings -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">세금 설정</label>
+                            <div class="flex space-x-3">
+                                <button data-event="click:selectTaxRegion" data-implementation="Set tax rate based on region" class="flex-1 px-3 py-2 border-2 border-slate-300 text-slate-600 rounded-lg text-sm font-medium hover:border-slate-400">
+                                    한국 (15.4%)
+                                </button>
+                                <button data-event="click:selectTaxRegion" data-implementation="Set tax rate based on region" class="flex-1 px-3 py-2 border-2 border-primary text-primary bg-primary/5 rounded-lg text-sm font-medium">
+                                    미국 (15%)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button data-event="click:calculateResults" data-implementation="Run dividend reinvestment simulation" class="w-full mt-6 bg-primary text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-calculator mr-2"></i>
+                        계산하기
+                    </button>
+                </div>
+
+                <!-- Stock Comparison Section -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-balance-scale text-primary"></i>
+                            <h3 class="text-lg font-semibold text-slate-800">종목 비교 (선택)</h3>
+                        </div>
+                        <label class="flex items-center">
+                            <input type="checkbox" data-bind="comparisonEnabled" class="rounded border-slate-300 text-primary focus:ring-primary">
+                            <span class="ml-2 text-sm text-slate-600">비교 활성화</span>
+                        </label>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">종목 A 티커</label>
+                            <input type="text" data-bind="tickerA" placeholder="예: SCHD" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent uppercase">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">종목 B 티커</label>
+                            <input type="text" data-bind="tickerB" placeholder="예: VYM" class="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent uppercase">
+                        </div>
+                        <button data-event="click:loadTickerData" data-implementation="Fetch historical data for comparison" class="w-full bg-slate-100 text-slate-700 py-2 px-4 rounded-lg font-medium hover:bg-slate-200 transition-colors">
+                            <i class="fas fa-download mr-2"></i>
+                            과거 데이터 불러오기
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: InputForm -->
+
+            <!-- @COMPONENT: ResultsPanel [Charts and calculations display] -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Key Metrics Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-piggy-bank text-success text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-500">최종 자산</p>
+                                <p class="text-2xl font-bold text-slate-800" data-bind="finalAssetValue">$0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-coins text-primary text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-500">누적 배당금</p>
+                                <p class="text-2xl font-bold text-slate-800" data-bind="totalDividends">$0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-line text-warning text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-500">CAGR</p>
+                                <p class="text-2xl font-bold text-slate-800" data-bind="cagr">0%</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 bg-error/10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-receipt text-error text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-500">총 투자원금</p>
+                                <p class="text-2xl font-bold text-slate-800" data-bind="totalInvested">$0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asset Growth Chart -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-slate-800">
+                            <i class="fas fa-chart-area text-primary mr-2"></i>
+                            연도별 총 자산 변화
+                        </h3>
+                        <div class="flex space-x-2">
+                            <button data-event="click:toggleChartType" class="px-3 py-1 text-sm bg-primary text-white rounded-lg">선형</button>
+                            <button data-event="click:toggleChartType" class="px-3 py-1 text-sm border border-slate-300 text-slate-600 rounded-lg">로그</button>
+                        </div>
+                    </div>
+                    <div class="h-80">
+                        <canvas id="assetGrowthChart" data-implementation="Use Chart.js to display asset growth over time"></canvas>
+                    </div>
+                </div>
+
+                <!-- Dividend Growth Chart -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-6">
+                        <i class="fas fa-coins text-success mr-2"></i>
+                        연도별 누적 배당금
+                    </h3>
+                    <div class="h-80">
+                        <canvas id="dividendGrowthChart" data-implementation="Use Chart.js to display cumulative dividends"></canvas>
+                    </div>
+                </div>
+
+                <!-- Detailed Results Table -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-slate-800">
+                            <i class="fas fa-table text-primary mr-2"></i>
+                            연도별 수익 요약
+                        </h3>
+                        <button data-event="click:exportData" data-implementation="Export table data to CSV" class="flex items-center space-x-2 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">
+                            <i class="fas fa-download"></i>
+                            <span>CSV 다운로드</span>
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-slate-200">
+                            <thead class="bg-slate-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">연도</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">총 자산</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">누적 배당금</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">연간 배당금</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">투자 원금</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">수익률</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-slate-200">
+                                <!-- @MAP: calculationResults.map(result => ( -->
+                                <tr data-mock="true">
+                                    <td class="px-6 py-4 text-sm font-medium text-slate-900">1년차</td>
+                                    <td class="px-6 py-4 text-sm text-slate-900">$6,210</td>
+                                    <td class="px-6 py-4 text-sm text-slate-900">$175</td>
+                                    <td class="px-6 py-4 text-sm text-slate-900">$175</td>
+                                    <td class="px-6 py-4 text-sm text-slate-900">$6,000</td>
+                                    <td class="px-6 py-4 text-sm text-success font-medium">+3.5%</td>
+                                </tr>
+                                <tr data-mock="true" class="bg-slate-50">
+                                    <td class="px-6 py-4 text-sm font-medium text-slate-900">2년차</td>
+                                    <td class="px-6 py-4 text-sm text-slate-900">$12,845</td>
+                                    <td class="px-6 py-4 text-sm text-slate-900">$565</td>
+                                    <td class="px-6 py-4 text-sm text-slate-900">$390</td>
+                                    <td class="px-6 py-4 text-sm text-slate-900">$12,000</td>
+                                    <td class="px-6 py-4 text-sm text-success font-medium">+7.0%</td>
+                                </tr>
+                                <tr data-mock="true">
+                                    <td class="px-6 py-4 text-sm font-medium text-slate-900">3년차</td>
+                                    <td class="px-6 py-4 text-sm text-slate-900">$20,125</td>
+                                    <td class="px-6 py-4 text-sm text-slate-900">$1,125</td>
+                                    <td class="px-6 py-4 text-sm text-slate-900">$560</td>
+                                    <td class="px-6 py-4 text-sm text-slate-900">$18,000</td>
+                                    <td class="px-6 py-4 text-sm text-success font-medium">+11.8%</td>
+                                </tr>
+                                <!-- @END_MAP )) -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Stock Comparison Results -->
+                <div data-bind="comparisonResults" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hidden">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-6">
+                        <i class="fas fa-balance-scale text-primary mr-2"></i>
+                        종목 비교 결과
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <h4 class="font-medium text-slate-700" data-bind="tickerAName">SCHD</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-slate-600">최종 자산:</span>
+                                    <span class="font-medium" data-bind="tickerAFinalValue">$125,450</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-slate-600">총 배당금:</span>
+                                    <span class="font-medium" data-bind="tickerATotalDividends">$8,750</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-slate-600">CAGR:</span>
+                                    <span class="font-medium text-success" data-bind="tickerACAGR">8.2%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <h4 class="font-medium text-slate-700" data-bind="tickerBName">VYM</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-slate-600">최종 자산:</span>
+                                    <span class="font-medium" data-bind="tickerBFinalValue">$118,290</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-slate-600">총 배당금:</span>
+                                    <span class="font-medium" data-bind="tickerBTotalDividends">$7,320</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-slate-600">CAGR:</span>
+                                    <span class="font-medium text-success" data-bind="tickerBCAGR">7.8%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 h-64">
+                        <canvas id="comparisonChart" data-implementation="Use Chart.js to display comparison visualization"></canvas>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: ResultsPanel -->
+        </div>
+
+        <!-- Educational Content Section -->
+        <div class="mt-12 bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+            <h2 class="text-2xl font-bold text-slate-800 mb-6">
+                <i class="fas fa-graduation-cap text-primary mr-3"></i>
+                배당 재투자의 복리 효과 이해하기
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-seedling text-primary text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-800 mb-2">복리 효과</h3>
+                    <p class="text-slate-600 text-sm">배당금을 재투자하여 시간이 지날수록 가속화되는 자산 증식 효과를 경험하세요.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-line text-success text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-800 mb-2">배당 성장</h3>
+                    <p class="text-slate-600 text-sm">우량 배당주의 꾸준한 배당 증가로 인한 장기적인 수익 증대를 확인하세요.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-warning/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-shield-alt text-warning text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-slate-800 mb-2">리스크 관리</h3>
+                    <p class="text-slate-600 text-sm">분산 투자와 장기 투자를 통한 안정적인 자산 운용 전략을 수립하세요.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- @COMPONENT: Footer [Site footer with links and info] -->
+    <footer class="bg-slate-800 text-white mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                            <i class="fas fa-chart-line text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold">배당 계산기</span>
+                    </div>
+                    <p class="text-slate-400 text-sm">복리 효과를 통한 스마트한 배당 투자 시뮬레이션</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">계산기 도구</h4>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li><a href="#" class="hover:text-white">배당 재투자 계산기</a></li>
+                        <li><a href="#" class="hover:text-white">은퇴자금 계산기</a></li>
+                        <li><a href="#" class="hover:text-white">적금 계산기</a></li>
+                        <li><a href="#" class="hover:text-white">복리 계산기</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">투자 가이드</h4>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li><a href="#" class="hover:text-white">배당주 투자 가이드</a></li>
+                        <li><a href="#" class="hover:text-white">ETF 비교 분석</a></li>
+                        <li><a href="#" class="hover:text-white">세금 절약 전략</a></li>
+                        <li><a href="#" class="hover:text-white">리스크 관리</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">고객 지원</h4>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li><a href="#" class="hover:text-white">사용법 가이드</a></li>
+                        <li><a href="#" class="hover:text-white">자주 묻는 질문</a></li>
+                        <li><a href="#" class="hover:text-white">문의하기</a></li>
+                        <li><a href="#" class="hover:text-white">개인정보처리방침</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-slate-700 mt-8 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-slate-400 text-sm">© 2024 배당 재투자 계산기. 투자에는 리스크가 따릅니다.</p>
+                    <div class="flex space-x-4 mt-4 md:mt-0">
+                        <a href="#" class="text-slate-400 hover:text-white">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-slate-400 hover:text-white">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                        <a href="#" class="text-slate-400 hover:text-white">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: Footer -->
+
+    <script>
+        (function() {
+            // TODO: Implement dividend reinvestment calculation logic
+            // TODO: Implement Chart.js integration for data visualization
+            // TODO: Implement ticker data fetching from financial APIs
+            // TODO: Implement form validation and error handling
+            // TODO: Implement CSV export functionality
+            // TODO: Implement responsive chart resizing
+
+            // Sample initialization code for charts
+            const assetGrowthCtx = document.getElementById('assetGrowthChart');
+            const dividendGrowthCtx = document.getElementById('dividendGrowthChart');
+            const comparisonCtx = document.getElementById('comparisonChart');
+
+            // Mock data for demonstration - replace with actual calculations
+            const mockData = {
+                labels: ['1년', '2년', '3년', '4년', '5년', '6년', '7년', '8년', '9년', '10년'],
+                assetValues: [6210, 12845, 20125, 28250, 37380, 47650, 59200, 72180, 86740, 103050],
+                dividendValues: [175, 565, 1125, 1875, 2845, 4075, 5605, 7480, 9750, 12470]
+            };
+
+            // Asset Growth Chart initialization
+            if (assetGrowthCtx) {
+                new Chart(assetGrowthCtx, {
+                    type: 'line',
+                    data: {
+                        labels: mockData.labels,
+                        datasets: [{
+                            label: '총 자산 가치',
+                            data: mockData.assetValues,
+                            borderColor: '#2563EB',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Dividend Growth Chart initialization
+            if (dividendGrowthCtx) {
+                new Chart(dividendGrowthCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: mockData.labels,
+                        datasets: [{
+                            label: '누적 배당금',
+                            data: mockData.dividendValues,
+                            backgroundColor: '#059669',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Basic form interaction handlers would go here
+            console.log('배당 재투자 계산기가 초기화되었습니다.');
+        })();
+    </script>
+</body>
+</html>

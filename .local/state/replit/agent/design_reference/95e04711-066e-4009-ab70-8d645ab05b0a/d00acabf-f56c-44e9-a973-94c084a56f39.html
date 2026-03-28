@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>배당 재투자 계산기 | 투자 시뮬레이션 도구</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563EB',
+                        secondary: '#64748B',
+                        accent: '#10B981',
+                        surface: '#FFFFFF',
+                        background: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="h-full bg-background font-sans">
+    <!-- Navigation Header -->
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-xl font-bold text-gray-900">
+                            <i class="fas fa-chart-line text-primary mr-2"></i>
+                            배당 재투자 계산기
+                        </h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Tab Navigation -->
+        <div class="mb-8">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8">
+                    <button onclick="switchTab('calculator')" id="calculator-tab" class="tab-button active border-primary text-primary border-b-2 py-2 px-1 text-sm font-medium">
+                        <i class="fas fa-calculator mr-2"></i>메인 계산기
+                    </button>
+                    <button onclick="switchTab('comparison')" id="comparison-tab" class="tab-button border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 border-b-2 py-2 px-1 text-sm font-medium">
+                        <i class="fas fa-balance-scale mr-2"></i>종목 비교
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Calculator Tab -->
+        <div id="calculator-content" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Input Panel -->
+                <div class="lg:col-span-1">
+                    <!-- @COMPONENT: CalculatorInputForm -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-6">투자 조건 설정</h2>
+                        
+                        <!-- Currency Selection -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">통화</label>
+                            <div class="flex rounded-md border border-gray-300 overflow-hidden">
+                                <button onclick="setCurrency('USD')" id="usd-btn" class="currency-btn active flex-1 px-4 py-2 text-sm bg-primary text-white">USD ($)</button>
+                                <button onclick="setCurrency('KRW')" id="krw-btn" class="currency-btn flex-1 px-4 py-2 text-sm bg-white text-gray-700 border-l border-gray-300">KRW (₩)</button>
+                            </div>
+                        </div>
+
+                        <form class="space-y-4">
+                            <!-- Initial Investment -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    초기 투자 자산
+                                    <i class="fas fa-info-circle text-gray-400 ml-1" title="투자를 시작할 때의 초기 자본"></i>
+                                </label>
+                                <div class="relative">
+                                    <span class="currency-symbol absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                                    <input type="number" data-bind="initialInvestment" placeholder="10,000" class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary">
+                                </div>
+                            </div>
+
+                            <!-- Monthly Investment -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    매달 투자 금액
+                                    <i class="fas fa-info-circle text-gray-400 ml-1" title="매월 정기적으로 투자할 금액"></i>
+                                </label>
+                                <div class="relative">
+                                    <span class="currency-symbol absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                                    <input type="number" data-bind="monthlyInvestment" placeholder="500" class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary">
+                                </div>
+                            </div>
+
+                            <!-- Investment Period -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    투자 기간
+                                    <i class="fas fa-info-circle text-gray-400 ml-1" title="투자를 지속할 총 기간"></i>
+                                </label>
+                                <div class="relative">
+                                    <input type="number" data-bind="investmentPeriod" placeholder="10" class="w-full pl-4 pr-8 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary">
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">년</span>
+                                </div>
+                            </div>
+
+                            <!-- Dividend Yield -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    예상 연간 배당률
+                                    <i class="fas fa-info-circle text-gray-400 ml-1" title="현재 주가 대비 연간 배당 수익률"></i>
+                                </label>
+                                <div class="relative">
+                                    <input type="number" data-bind="dividendYield" step="0.1" placeholder="3.5" class="w-full pl-4 pr-8 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary">
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+                                </div>
+                            </div>
+
+                            <!-- Dividend Growth Rate -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    예상 연간 배당 성장률
+                                    <i class="fas fa-info-circle text-gray-400 ml-1" title="매년 배당금이 증가하는 비율"></i>
+                                </label>
+                                <div class="relative">
+                                    <input type="number" data-bind="dividendGrowthRate" step="0.1" placeholder="5.0" class="w-full pl-4 pr-8 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary">
+                                    <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">%</span>
+                                </div>
+                            </div>
+
+                            <!-- DRIP Toggle -->
+                            <div>
+                                <label class="flex items-center">
+                                    <input type="checkbox" data-bind="dripEnabled" checked class="rounded border-gray-300 text-primary focus:ring-primary">
+                                    <span class="ml-2 text-sm font-medium text-gray-700">
+                                        DRIP (배당금 재투자) 활성화
+                                        <i class="fas fa-info-circle text-gray-400 ml-1" title="배당금을 현금으로 받지 않고 자동으로 재투자"></i>
+                                    </span>
+                                </label>
+                            </div>
+
+                            <!-- Stock Ticker (Optional) -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    종목 티커 (선택사항)
+                                    <i class="fas fa-info-circle text-gray-400 ml-1" title="특정 종목의 과거 데이터를 사용하려면 입력"></i>
+                                </label>
+                                <input type="text" data-bind="stockTicker" placeholder="SCHD" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary uppercase">
+                            </div>
+
+                            <!-- Calculate Button -->
+                            <button type="button" onclick="calculateDividendReinvestment()" class="w-full bg-primary text-white py-3 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium">
+                                <i class="fas fa-calculator mr-2"></i>계산하기
+                            </button>
+                        </form>
+                    </div>
+                    <!-- @END_COMPONENT: CalculatorInputForm -->
+
+                    <!-- Quick Presets -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-6">
+                        <h3 class="text-md font-semibold text-gray-900 mb-4">빠른 설정</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="loadPreset('conservative')" class="p-3 text-left border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
+                                <div class="text-sm font-medium text-gray-900">보수적</div>
+                                <div class="text-xs text-gray-500">배당률 3%, 성장률 3%</div>
+                            </button>
+                            <button onclick="loadPreset('moderate')" class="p-3 text-left border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
+                                <div class="text-sm font-medium text-gray-900">중간</div>
+                                <div class="text-xs text-gray-500">배당률 4%, 성장률 5%</div>
+                            </button>
+                            <button onclick="loadPreset('aggressive')" class="p-3 text-left border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
+                                <div class="text-sm font-medium text-gray-900">공격적</div>
+                                <div class="text-xs text-gray-500">배당률 5%, 성장률 8%</div>
+                            </button>
+                            <button onclick="loadPreset('schd')" class="p-3 text-left border border-primary border-2 rounded-md hover:bg-blue-50 transition-colors">
+                                <div class="text-sm font-medium text-primary">SCHD</div>
+                                <div class="text-xs text-blue-600">실제 데이터 기반</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Panel -->
+                <div class="lg:col-span-2">
+                    <!-- Summary Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <!-- @COMPONENT: SummaryCard [총 자산] -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 bg-primary bg-opacity-10 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-wallet text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-500">총 자산</p>
+                                    <p class="text-2xl font-semibold text-gray-900" data-bind="totalAssets">$0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- @END_COMPONENT: SummaryCard -->
+
+                        <!-- @COMPONENT: SummaryCard [누적 배당금] -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 bg-accent bg-opacity-10 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-coins text-accent"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-500">누적 배당금</p>
+                                    <p class="text-2xl font-semibold text-gray-900" data-bind="totalDividends">$0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- @END_COMPONENT: SummaryCard -->
+
+                        <!-- @COMPONENT: SummaryCard [CAGR] -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-chart-line text-orange-600"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="text-sm font-medium text-gray-500">연복리 수익률 (CAGR)</p>
+                                    <p class="text-2xl font-semibold text-gray-900" data-bind="cagr">0%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- @END_COMPONENT: SummaryCard -->
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <!-- Asset Growth Chart -->
+                        <!-- @COMPONENT: AssetGrowthChart -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">자산 성장 추이</h3>
+                            <div class="relative h-64">
+                                <canvas id="assetGrowthChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- @END_COMPONENT: AssetGrowthChart -->
+
+                        <!-- Dividend Growth Chart -->
+                        <!-- @COMPONENT: DividendGrowthChart -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">배당금 성장 추이</h3>
+                            <div class="relative h-64">
+                                <canvas id="dividendGrowthChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- @END_COMPONENT: DividendGrowthChart -->
+                    </div>
+
+                    <!-- Detailed Results Table -->
+                    <!-- @COMPONENT: ResultsTable -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">연도별 상세 결과</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">연도</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">총 자산</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">누적 배당금</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">연간 배당금</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">수익률</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="resultsTableBody" class="bg-white divide-y divide-gray-200">
+                                    <!-- @MAP: yearlyResults.map(result => ( -->
+                                    <tr data-mock="true">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1년</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$12,500</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$450</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$450</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-accent">+8.5%</td>
+                                    </tr>
+                                    <!-- @END_MAP )) -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: ResultsTable -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Comparison Tab -->
+        <div id="comparison-content" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Comparison Input Panel -->
+                <div class="lg:col-span-1">
+                    <!-- @COMPONENT: ComparisonInputForm -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-6">종목 비교 설정</h2>
+                        
+                        <form class="space-y-4">
+                            <!-- Stock A -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">종목 A 티커</label>
+                                <input type="text" data-bind="stockA" placeholder="SCHD" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary uppercase">
+                            </div>
+
+                            <!-- Stock B -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">종목 B 티커</label>
+                                <input type="text" data-bind="stockB" placeholder="VTI" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary uppercase">
+                            </div>
+
+                            <!-- Investment Period for Comparison -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">투자 기간</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button type="button" onclick="setComparisonPeriod(5)" class="period-btn p-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50">5년</button>
+                                    <button type="button" onclick="setComparisonPeriod(10)" class="period-btn active p-2 text-sm bg-primary text-white rounded-md">10년</button>
+                                    <button type="button" onclick="setComparisonPeriod(15)" class="period-btn p-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50">15년</button>
+                                    <button type="button" onclick="setComparisonPeriod(30)" class="period-btn p-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50">30년</button>
+                                </div>
+                            </div>
+
+                            <!-- Initial Investment for Comparison -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">초기 투자금</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                                    <input type="number" data-bind="comparisonInitial" placeholder="10,000" class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary">
+                                </div>
+                            </div>
+
+                            <!-- Monthly Investment for Comparison -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">월 투자금</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                                    <input type="number" data-bind="comparisonMonthly" placeholder="500" class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary focus:border-primary">
+                                </div>
+                            </div>
+
+                            <!-- Compare Button -->
+                            <button type="button" onclick="compareStocks()" class="w-full bg-accent text-white py-3 px-4 rounded-md hover:bg-green-700 transition-colors font-medium">
+                                <i class="fas fa-balance-scale mr-2"></i>종목 비교하기
+                            </button>
+                        </form>
+                    </div>
+                    <!-- @END_COMPONENT: ComparisonInputForm -->
+
+                    <!-- Popular Comparisons -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-6">
+                        <h3 class="text-md font-semibold text-gray-900 mb-4">인기 비교</h3>
+                        <div class="space-y-2">
+                            <button onclick="loadComparison('SCHD', 'VTI')" class="w-full p-3 text-left border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
+                                <div class="text-sm font-medium text-gray-900">SCHD vs VTI</div>
+                                <div class="text-xs text-gray-500">배당 성장 vs 전체 시장</div>
+                            </button>
+                            <button onclick="loadComparison('SCHD', 'SPY')" class="w-full p-3 text-left border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
+                                <div class="text-sm font-medium text-gray-900">SCHD vs SPY</div>
+                                <div class="text-xs text-gray-500">배당 성장 vs S&P 500</div>
+                            </button>
+                            <button onclick="loadComparison('SCHD', 'QQQ')" class="w-full p-3 text-left border border-gray-200 rounded-md hover:bg-gray-50 transition-colors">
+                                <div class="text-sm font-medium text-gray-900">SCHD vs QQQ</div>
+                                <div class="text-xs text-gray-500">배당 성장 vs 나스닥</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparison Results Panel -->
+                <div class="lg:col-span-2">
+                    <!-- Stock Info Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Stock A Info -->
+                        <!-- @COMPONENT: StockInfoCard [Stock A] -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900" data-bind="stockAName">SCHD</h3>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">종목 A</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-500">평균 배당률</span>
+                                    <span class="text-sm font-medium text-gray-900" data-bind="stockADividend">3.5%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-500">예상 총 수익</span>
+                                    <span class="text-sm font-medium text-accent" data-bind="stockAReturn">$25,430</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-500">배당 성장률</span>
+                                    <span class="text-sm font-medium text-gray-900" data-bind="stockAGrowth">12%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- @END_COMPONENT: StockInfoCard -->
+
+                        <!-- Stock B Info -->
+                        <!-- @COMPONENT: StockInfoCard [Stock B] -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900" data-bind="stockBName">VTI</h3>
+                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">종목 B</span>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-500">평균 배당률</span>
+                                    <span class="text-sm font-medium text-gray-900" data-bind="stockBDividend">1.8%</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-500">예상 총 수익</span>
+                                    <span class="text-sm font-medium text-accent" data-bind="stockBReturn">$28,750</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-sm text-gray-500">배당 성장률</span>
+                                    <span class="text-sm font-medium text-gray-900" data-bind="stockBGrowth">7%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- @END_COMPONENT: StockInfoCard -->
+                    </div>
+
+                    <!-- Comparison Chart -->
+                    <!-- @COMPONENT: ComparisonChart -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">종목 비교 차트</h3>
+                        <div class="relative h-80">
+                            <canvas id="comparisonChart"></canvas>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: ComparisonChart -->
+
+                    <!-- Comparison Summary -->
+                    <!-- @COMPONENT: ComparisonSummary -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">비교 결과 요약</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <h4 class="font-medium text-gray-900">배당 수익 비교</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500">SCHD 총 배당금</span>
+                                        <span class="text-sm font-medium text-blue-600" data-bind="stockATotalDividends">$8,450</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500">VTI 총 배당금</span>
+                                        <span class="text-sm font-medium text-green-600" data-bind="stockBTotalDividends">$4,680</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <h4 class="font-medium text-gray-900">총 수익률 비교</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500">SCHD CAGR</span>
+                                        <span class="text-sm font-medium text-blue-600" data-bind="stockACAGR">8.5%</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm text-gray-500">VTI CAGR</span>
+                                        <span class="text-sm font-medium text-green-600" data-bind="stockBCAGR">9.2%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_COMPONENT: ComparisonSummary -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Disclaimer -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 border-t border-gray-200 mt-12">
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">투자 위험 고지</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <p>본 계산기의 결과는 참고용이며, 실제 투자 수익을 보장하지 않습니다. 모든 투자에는 원금 손실의 위험이 있으며, 과거 성과가 미래 결과를 보장하지 않습니다. 투자 결정 전에 전문가와 상담하시기 바랍니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center text-sm text-gray-500">
+                <p>&copy; 2024 배당 재투자 계산기. 투자 교육 목적으로 제작되었습니다.</p>
+                <p class="mt-2">문의사항: contact@dividendcalculator.com</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables to store chart instances
+        let assetChart = null;
+        let dividendChart = null;
+        let comparisonChart = null;
+
+        // Currency management
+        function setCurrency(currency) {
+            const buttons = document.querySelectorAll('.currency-btn');
+            const symbols = document.querySelectorAll('.currency-symbol');
+            
+            buttons.forEach(btn => btn.classList.remove('active', 'bg-primary', 'text-white'));
+            buttons.forEach(btn => btn.classList.add('bg-white', 'text-gray-700'));
+            
+            const activeBtn = document.getElementById(currency.toLowerCase() + '-btn');
+            activeBtn.classList.add('active', 'bg-primary', 'text-white');
+            activeBtn.classList.remove('bg-white', 'text-gray-700');
+            
+            const symbol = currency === 'USD' ? '$' : '₩';
+            symbols.forEach(span => span.textContent = symbol);
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + '-content').classList.remove('hidden');
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active', 'border-primary', 'text-primary');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            const activeTab = document.getElementById(tabName + '-tab');
+            activeTab.classList.add('active', 'border-primary', 'text-primary');
+            activeTab.classList.remove('border-transparent', 'text-gray-500');
+        }
+
+        // Load preset values
+        function loadPreset(presetName) {
+            const presets = {
+                conservative: { dividendYield: 3.0, dividendGrowthRate: 3.0, monthlyInvestment: 300 },
+                moderate: { dividendYield: 4.0, dividendGrowthRate: 5.0, monthlyInvestment: 500 },
+                aggressive: { dividendYield: 5.0, dividendGrowthRate: 8.0, monthlyInvestment: 800 },
+                schd: { dividendYield: 3.5, dividendGrowthRate: 12.0, monthlyInvestment: 500, stockTicker: 'SCHD' }
+            };
+            
+            const preset = presets[presetName];
+            if (preset) {
+                document.querySelector('[data-bind="dividendYield"]').value = preset.dividendYield;
+                document.querySelector('[data-bind="dividendGrowthRate"]').value = preset.dividendGrowthRate;
+                document.querySelector('[data-bind="monthlyInvestment"]').value = preset.monthlyInvestment;
+                if (preset.stockTicker) {
+                    document.querySelector('[data-bind="stockTicker"]').value = preset.stockTicker;
+                }
+            }
+        }
+
+        // Main calculation function
+        function calculateDividendReinvestment() {
+            // TODO: Implement dividend reinvestment calculation logic
+            // Get input values
+            const initialInvestment = parseFloat(document.querySelector('[data-bind="initialInvestment"]').value) || 10000;
+            const monthlyInvestment = parseFloat(document.querySelector('[data-bind="monthlyInvestment"]').value) || 500;
+            const period = parseInt(document.querySelector('[data-bind="investmentPeriod"]').value) || 10;
+            const dividendYield = parseFloat(document.querySelector('[data-bind="dividendYield"]').value) || 3.5;
+            const growthRate = parseFloat(document.querySelector('[data-bind="dividendGrowthRate"]').value) || 5.0;
+            
+            // Simulate calculation results
+            const mockResults = simulateDividendGrowth(initialInvestment, monthlyInvestment, period, dividendYield, growthRate);
+            
+            // Update summary cards
+            document.querySelector('[data-bind="totalAssets"]').textContent = formatCurrency(mockResults.finalValue);
+            document.querySelector('[data-bind="totalDividends"]').textContent = formatCurrency(mockResults.totalDividends);
+            document.querySelector('[data-bind="cagr"]').textContent = mockResults.cagr.toFixed(1) + '%';
+            
+            // Update charts
+            updateAssetChart(mockResults.yearlyData);
+            updateDividendChart(mockResults.yearlyData);
+            
+            // Update results table
+            updateResultsTable(mockResults.yearlyData);
+        }
+
+        // Mock simulation function
+        function simulateDividendGrowth(initial, monthly, years, yield, growth) {
+            let totalValue = initial;
+            let totalDividends = 0;
+            let totalInvested = initial;
+            const yearlyData = [];
+            
+            for (let year = 1; year <= years; year++) {
+                // Add monthly investments
+                totalValue += monthly * 12;
+                totalInvested += monthly * 12;
+                
+                // Calculate dividends
+                const yearlyDividend = totalValue * (yield / 100);
+                totalDividends += yearlyDividend;
+                
+                // Reinvest dividends
+                totalValue += yearlyDividend;
+                
+                // Apply growth
+                totalValue *= (1 + growth / 100);
+                
+                yearlyData.push({
+                    year: year,
+                    totalValue: totalValue,
+                    yearlyDividend: yearlyDividend,
+                    totalDividends: totalDividends,
+                    totalInvested: totalInvested
+                });
+            }
+            
+            const cagr = (Math.pow(totalValue / initial, 1 / years) - 1) * 100;
+            
+            return {
+                finalValue: totalValue,
+                totalDividends: totalDividends,
+                cagr: cagr,
+                yearlyData: yearlyData
+            };
+        }
+
+        // Chart update functions
+        function updateAssetChart(data) {
+            const ctx = document.getElementById('assetGrowthChart');
+            
+            if (assetChart) {
+                assetChart.destroy();
+            }
+            
+            assetChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => `${d.year}년`),
+                    datasets: [{
+                        label: '총 자산',
+                        data: data.map(d => d.totalValue),
+                        borderColor: '#2563EB',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateDividendChart(data) {
+            const ctx = document.getElementById('dividendGrowthChart');
+            
+            if (dividendChart) {
+                dividendChart.destroy();
+            }
+            
+            dividendChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => `${d.year}년`),
+                    datasets: [{
+                        label: '연간 배당금',
+                        data: data.map(d => d.yearlyDividend),
+                        backgroundColor: '#10B981',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update results table
+        function updateResultsTable(data) {
+            const tbody = document.getElementById('resultsTableBody');
+            tbody.innerHTML = '';
+            
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${row.year}년</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatCurrency(row.totalValue)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatCurrency(row.totalDividends)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${formatCurrency(row.yearlyDividend)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+${((row.totalValue / row.totalInvested - 1) * 100).toFixed(1)}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Comparison functions
+        function setComparisonPeriod(years) {
+            document.querySelectorAll('.period-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-primary', 'text-white');
+                btn.classList.add('border', 'border-gray-300');
+            });
+            
+            event.target.classList.add('active', 'bg-primary', 'text-white');
+            event.target.classList.remove('border', 'border-gray-300');
+        }
+
+        function loadComparison(stockA, stockB) {
+            document.querySelector('[data-bind="stockA"]').value = stockA;
+            document.querySelector('[data-bind="stockB"]').value = stockB;
+        }
+
+        function compareStocks() {
+            // TODO: Implement stock comparison logic
+            const stockA = document.querySelector('[data-bind="stockA"]').value || 'SCHD';
+            const stockB = document.querySelector('[data-bind="stockB"]').value || 'VTI';
+            
+            // Mock comparison data
+            updateComparisonChart();
+        }
+
+        function updateComparisonChart() {
+            const ctx = document.getElementById('comparisonChart');
+            
+            if (comparisonChart) {
+                comparisonChart.destroy();
+            }
+            
+            // Mock data for comparison
+            const years = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+            const schdData = [11000, 12500, 14200, 16100, 18300, 20800, 23600, 26800, 30400, 34500];
+            const vtiData = [11200, 12800, 14600, 16700, 19100, 21800, 24900, 28400, 32400, 37000];
+            
+            comparisonChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years.map(y => `${y}년`),
+                    datasets: [{
+                        label: 'SCHD',
+                        data: schdData,
+                        borderColor: '#2563EB',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        tension: 0.4
+                    }, {
+                        label: 'VTI',
+                        data: vtiData,
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return formatCurrency(value);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Utility functions
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Initialize with default values
+        (function init() {
+            // Set default values
+            document.querySelector('[data-bind="initialInvestment"]').value = 10000;
+            document.querySelector('[data-bind="monthlyInvestment"]').value = 500;
+            document.querySelector('[data-bind="investmentPeriod"]').value = 10;
+            document.querySelector('[data-bind="dividendYield"]').value = 3.5;
+            document.querySelector('[data-bind="dividendGrowthRate"]').value = 5.0;
+            document.querySelector('[data-bind="comparisonInitial"]').value = 10000;
+            document.querySelector('[data-bind="comparisonMonthly"]').value = 500;
+            
+            // Run initial calculation
+            setTimeout(calculateDividendReinvestment, 100);
+        })();
+    </script>
+</body>
+</html>
