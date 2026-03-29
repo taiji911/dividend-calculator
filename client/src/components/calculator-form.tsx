@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calculator, Info, Search, Loader2, CheckCircle } from "lucide-react";
+import { Calculator, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
@@ -38,9 +38,6 @@ interface CalculatorFormProps {
 export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
   const { toast } = useToast();
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
-  const [tickerInput, setTickerInput] = useState("");
-  const [tickerLoading, setTickerLoading] = useState(false);
-  const [tickerResult, setTickerResult] = useState<{ name: string; dividendYield: number | null } | null>(null);
   const language = getCurrentLanguage();
   const t = getTranslation(language);
 
@@ -59,48 +56,6 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
       customTaxRate: 0,
     },
   });
-
-  // Yahoo Finance ticker lookup
-  const handleTickerSearch = async () => {
-    if (!tickerInput.trim()) return;
-    setTickerLoading(true);
-    setTickerResult(null);
-    try {
-      const res = await fetch(`/api/stock?ticker=${tickerInput.trim().toUpperCase()}`);
-      const data = await res.json();
-      if (data.error) {
-        toast({
-          title: "종목을 찾을 수 없어요",
-          description: "정확한 티커를 입력해주세요 (예: SCHD, JEPI, JEPQ)",
-          variant: "destructive",
-        });
-      } else {
-        setTickerResult({ name: data.name, dividendYield: data.dividendYield });
-        if (data.dividendYield != null) {
-          form.setValue("dividendYield", data.dividendYield);
-          setSelectedPreset(null);
-          toast({
-            title: `${data.ticker} 배당률 조회 완료!`,
-            description: `${data.name} — 배당률 ${data.dividendYield}% 자동 입력됐어요`,
-          });
-        } else {
-          toast({
-            title: `${data.ticker}`,
-            description: data.message || "배당 데이터가 없는 종목입니다.",
-            variant: "destructive",
-          });
-        }
-      }
-    } catch {
-      toast({
-        title: "조회 실패",
-        description: "잠시 후 다시 시도해주세요.",
-        variant: "destructive",
-      });
-    } finally {
-      setTickerLoading(false);
-    }
-  };
 
   const calculateMutation = useMutation({
     mutationFn: async (data: CalculationFormData) => {
@@ -139,8 +94,6 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
     form.setValue("dividendYield", preset.dividendYield);
     form.setValue("dividendGrowthRate", preset.dividendGrowthRate);
     setSelectedPreset(presetName);
-    setTickerResult(null);
-    setTickerInput("");
   };
 
   const watchedValues = form.watch(["dividendYield", "dividendGrowthRate"]);
@@ -166,41 +119,6 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-
-          {/* ✨ Yahoo Finance Ticker Search */}
-          <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 space-y-2">
-            <Label className="flex items-center text-blue-800 font-medium text-sm">
-              <Search className="h-4 w-4 mr-1" />
-              {language === 'en' ? 'Auto-fill by Ticker' : '티커로 배당률 자동 조회'}
-            </Label>
-            <div className="flex gap-2">
-              <Input
-                placeholder={language === 'en' ? 'e.g. SCHD, JEPI, VYM' : 'SCHD, JEPI, JEPQ 입력'}
-                value={tickerInput}
-                onChange={(e) => setTickerInput(e.target.value.toUpperCase())}
-                onKeyDown={(e) => e.key === 'Enter' && handleTickerSearch()}
-                className="bg-white text-sm"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleTickerSearch}
-                disabled={tickerLoading || !tickerInput.trim()}
-                className="shrink-0 border-blue-200 text-blue-700 hover:bg-blue-100"
-              >
-                {tickerLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : language === 'en' ? 'Search' : '조회'}
-              </Button>
-            </div>
-            {tickerResult && tickerResult.dividendYield != null && (
-              <div className="flex items-center gap-2 text-xs text-blue-700">
-                <CheckCircle className="h-3 w-3 text-green-500" />
-                <span>{tickerResult.name} — 배당률 <strong>{tickerResult.dividendYield}%</strong> 자동 입력됨</span>
-              </div>
-            )}
-            <p className="text-xs text-blue-500">
-              {language === 'en' ? 'Fetches real-time dividend yield from Yahoo Finance' : 'Yahoo Finance에서 실시간 배당률을 가져옵니다'}
-            </p>
-          </div>
 
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             {/* Initial Investment */}
