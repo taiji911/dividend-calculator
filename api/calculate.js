@@ -32,39 +32,58 @@ export default function handler(req, res) {
     let totalInvested = initialInvestment;
     const yearlyData = [];
 
-    for (let year = 1; year <= investmentPeriod; year++) {
-      const yearlyMonthlyContribution = monthlyInvestment * 12;
-      totalInvested += yearlyMonthlyContribution;
+    const totalMonths = investmentPeriod * 12;
+    let prevYearCumulativeDividends = 0;
 
-      const currentYield =
+    for (let month = 1; month <= totalMonths; month++) {
+      const year = Math.ceil(month / 12);
+
+      // 월 배당률 = 연 배당률(성장 반영) / 12
+      const annualYieldForYear =
         (dividendYield / 100) *
         Math.pow(1 + dividendGrowthRate / 100, year - 1);
+      const monthlyYieldRate = annualYieldForYear / 12;
 
-      const grossDividends = totalAssets * currentYield;
-      const netDividends = grossDividends * (1 - taxRate);
+      // 월 배당금
+      const grossMonthlyDividend = totalAssets * monthlyYieldRate;
+      const netMonthlyDividend = grossMonthlyDividend * (1 - taxRate);
 
-      cumulativeDividends += netDividends;
+      cumulativeDividends += netMonthlyDividend;
+      totalInvested += monthlyInvestment;
 
       if (dripEnabled) {
-        totalAssets += netDividends + yearlyMonthlyContribution;
+        totalAssets += netMonthlyDividend + monthlyInvestment;
       } else {
-        totalAssets += yearlyMonthlyContribution;
+        totalAssets += monthlyInvestment;
       }
 
-      const returnPercentage =
-        totalInvested > 0
-          ? ((totalAssets - totalInvested) / totalInvested) * 100
-          : 0;
+      // 연도 마지막 달에 yearlyData 추가
+      if (month % 12 === 0) {
+        const annualDividends = cumulativeDividends - prevYearCumulativeDividends;
+        prevYearCumulativeDividends = cumulativeDividends;
 
-      yearlyData.push({
-        year,
-        totalAssets: Math.round(totalAssets),
-        cumulativeDividends: Math.round(cumulativeDividends),
-        annualDividends: Math.round(netDividends),
-        totalInvested: Math.round(totalInvested),
-        returnPercentage: Math.round(returnPercentage * 10) / 10,
-        holdingAssets: Math.round(totalAssets - cumulativeDividends),
-      });
+        const returnPercentage =
+          totalInvested > 0
+            ? ((totalAssets - totalInvested) / totalInvested) * 100
+            : 0;
+
+        // YoC: 초기 투자 원금 대비 연간 배당률
+        const yieldOnCost =
+          initialInvestment > 0
+            ? (annualDividends / initialInvestment) * 100
+            : 0;
+
+        yearlyData.push({
+          year: month / 12,
+          totalAssets: Math.round(totalAssets),
+          cumulativeDividends: Math.round(cumulativeDividends),
+          annualDividends: Math.round(annualDividends),
+          totalInvested: Math.round(totalInvested),
+          returnPercentage: Math.round(returnPercentage * 10) / 10,
+          holdingAssets: Math.round(totalAssets - cumulativeDividends),
+          yieldOnCost: Math.round(yieldOnCost * 100) / 100,
+        });
+      }
     }
 
     const cagr =
@@ -78,6 +97,7 @@ export default function handler(req, res) {
       cagr: Math.round(cagr * 10) / 10,
       yearlyData,
       totalInvested: Math.round(totalInvested),
+      initialInvestment: Math.round(initialInvestment),
     });
   } catch (error) {
     return res.status(500).json({ error: "Calculation failed" });

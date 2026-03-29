@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wallet, Coins, TrendingUp, AlertTriangle, Repeat, Target, BarChart3, Shield, ArrowRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Wallet, Coins, TrendingUp, AlertTriangle, Target, ArrowRight, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import CalculatorForm from "@/components/calculator-form";
 import ResultsCharts from "@/components/results-charts";
 import ResultsTable from "@/components/results-table";
@@ -19,13 +22,15 @@ export interface CalculationResults {
     totalInvested: number;
     returnPercentage: number;
     holdingAssets?: number;
+    yieldOnCost?: number;
   }>;
   totalInvested: number;
+  initialInvestment?: number;
 }
 
 export default function Calculator() {
   const [results, setResults] = useState<CalculationResults | null>(null);
-  const currency = "KRW";
+  const [targetMonthlyDividend, setTargetMonthlyDividend] = useState<string>("");
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("ko-KR", {
@@ -35,6 +40,8 @@ export default function Calculator() {
       maximumFractionDigits: 0,
     }).format(amount);
   };
+
+  const targetValue = parseFloat(targetMonthlyDividend.replace(/,/g, "")) || 0;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -51,10 +58,35 @@ export default function Calculator() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Input Panel */}
-        <div className="lg:col-span-1">
-          <CalculatorForm 
-            onCalculate={setResults}
-          />
+        <div className="lg:col-span-1 space-y-4">
+          <CalculatorForm onCalculate={setResults} />
+
+          {/* 목표 월 배당금 입력 */}
+          <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
+            <Label className="flex items-center gap-1 text-blue-800 font-medium text-sm mb-2">
+              🎯 목표 월 배당금 (선택)
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button"><Info className="h-4 w-4 text-blue-400" /></button>
+                </TooltipTrigger>
+                <TooltipContent>입력하면 몇 년차에 목표를 달성하는지 결과 테이블에 표시돼요</TooltipContent>
+              </Tooltip>
+            </Label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">₩</span>
+              <Input
+                type="text"
+                className="pl-8 bg-white text-sm"
+                placeholder="1,000,000"
+                value={targetMonthlyDividend}
+                onChange={(e) => {
+                  const v = e.target.value.replace(/,/g, "");
+                  if (!isNaN(Number(v))) setTargetMonthlyDividend(Number(v).toLocaleString());
+                }}
+              />
+            </div>
+            <p className="text-xs text-blue-500 mt-1.5">예: 월 100만원 → 1,000,000 입력</p>
+          </div>
         </div>
 
         {/* Results Panel */}
@@ -110,7 +142,7 @@ export default function Calculator() {
                       <div className="ml-4">
                         <p className="text-sm font-medium text-gray-500">연간 배당금</p>
                         <p className="text-2xl font-semibold text-gray-900">
-                          {results?.yearlyData && results.yearlyData.length > 0 
+                          {results?.yearlyData && results.yearlyData.length > 0
                             ? formatCurrency(results.yearlyData[results.yearlyData.length - 1].annualDividends)
                             : formatCurrency(0)
                           }
@@ -128,7 +160,11 @@ export default function Calculator() {
 
               {/* Results Table */}
               {results && results.yearlyData && results.yearlyData.length > 0 && (
-                <ResultsTable results={results} formatCurrency={formatCurrency} />
+                <ResultsTable
+                  results={results}
+                  formatCurrency={formatCurrency}
+                  targetMonthlyDividend={targetValue > 0 ? targetValue : undefined}
+                />
               )}
             </>
           ) : (
@@ -181,8 +217,8 @@ export default function Calculator() {
             <h3 className="text-sm font-medium text-yellow-800">투자 위험 고지</h3>
             <div className="mt-2 text-sm text-yellow-700">
               <p>
-                본 계산기의 결과는 참고용이며, 실제 투자 수익을 보장하지 않습니다. 
-                모든 투자에는 원금 손실의 위험이 있으며, 과거 성과가 미래 결과를 보장하지 않습니다. 
+                본 계산기의 결과는 참고용이며, 실제 투자 수익을 보장하지 않습니다.
+                모든 투자에는 원금 손실의 위험이 있으며, 과거 성과가 미래 결과를 보장하지 않습니다.
                 투자 결정 전에 전문가와 상담하시기 바랍니다.
               </p>
             </div>
