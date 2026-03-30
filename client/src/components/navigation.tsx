@@ -1,12 +1,11 @@
 import { Link, useLocation } from "wouter";
-import { BarChart3, Menu, Globe, Target, BookOpen, TrendingUp, HelpCircle, Snowflake } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { BarChart3, Menu, Globe, Target, BookOpen, TrendingUp, HelpCircle, Snowflake, Receipt } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
 export default function Navigation() {
@@ -28,115 +27,183 @@ export default function Navigation() {
     return currentPath || '/kr';
   };
 
-  const menuItems = [
+  // 종합과세 탭은 한국어 전용 — 영어 버전에서 숨김
+  const navLinks = [
     {
       href: locale,
-      label: isEnglish ? 'Reinvestment Calculator' : '재투자 계산기',
-      icon: TrendingUp,
-      isActive: location === "/" || location === "/kr" || location === "/en" || location === "/calculator"
+      label: isEnglish ? 'Reinvestment' : '재투자 계산기',
+      isActive: location === "/" || location === "/kr" || location === "/en" || location === "/calculator",
     },
     {
       href: `${locale}/goal`,
-      label: isEnglish ? 'Goal Calculator' : '목표 배당금 계산기',
-      icon: Target,
-      isActive: location.includes('/goal')
+      label: isEnglish ? 'Goal' : '목표 배당금',
+      isActive: location.includes('/goal'),
     },
     {
       href: `${locale}/snowball`,
-      label: isEnglish ? 'Snowball Simulator' : '스노우볼 시뮬레이터',
-      icon: Snowflake,
-      isActive: location.includes('/snowball')
-    }
+      label: isEnglish ? 'Snowball' : '스노우볼',
+      isActive: location.includes('/snowball'),
+    },
+    ...(!isEnglish ? [{
+      href: '/tax',
+      label: '종합과세',
+      isActive: location === '/tax',
+    }] : []),
   ];
 
-  const guideHref = `${locale}/guide`;
-  const isGuideActive = location.includes('/guide');
+  const menuItems = [
+    { href: locale, label: isEnglish ? 'Reinvestment Calculator' : '재투자 계산기', icon: TrendingUp, isActive: navLinks[0].isActive },
+    { href: `${locale}/goal`, label: isEnglish ? 'Goal Calculator' : '목표 배당금 계산기', icon: Target, isActive: navLinks[1].isActive },
+    { href: `${locale}/snowball`, label: isEnglish ? 'Snowball Simulator' : '스노우볼 시뮬레이터', icon: Snowflake, isActive: navLinks[2].isActive },
+    ...(!isEnglish ? [{ href: '/tax', label: '종합과세 계산기', icon: Receipt, isActive: location === '/tax' }] : []),
+    { href: `${locale}/guide`, label: isEnglish ? 'Guide' : '사용 가이드', icon: BookOpen, isActive: location.includes('/guide') },
+  ];
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <nav className="jay-nav sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <Link href={locale}>
-              <h1 className="text-xl font-bold text-gray-900 flex items-center">
-                <BarChart3 className="mr-2 h-6 w-6 text-primary" />
-                <span className="hidden sm:inline">
-                  {isEnglish ? 'Dividend Calculator' : '배당 계산기'}
+        <div className="flex justify-between items-center h-[58px]">
+
+          {/* Logo */}
+          <Link href={locale}>
+            <div className="jay-nav-logo">
+              <BarChart3 className="jay-nav-logo-icon h-5 w-5" />
+              <span className="hidden sm:inline">
+                {isEnglish ? 'Dividend Calculator' : '배당 계산기'}
+              </span>
+            </div>
+          </Link>
+
+          {/* Desktop Nav Links */}
+          <div className="hidden md:flex items-center gap-1">
+            {navLinks.map((link) => (
+              <Link key={link.href} href={link.href}>
+                <span
+                  className="jay-nav-link"
+                  style={link.isActive ? {
+                    color: 'hsl(174,72%,60%)',
+                    background: 'rgba(14,165,160,0.1)',
+                  } : {}}
+                >
+                  {link.label}
+                  {link.isActive && (
+                    <span style={{
+                      display: 'inline-block',
+                      width: 4, height: 4,
+                      borderRadius: '50%',
+                      background: 'hsl(174,72%,54%)',
+                      marginLeft: 4,
+                    }} />
+                  )}
                 </span>
-              </h1>
-            </Link>
+              </Link>
+            ))}
           </div>
 
-          <div className="flex items-center space-x-2">
-            {/* Guide Button */}
-            <Link href={guideHref}>
-              <Button 
-                variant={isGuideActive ? "default" : "ghost"} 
-                size="sm"
-                className="gap-1"
-              >
-                <HelpCircle className="h-4 w-4" />
-                <span className="hidden sm:inline">
-                  {isEnglish ? 'Guide' : '가이드'}
-                </span>
-              </Button>
+          {/* Right Controls */}
+          <div className="flex items-center gap-2">
+            {/* Guide */}
+            <Link href={`${locale}/guide`}>
+              <button className="jay-nav-btn hidden sm:flex">
+                <HelpCircle className="h-3.5 w-3.5" />
+                <span>{isEnglish ? 'Guide' : '가이드'}</span>
+              </button>
             </Link>
 
-            {/* Language Selector */}
+            <div className="jay-nav-divider hidden sm:block" />
+
+            {/* Language */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Globe className="mr-2 h-4 w-4" />
-                  {getCurrentLanguage()}
-                </Button>
+                <button className="jay-nav-btn">
+                  <Globe className="h-3.5 w-3.5" />
+                  <span>{getCurrentLanguage()}</span>
+                </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent
+                align="end"
+                className="min-w-[120px]"
+                style={{ background: 'hsl(220,40%,12%)', border: '1px solid hsl(220,30%,20%)', borderRadius: 8 }}
+              >
                 <DropdownMenuItem asChild>
                   <Link href={getLanguageRedirect('kr')}>
-                    한국어
+                    <span style={{ color: 'hsl(210,20%,78%)', fontSize: 13, padding: '6px 8px', display: 'block', cursor: 'pointer' }}>
+                      🇰🇷 한국어
+                    </span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href={getLanguageRedirect('en')}>
-                    English
+                    <span style={{ color: 'hsl(210,20%,78%)', fontSize: 13, padding: '6px 8px', display: 'block', cursor: 'pointer' }}>
+                      🇺🇸 English
+                    </span>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Menu Sheet */}
+            {/* Mobile Menu */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
+                <button className="jay-nav-btn md:hidden" style={{ padding: '6px 8px' }}>
+                  <Menu className="h-4 w-4" />
+                </button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-72">
+              <SheetContent
+                side="right"
+                className="w-72 p-0"
+                style={{ background: 'hsl(220,40%,9%)', border: 'none' }}
+              >
                 <SheetTitle className="sr-only">메뉴</SheetTitle>
-                <div className="flex flex-col space-y-2 mt-6">
+                <div style={{
+                  padding: '20px 20px 16px',
+                  borderBottom: '1px solid hsl(220,30%,16%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                }}>
+                  <BarChart3 style={{ color: 'hsl(174,72%,54%)', width: 18, height: 18 }} />
+                  <span style={{ color: 'white', fontWeight: 700, fontSize: 14, letterSpacing: '-0.02em' }}>
+                    {isEnglish ? 'Dividend Calculator' : '배당 계산기'}
+                  </span>
+                </div>
+                <div style={{ padding: '12px 12px' }}>
                   {menuItems.map((item) => {
                     const Icon = item.icon;
                     return (
                       <Link key={item.href} href={item.href}>
-                        <Button
-                          variant={item.isActive ? "default" : "ghost"}
-                          className="w-full justify-start"
-                        >
-                          <Icon className="mr-3 h-5 w-5" />
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 12,
+                          padding: '11px 12px',
+                          borderRadius: 8,
+                          marginBottom: 2,
+                          cursor: 'pointer',
+                          background: item.isActive ? 'rgba(14,165,160,0.12)' : 'transparent',
+                          color: item.isActive ? 'hsl(174,72%,60%)' : 'hsl(210,20%,72%)',
+                          fontSize: 14,
+                          fontWeight: item.isActive ? 600 : 400,
+                          transition: 'all 0.15s ease',
+                        }}>
+                          <Icon style={{ width: 16, height: 16, flexShrink: 0 }} />
                           {item.label}
-                        </Button>
+                        </div>
                       </Link>
                     );
                   })}
-                  <Link href={guideHref}>
-                    <Button
-                      variant={isGuideActive ? "default" : "ghost"}
-                      className="w-full justify-start"
-                    >
-                      <BookOpen className="mr-3 h-5 w-5" />
-                      {isEnglish ? 'Usage Guide' : '사용 가이드'}
-                    </Button>
-                  </Link>
+                </div>
+                <div style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  padding: '16px 20px',
+                  borderTop: '1px solid hsl(220,30%,16%)',
+                }}>
+                  <p style={{ color: 'hsl(215,16%,40%)', fontSize: 11, letterSpacing: '0.04em' }}>
+                    {isEnglish ? 'Asset OS · Dividend Tools' : '자산 운영체제 · Dividend Tools'}
+                  </p>
                 </div>
               </SheetContent>
             </Sheet>
