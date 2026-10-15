@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, Link } from "wouter";
+import PageHeader from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -328,11 +329,8 @@ export default function Guide() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t.title}</h1>
-        <p className="text-gray-600">{t.subtitle}</p>
-      </div>
+    <div className="mx-auto max-w-4xl px-4 pb-16 sm:px-6">
+      <PageHeader kicker={isEnglish ? "Guide" : "사용 가이드"} title={t.title} subtitle={t.subtitle} />
 
       {/* ADSENSE_SLOT_TOP */}
 
@@ -346,19 +344,19 @@ export default function Guide() {
         </CardHeader>
         <CardContent className="space-y-4">
           {t.section1.content.map((paragraph, index) => (
-            <p key={index} className="text-gray-700">{paragraph}</p>
+            <p key={index} className="text-foreground">{paragraph}</p>
           ))}
         </CardContent>
       </Card>
 
       {/* Section 2: Two Calculators at a Glance */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <h2 className="text-[22px] font-bold text-foreground mb-4 flex items-center gap-2">
           <Calculator className="h-6 w-6" />
           {t.section2.title}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="border-2 border-primary/20">
+          <Card className="border border-primary/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-primary" />
@@ -367,12 +365,12 @@ export default function Guide() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h4 className="font-semibold text-gray-900 mb-1">{t.section2.reinvest.when}</h4>
-                <p className="text-gray-600 text-sm">{t.section2.reinvest.whenContent}</p>
+                <h4 className="font-semibold text-foreground mb-1">{t.section2.reinvest.when}</h4>
+                <p className="text-muted-foreground text-sm">{t.section2.reinvest.whenContent}</p>
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900 mb-1">{t.section2.reinvest.what}</h4>
-                <p className="text-gray-600 text-sm">{t.section2.reinvest.whatContent}</p>
+                <h4 className="font-semibold text-foreground mb-1">{t.section2.reinvest.what}</h4>
+                <p className="text-muted-foreground text-sm">{t.section2.reinvest.whatContent}</p>
               </div>
               <Link href={reinvestHref}>
                 <Button className="w-full mt-4">
@@ -383,24 +381,24 @@ export default function Guide() {
             </CardContent>
           </Card>
 
-          <Card className="border-2 border-green-200">
+          <Card className="border border-mint/30">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-green-600" />
+                <Target className="h-5 w-5 text-mint" />
                 {t.section2.goal.title}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h4 className="font-semibold text-gray-900 mb-1">{t.section2.goal.when}</h4>
-                <p className="text-gray-600 text-sm">{t.section2.goal.whenContent}</p>
+                <h4 className="font-semibold text-foreground mb-1">{t.section2.goal.when}</h4>
+                <p className="text-muted-foreground text-sm">{t.section2.goal.whenContent}</p>
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900 mb-1">{t.section2.goal.what}</h4>
-                <p className="text-gray-600 text-sm">{t.section2.goal.whatContent}</p>
+                <h4 className="font-semibold text-foreground mb-1">{t.section2.goal.what}</h4>
+                <p className="text-muted-foreground text-sm">{t.section2.goal.whatContent}</p>
               </div>
               <Link href={goalHref}>
-                <Button className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white">
+                <Button className="w-full mt-4 bg-mint text-background hover:bg-mint/90 shadow-none">
                   {t.section2.goal.cta}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -408,24 +406,24 @@ export default function Guide() {
             </CardContent>
           </Card>
 
-          <Card className="border-2 border-cyan-200">
+          <Card className="border border-iris/30">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Snowflake className="h-5 w-5 text-cyan-600" />
+                <Snowflake className="h-5 w-5 text-iris" />
                 {t.section2.snowball.title}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h4 className="font-semibold text-gray-900 mb-1">{t.section2.snowball.when}</h4>
-                <p className="text-gray-600 text-sm">{t.section2.snowball.whenContent}</p>
+                <h4 className="font-semibold text-foreground mb-1">{t.section2.snowball.when}</h4>
+                <p className="text-muted-foreground text-sm">{t.section2.snowball.whenContent}</p>
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900 mb-1">{t.section2.snowball.what}</h4>
-                <p className="text-gray-600 text-sm">{t.section2.snowball.whatContent}</p>
+                <h4 className="font-semibold text-foreground mb-1">{t.section2.snowball.what}</h4>
+                <p className="text-muted-foreground text-sm">{t.section2.snowball.whatContent}</p>
               </div>
               <Link href={snowballHref}>
-                <Button className="w-full mt-4 bg-cyan-600 hover:bg-cyan-700 text-white">
+                <Button className="w-full mt-4 bg-iris text-background hover:bg-iris/90 shadow-none">
                   {t.section2.snowball.cta}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -445,22 +443,22 @@ export default function Guide() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <h4 className="font-semibold text-gray-900 mb-3">{t.section3.inputsTitle}</h4>
+            <h4 className="font-semibold text-foreground mb-3">{t.section3.inputsTitle}</h4>
             <ul className="space-y-2">
               {t.section3.inputs.map((input, index) => (
-                <li key={index} className="flex items-start gap-2 text-gray-700">
-                  <CheckCircle className="h-4 w-4 text-green-500 mt-1 flex-shrink-0" />
+                <li key={index} className="flex items-start gap-2 text-foreground">
+                  <CheckCircle className="h-4 w-4 text-mint mt-1 flex-shrink-0" />
                   {input}
                 </li>
               ))}
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-gray-900 mb-3">{t.section3.checkTitle}</h4>
+            <h4 className="font-semibold text-foreground mb-3">{t.section3.checkTitle}</h4>
             <ul className="space-y-2">
               {t.section3.checkPoints.map((point, index) => (
-                <li key={index} className="flex items-start gap-2 text-gray-700">
-                  <Lightbulb className="h-4 w-4 text-yellow-500 mt-1 flex-shrink-0" />
+                <li key={index} className="flex items-start gap-2 text-foreground">
+                  <Lightbulb className="h-4 w-4 text-gold mt-1 flex-shrink-0" />
                   {point}
                 </li>
               ))}
@@ -479,11 +477,11 @@ export default function Guide() {
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <h4 className="font-semibold text-gray-900 mb-3">{t.section4.taxTitle}</h4>
+            <h4 className="font-semibold text-foreground mb-3">{t.section4.taxTitle}</h4>
             <ul className="space-y-2">
               {t.section4.taxContent.map((tax, index) => (
-                <li key={index} className="flex items-start gap-2 text-gray-700">
-                  <CheckCircle className="h-4 w-4 text-blue-500 mt-1 flex-shrink-0" />
+                <li key={index} className="flex items-start gap-2 text-foreground">
+                  <CheckCircle className="h-4 w-4 text-iris mt-1 flex-shrink-0" />
                   {tax}
                 </li>
               ))}
@@ -493,10 +491,10 @@ export default function Guide() {
       </Card>
 
       {/* Section 5: Recommended Workflow */}
-      <Card className="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+      <Card className="mb-8">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5 text-blue-600" />
+            <BookOpen className="h-5 w-5 text-iris" />
             {t.section5.title}
           </CardTitle>
         </CardHeader>
@@ -504,12 +502,12 @@ export default function Guide() {
           <div className="space-y-4">
             {t.section5.steps.map((step, index) => (
               <div key={index} className="flex gap-4">
-                <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
+                <div className="flex-shrink-0 w-8 h-8 bg-iris/15 text-iris rounded-full flex items-center justify-center font-bold">
                   {index + 1}
                 </div>
                 <div>
-                  <h4 className="font-semibold text-gray-900">{step.title}</h4>
-                  <p className="text-gray-600 text-sm">{step.content}</p>
+                  <h4 className="font-semibold text-foreground">{step.title}</h4>
+                  <p className="text-muted-foreground text-sm">{step.content}</p>
                 </div>
               </div>
             ))}
@@ -518,20 +516,20 @@ export default function Guide() {
       </Card>
 
       {/* Section 6: Assumptions and Limitations */}
-      <Card className="mb-8 border-2 border-yellow-200 bg-yellow-50/50">
+      <Card className="mb-8 !border-gold/30 !bg-gold/[0.05]">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-yellow-800">
+          <CardTitle className="flex items-center gap-2 text-gold">
             <AlertTriangle className="h-5 w-5" />
             {t.section6.title}
           </CardTitle>
-          <p className="text-sm text-yellow-700">{t.section6.subtitle}</p>
+          <p className="text-sm text-muted-foreground">{t.section6.subtitle}</p>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {t.section6.items.map((item, index) => (
-              <div key={index} className="bg-white p-4 rounded-lg border border-yellow-200">
-                <h4 className="font-semibold text-gray-900 mb-2">{item.title}</h4>
-                <p className="text-gray-600 text-sm">{item.content}</p>
+              <div key={index} className="rounded-xl border border-border bg-surface-2 p-4">
+                <h4 className="font-semibold text-foreground mb-2">{item.title}</h4>
+                <p className="text-muted-foreground text-sm">{item.content}</p>
               </div>
             ))}
           </div>
@@ -551,7 +549,7 @@ export default function Guide() {
             {t.section7.faqs.map((faq, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
                 <AccordionTrigger className="text-left">{faq.q}</AccordionTrigger>
-                <AccordionContent className="text-gray-600">
+                <AccordionContent className="text-muted-foreground">
                   {faq.a}
                 </AccordionContent>
               </AccordionItem>
@@ -562,13 +560,13 @@ export default function Guide() {
 
       {/* Section 8: CTA */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">{t.section8.title}</h2>
+        <h2 className="text-[22px] font-bold text-foreground mb-4 text-center">{t.section8.title}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Link href={reinvestHref}>
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 border-primary/20 hover:border-primary/40">
+            <Card className="cursor-pointer transition-colors border border-primary/20 hover:border-primary/40">
               <CardContent className="p-6 text-center">
                 <TrendingUp className="h-12 w-12 text-primary mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{t.section8.reinvestCta}</h3>
+                <h3 className="text-xl font-semibold text-foreground mb-2">{t.section8.reinvestCta}</h3>
                 <Button className="mt-4">
                   {isEnglish ? "Start Calculating" : "계산 시작하기"}
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -578,11 +576,11 @@ export default function Guide() {
           </Link>
 
           <Link href={goalHref}>
-            <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 border-green-200 hover:border-green-400">
+            <Card className="cursor-pointer transition-colors border border-mint/30 hover:border-mint/60">
               <CardContent className="p-6 text-center">
-                <Target className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{t.section8.goalCta}</h3>
-                <Button variant="outline" className="mt-4 border-green-300 text-green-700 hover:bg-green-50">
+                <Target className="h-12 w-12 text-mint mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-foreground mb-2">{t.section8.goalCta}</h3>
+                <Button variant="outline" className="mt-4 border-mint/30 text-mint hover:bg-mint/10">
                   {isEnglish ? "Start Calculating" : "계산 시작하기"}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>

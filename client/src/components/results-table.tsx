@@ -1,7 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Fragment, useState } from "react";
+import { ChevronDown, Flag } from "lucide-react";
 import type { CalculationResults } from "@/pages/calculator";
-import { getCurrentLanguage, getTranslation } from "@/lib/i18n";
+import { getCurrentLanguage } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 interface ResultsTableProps {
   results: CalculationResults;
@@ -10,107 +11,81 @@ interface ResultsTableProps {
 }
 
 export default function ResultsTable({ results, formatCurrency, targetMonthlyDividend }: ResultsTableProps) {
-  const language = getCurrentLanguage();
-  const t = getTranslation(language);
+  const isEn = getCurrentLanguage() === "en";
+  const rows = results.yearlyData;
+  const [expanded, setExpanded] = useState(rows.length <= 12);
 
-  // 목표 달성 카운트다운 계산
-  const getCountdown = () => {
-    if (!targetMonthlyDividend || targetMonthlyDividend <= 0) return null;
-    const targetAnnual = targetMonthlyDividend * 12;
-    const achievedRow = results.yearlyData.find(row => row.annualDividends >= targetAnnual);
-    if (!achievedRow) return null;
-    return achievedRow.year;
-  };
+  const targetAnnual = targetMonthlyDividend && targetMonthlyDividend > 0 ? targetMonthlyDividend * 12 : 0;
+  const achievedYear = targetAnnual ? rows.find((r) => r.annualDividends >= targetAnnual)?.year ?? null : null;
 
-  const achievedYear = getCountdown();
+  const visible = expanded ? rows : [...rows.slice(0, 5), ...rows.slice(-3)];
+  const hiddenCount = rows.length - visible.length;
 
   return (
-    <div className="space-y-4">
-      {/* 목표 달성 카운트다운 */}
-      {targetMonthlyDividend && targetMonthlyDividend > 0 && (
-        <Card className={achievedYear ? "border-green-200 bg-green-50" : "border-orange-200 bg-orange-50"}>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">{achievedYear ? "🎯" : "📈"}</span>
-              <div>
-                {achievedYear ? (
-                  <>
-                    <p className="font-semibold text-green-800 text-sm">
-                      목표 월 배당 {formatCurrency(targetMonthlyDividend)} 달성!
-                    </p>
-                    <p className="text-green-700 text-xs mt-0.5">
-                      투자 시작 후 <strong>{achievedYear}년차</strong>에 목표를 달성해요 🎉
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="font-semibold text-orange-800 text-sm">
-                      목표 월 배당 {formatCurrency(targetMonthlyDividend)}
-                    </p>
-                    <p className="text-orange-700 text-xs mt-0.5">
-                      투자 기간 내 목표 달성이 어렵습니다. 투자금이나 기간을 늘려보세요.
-                    </p>
-                  </>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+    <section className="panel overflow-hidden">
+      <div className="flex items-end justify-between gap-3 p-5 pb-4 sm:p-6 sm:pb-4">
+        <div>
+          <p className="kicker mb-1">{isEn ? "Year by year" : "연도별"}</p>
+          <h3 className="text-[17px] font-semibold">{isEn ? "Detailed results" : "연도별 상세 결과"}</h3>
+        </div>
+        {achievedYear && (
+          <span className="flex items-center gap-1.5 rounded-full bg-gold/10 px-3 py-1 text-[12.5px] font-semibold text-gold">
+            <Flag className="h-3.5 w-3.5" />
+            {isEn ? `Goal in year ${achievedYear}` : `${achievedYear}년차 목표 달성`}
+          </span>
+        )}
+      </div>
 
-      {/* 연도별 결과 테이블 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t.calculator.results.yearlyResults}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t.calculator.results.year}</TableHead>
-                  <TableHead>{t.calculator.results.assets}</TableHead>
-                  <TableHead>{t.calculator.results.yearlyDividend}</TableHead>
-                  <TableHead>
-                    {language === 'en' ? 'Yield on Cost' : '취득원가 수익률'}
-                  </TableHead>
-                  <TableHead>{t.calculator.results.holdingAssets}</TableHead>
-                  <TableHead>{t.calculator.results.cumulativeDividend}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {results.yearlyData.map((row) => (
-                  <TableRow
-                    key={row.year}
-                    className={achievedYear === row.year ? "bg-green-50 font-medium" : ""}
-                  >
-                    <TableCell className="font-medium">
-                      {row.year}{language === 'en' ? '' : '년'}
-                      {achievedYear === row.year && (
-                        <span className="ml-1 text-xs text-green-600">🎯</span>
-                      )}
-                    </TableCell>
-                    <TableCell>{formatCurrency(row.totalAssets)}</TableCell>
-                    <TableCell>{formatCurrency(row.annualDividends)}</TableCell>
-                    <TableCell>
-                      <span className={`font-medium ${(row.yieldOnCost || 0) >= 5 ? "text-green-600" : (row.yieldOnCost || 0) >= 3 ? "text-blue-600" : "text-gray-600"}`}>
-                        {row.yieldOnCost != null ? `${row.yieldOnCost.toFixed(2)}%` : "-"}
-                      </span>
-                    </TableCell>
-                    <TableCell>{formatCurrency(row.holdingAssets || row.totalAssets)}</TableCell>
-                    <TableCell>{formatCurrency(row.cumulativeDividends)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          <p className="text-xs text-gray-400 mt-3">
-            {language === 'en'
-              ? '* Yield on Cost = Annual dividend / Initial investment. Shows how your effective yield grows over time.'
-              : '* 취득원가 수익률 = 연간 배당금 ÷ 초기 투자 원금. 시간이 지날수록 실질 수익률이 높아지는 걸 보여줍니다.'}
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+      <div className="max-h-[520px] overflow-auto">
+        <table className="data-table w-full">
+          <thead>
+            <tr>
+              <th>{isEn ? "Year" : "연차"}</th>
+              <th className="!text-right">{isEn ? "Principal" : "넣은 돈"}</th>
+              <th className="!text-right">{isEn ? "Total assets" : "총 자산"}</th>
+              <th className="!text-right">{isEn ? "Monthly div." : "월 배당"}</th>
+              <th className="!text-right">{isEn ? "Cumulative div." : "누적 배당"}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visible.map((row, i) => {
+              const hit = achievedYear === row.year;
+              const showGap = !expanded && i === 5 && hiddenCount > 0;
+              return (
+                <Fragment key={row.year}>
+                  {showGap && (
+                    <tr>
+                      <td colSpan={5} className="!py-2 text-center">
+                        <button
+                          type="button"
+                          onClick={() => setExpanded(true)}
+                          className="inline-flex items-center gap-1 rounded-full px-3 py-1 text-[12.5px] font-medium text-muted-foreground hover:text-foreground"
+                        >
+                          {isEn ? `Show ${hiddenCount} more years` : `${hiddenCount}개 연도 더 보기`}
+                          <ChevronDown className="h-3.5 w-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  )}
+                  <tr className={cn(hit && "!bg-gold/[0.07]")}>
+                    <td className={cn("font-medium", hit ? "text-gold" : "text-foreground")}>
+                      {row.year}
+                      {isEn ? "" : "년"}
+                    </td>
+                    <td className="text-right">{formatCurrency(row.totalInvested)}</td>
+                    <td className="text-right font-semibold text-foreground">{formatCurrency(row.totalAssets)}</td>
+                    <td className="text-right text-gold">{formatCurrency(row.annualDividends / 12)}</td>
+                    <td className="text-right">{formatCurrency(row.cumulativeDividends)}</td>
+                  </tr>
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="border-t border-border px-5 py-3 text-[12px] text-subtle sm:px-6">
+        {isEn ? "Monthly dividend = that year's after-tax dividend ÷ 12" : "월 배당 = 그 해 세후 배당금 ÷ 12"}
+      </p>
+    </section>
   );
 }

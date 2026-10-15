@@ -7,6 +7,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { AlertTriangle, Target, Wallet, Calculator, BookOpen, Snowflake, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CalculatorTabs from "@/components/calculator-tabs";
+import PageHeader from "@/components/page-header";
+import RiskNote from "@/components/risk-note";
+import { moneyShort } from "@/lib/format";
 
 interface CalculationResult {
   requiredPrincipal: number;
@@ -220,27 +223,18 @@ export default function GoalCalculator() {
   const guideHref = isEnglish ? "/en/guide" : "/guide";
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{t.title}</h1>
-        <p className="text-gray-600">{t.subtitle}</p>
-      </div>
+    <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+      <PageHeader
+        kicker={t.title}
+        title={isEnglish ? <>How much do I need for <span className="text-gold">my monthly dividend</span>?</> : <>월 배당 목표, <span className="text-gold">원금은 얼마</span> 필요할까?</>}
+        subtitle={t.subtitle}
+      />
 
       {/* ADSENSE_SLOT_TOP */}
 
       <CalculatorTabs />
 
-      <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <div className="flex items-start gap-3">
-          <Calculator className="h-5 w-5 text-blue-600 mt-0.5" />
-          <div>
-            <p className="font-medium text-blue-900">{t.howItWorks}</p>
-            <p className="text-sm text-blue-700 mt-1">{t.formula}</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -250,7 +244,7 @@ export default function GoalCalculator() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="targetMonthlyDividend" className="text-base font-medium">
+              <Label htmlFor="targetMonthlyDividend" className="text-[13.5px] font-medium text-muted-foreground">
                 {t.targetMonthlyDividend}
               </Label>
               <Input
@@ -260,15 +254,15 @@ export default function GoalCalculator() {
                 value={targetMonthlyDividendStr}
                 onChange={(e) => setTargetMonthlyDividendStr(formatWithCommas(e.target.value))}
                 placeholder={isEnglish ? "1,000" : "1,000,000"}
-                className="text-lg h-12"
+                className="h-12 text-[16px] font-semibold"
               />
               {errors.targetMonthlyDividend && (
-                <p className="text-sm text-red-500">{errors.targetMonthlyDividend}</p>
+                <p className="text-sm text-coral">{errors.targetMonthlyDividend}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="dividendYield" className="text-base font-medium">
+              <Label htmlFor="dividendYield" className="text-[13.5px] font-medium text-muted-foreground">
                 {t.dividendYield}
               </Label>
               <Input
@@ -278,44 +272,44 @@ export default function GoalCalculator() {
                 value={dividendYieldStr}
                 onChange={(e) => setDividendYieldStr(e.target.value)}
                 placeholder="4.0"
-                className="text-lg h-12"
+                className="h-12 text-[16px] font-semibold"
               />
-              <p className="text-xs text-gray-500">{t.dividendYieldHelper}</p>
+              <p className="text-xs text-muted-foreground">{t.dividendYieldHelper}</p>
               {errors.dividendYield && (
-                <p className="text-sm text-red-500">{errors.dividendYield}</p>
+                <p className="text-sm text-coral">{errors.dividendYield}</p>
               )}
             </div>
 
             <div className="space-y-3">
-              <Label className="text-base font-medium">{t.taxOption}</Label>
+              <Label className="text-[13.5px] font-medium text-muted-foreground">{t.taxOption}</Label>
               <RadioGroup
                 value={taxOption}
                 onValueChange={(value) => setTaxOption(value as TaxOption)}
-                className="space-y-2"
+                className="grid gap-2"
               >
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-3 rounded-xl border border-border bg-surface-2 px-3.5 py-3 transition-colors has-[[data-state=checked]]:border-gold/60 has-[[data-state=checked]]:bg-gold/[0.07]">
                   <RadioGroupItem value="tax_free" id="tax_free" />
-                  <Label htmlFor="tax_free" className="font-normal cursor-pointer">
+                  <Label htmlFor="tax_free" className="flex-1 cursor-pointer text-[14px] font-normal text-foreground">
                     {t.taxOptions.tax_free}
                   </Label>
                 </div>
                 {!isEnglish && (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-3 rounded-xl border border-border bg-surface-2 px-3.5 py-3 transition-colors has-[[data-state=checked]]:border-gold/60 has-[[data-state=checked]]:bg-gold/[0.07]">
                     <RadioGroupItem value="korea" id="korea" />
-                    <Label htmlFor="korea" className="font-normal cursor-pointer">
+                    <Label htmlFor="korea" className="flex-1 cursor-pointer text-[14px] font-normal text-foreground">
                       {t.taxOptions.korea}
                     </Label>
                   </div>
                 )}
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-3 rounded-xl border border-border bg-surface-2 px-3.5 py-3 transition-colors has-[[data-state=checked]]:border-gold/60 has-[[data-state=checked]]:bg-gold/[0.07]">
                   <RadioGroupItem value="us" id="us" />
-                  <Label htmlFor="us" className="font-normal cursor-pointer">
+                  <Label htmlFor="us" className="flex-1 cursor-pointer text-[14px] font-normal text-foreground">
                     {t.taxOptions.us}
                   </Label>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-3 rounded-xl border border-border bg-surface-2 px-3.5 py-3 transition-colors has-[[data-state=checked]]:border-gold/60 has-[[data-state=checked]]:bg-gold/[0.07]">
                   <RadioGroupItem value="custom" id="custom" />
-                  <Label htmlFor="custom" className="font-normal cursor-pointer">
+                  <Label htmlFor="custom" className="flex-1 cursor-pointer text-[14px] font-normal text-foreground">
                     {t.taxOptions.custom}
                   </Label>
                 </div>
@@ -333,7 +327,7 @@ export default function GoalCalculator() {
                     className="w-32"
                   />
                   {errors.customTaxRate && (
-                    <p className="text-sm text-red-500 mt-1">{errors.customTaxRate}</p>
+                    <p className="text-sm text-coral mt-1">{errors.customTaxRate}</p>
                   )}
                 </div>
               )}
@@ -342,50 +336,45 @@ export default function GoalCalculator() {
         </Card>
 
         {result ? (
-          <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Wallet className="h-5 w-5 text-primary" />
-                {t.resultTitle}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="text-center py-4">
-                <p className="text-sm text-gray-600 mb-2">{t.requiredPrincipal}</p>
-                <p className="text-4xl font-bold text-primary mb-2">
-                  {formatCurrency(result.requiredPrincipal)}
-                </p>
-                <p className="text-xs text-gray-500">{t.requiredPrincipalHelper}</p>
-              </div>
+          <div className="panel-hero p-5 sm:p-7">
+              <p className="kicker text-gold/90">{t.requiredPrincipal}</p>
+              <p className="num mt-2 text-[38px] font-bold leading-none tracking-[-0.04em] sm:text-[52px]">
+                {moneyShort(result.requiredPrincipal, isEnglish ? "USD" : "KRW")}
+              </p>
+              <p className="num mt-2 text-[13px] text-subtle">{formatCurrency(result.requiredPrincipal)}</p>
+              <p className="mt-4 text-[13.5px] text-muted-foreground">{t.requiredPrincipalHelper}</p>
 
-              <div className="space-y-3 pt-4 border-t">
+              <div className="num mt-6 space-y-3 border-t border-border pt-5 text-[14px]">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">{t.annualDividendGross}</span>
+                  <span className="text-muted-foreground">{t.annualDividendGross}</span>
                   <span className="font-semibold">{formatCurrency(result.annualDividendGross)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">{t.annualDividendNet}</span>
+                  <span className="text-muted-foreground">{t.annualDividendNet}</span>
                   <span className="font-semibold text-lg">{formatCurrency(result.annualDividendNet)}</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">{t.monthlyDividendNet}</span>
-                  <span className="font-semibold text-lg">{formatCurrency(result.monthlyDividendNet)}</span>
+                  <span className="text-muted-foreground">{t.monthlyDividendNet}</span>
+                  <span className="text-lg font-semibold text-gold">{formatCurrency(result.monthlyDividendNet)}</span>
                 </div>
                 <div className="flex justify-between items-center pt-2 border-t">
-                  <span className="text-gray-600">{t.appliedTaxRate}</span>
+                  <span className="text-muted-foreground">{t.appliedTaxRate}</span>
                   <span className="font-medium">{result.taxRate}%</span>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+              <div className="note note-info mt-6 flex items-start gap-2.5">
+                <Calculator className="mt-0.5 h-4 w-4 shrink-0 text-iris" />
+                <span><b className="font-semibold text-foreground">{t.howItWorks}</b><br /><span className="text-muted-foreground">{t.formula}</span></span>
+              </div>
+          </div>
         ) : (
           <Card className="flex items-center justify-center">
             <CardContent className="text-center py-12">
-              <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <Target className="h-12 w-12 text-subtle mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">
                 {t.placeholder.title}
               </h3>
-              <p className="text-gray-500">
+              <p className="text-muted-foreground">
                 {t.placeholder.description}
               </p>
             </CardContent>
@@ -394,46 +383,26 @@ export default function GoalCalculator() {
       </div>
 
       {/* Snowball CTA Card */}
-      <Card className="mt-8 bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200">
-        <CardContent className="p-6">
-          <Link href={isEnglish ? "/en/snowball" : "/snowball"}>
-            <div className="flex items-center justify-between cursor-pointer">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Snowflake className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">
-                    {isEnglish ? "When will dividends start rolling on their own?" : "배당이 스스로 굴러가는 시점은 언제일까?"}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {isEnglish 
-                      ? "Find out when dividends exceed your contributions"
-                      : "배당이 기여금을 초과하는 전환점을 확인하세요"}
-                  </p>
-                </div>
-              </div>
-              <ArrowRight className="h-5 w-5 text-blue-600" />
-            </div>
-          </Link>
-        </CardContent>
-      </Card>
+      <Link href={isEnglish ? "/en/snowball" : "/snowball"}>
+        <span className="panel group mt-10 flex items-center gap-4 p-5 transition-colors hover:border-border-strong">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-iris/10 text-iris">
+            <Snowflake className="h-5 w-5" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[15px] font-semibold text-foreground">
+              {isEnglish ? "When will dividends start rolling on their own?" : "배당이 스스로 굴러가는 시점은 언제일까?"}
+            </span>
+            <span className="mt-0.5 block text-[13px] text-muted-foreground">
+              {isEnglish ? "Find out when dividends exceed your contributions" : "스노우볼 시뮬레이터 바로가기"}
+            </span>
+          </span>
+          <ArrowRight className="h-5 w-5 shrink-0 text-subtle transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+        </span>
+      </Link>
 
       {/* ADSENSE_SLOT_BOTTOM */}
 
-      <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <AlertTriangle className="h-5 w-5 text-yellow-400" />
-          </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-yellow-800">{t.disclaimer.title}</h3>
-            <div className="mt-2 text-sm text-yellow-700">
-              <p>{t.disclaimer.content}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <RiskNote title={t.disclaimer.title}>{t.disclaimer.content}</RiskNote>
     </div>
   );
 }

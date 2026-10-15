@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Target, Snowflake, ArrowUpRight, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Wallet, Coins, TrendingUp, AlertTriangle, Target, ArrowRight, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import CalculatorForm from "@/components/calculator-form";
 import ResultsCharts from "@/components/results-charts";
 import ResultsTable from "@/components/results-table";
+import ResultsSummary from "@/components/results-summary";
 import CalculatorTabs from "@/components/calculator-tabs";
+import PageHeader from "@/components/page-header";
+import RiskNote from "@/components/risk-note";
+import { getTranslation, formatCurrencyByLanguage, currencyOptions, type Language } from "@/lib/i18n";
+import { moneyShort } from "@/lib/format";
 
 export interface CalculationResults {
   finalAssets: number;
@@ -28,203 +31,146 @@ export interface CalculationResults {
   initialInvestment?: number;
 }
 
-export default function Calculator() {
+/** 배당 재투자 계산기 — 한국어(/, /kr)와 영어(/en)가 같은 화면을 씁니다 */
+export function ReinvestPage({ lang = "kr" }: { lang?: Language }) {
+  const isEn = lang === "en";
+  const t = getTranslation(lang);
   const [results, setResults] = useState<CalculationResults | null>(null);
-  const [targetMonthlyDividend, setTargetMonthlyDividend] = useState<string>("");
+  const [currency, setCurrency] = useState(isEn ? "USD" : "KRW");
+  const [target, setTarget] = useState<string>("");
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("ko-KR", {
-      style: "currency",
-      currency: "KRW",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
+  const formatCurrency = (amount: number) => formatCurrencyByLanguage(amount, lang, currency);
+  const formatShort = (amount: number) => moneyShort(amount, currency);
+  const targetValue = parseFloat(target.replace(/,/g, "")) || 0;
+  const symbol = currencyOptions[currency as keyof typeof currencyOptions]?.symbol ?? "₩";
 
-  const targetValue = parseFloat(targetMonthlyDividend.replace(/,/g, "")) || 0;
+  const lastYear = results?.yearlyData.find((r) => targetValue > 0 && r.annualDividends >= targetValue * 12)?.year;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">배당 재투자 계산기</h1>
-        <p className="text-gray-600">
-          배당금 재투자를 통한 복리 효과를 시뮬레이션해보세요
-        </p>
-      </div>
+    <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+      <PageHeader
+        kicker={isEn ? "DRIP simulator" : "배당 재투자 시뮬레이터"}
+        title={isEn ? <>Watch dividends <span className="text-gold">compound</span></> : <>배당이 배당을 낳는 <span className="text-gold">복리</span>, 숫자로 보기</>}
+        subtitle={t.subtitle}
+      />
 
       {/* ADSENSE_SLOT_TOP */}
 
       <CalculatorTabs />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Input Panel */}
-        <div className="lg:col-span-1 space-y-4">
-          <CalculatorForm onCalculate={setResults} />
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[380px_1fr] lg:gap-6">
+        {/* 입력 */}
+        <div className="space-y-4">
+          <CalculatorForm
+            onCalculate={(r, c) => {
+              setResults(r);
+              if (c) setCurrency(isEn ? c : "KRW");
+            }}
+          />
 
-          {/* 목표 월 배당금 입력 */}
-          <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-            <Label className="flex items-center gap-1 text-blue-800 font-medium text-sm mb-2">
-              🎯 목표 월 배당금 (선택)
+          <div className="panel p-5">
+            <label className="mb-2 flex items-center text-[13.5px] font-medium text-muted-foreground">
+              <Target className="mr-1.5 h-4 w-4 text-gold" />
+              {isEn ? "Target monthly dividend (optional)" : "목표 월 배당금 (선택)"}
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button type="button"><Info className="h-4 w-4 text-blue-400" /></button>
+                  <button type="button" className="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full text-subtle hover:text-foreground">
+                    <Info className="h-[15px] w-[15px]" />
+                  </button>
                 </TooltipTrigger>
-                <TooltipContent>입력하면 몇 년차에 목표를 달성하는지 결과 테이블에 표시돼요</TooltipContent>
+                <TooltipContent>
+                  {isEn ? "We'll mark the year you reach it in the results." : "입력하면 몇 년차에 목표에 닿는지 결과 표에 표시돼요"}
+                </TooltipContent>
               </Tooltip>
-            </Label>
+            </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">₩</span>
+              <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[14px] text-subtle">{symbol}</span>
               <Input
                 type="text"
-                className="pl-8 bg-white text-sm"
-                placeholder="1,000,000"
-                value={targetMonthlyDividend}
+                inputMode="numeric"
+                className="pl-9"
+                placeholder={isEn ? "1,000" : "1,000,000"}
+                value={target}
                 onChange={(e) => {
-                  const v = e.target.value.replace(/,/g, "");
-                  if (!isNaN(Number(v))) setTargetMonthlyDividend(Number(v).toLocaleString());
+                  const v = e.target.value.replace(/[^0-9]/g, "");
+                  setTarget(v ? Number(v).toLocaleString() : "");
                 }}
               />
             </div>
-            <p className="text-xs text-blue-500 mt-1.5">예: 월 100만원 → 1,000,000 입력</p>
+            {targetValue > 0 && results && (
+              <p className={`mt-2.5 text-[13px] ${lastYear ? "text-gold" : "text-muted-foreground"}`}>
+                {lastYear
+                  ? isEn
+                    ? `You reach it in year ${lastYear}.`
+                    : `${lastYear}년차에 목표 월 배당에 닿아요.`
+                  : isEn
+                    ? "Not reached in this period — try more years or a bigger monthly amount."
+                    : "이 기간 안에는 어려워요. 기간이나 월 투자금을 늘려보세요."}
+              </p>
+            )}
           </div>
         </div>
 
-        {/* Results Panel */}
-        <div className="lg:col-span-2">
-          {results ? (
+        {/* 결과 */}
+        <div id="results" className="min-w-0 scroll-mt-24 space-y-4">
+          {results && results.yearlyData.length > 0 ? (
             <>
-              {/* Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 bg-primary bg-opacity-10 rounded-lg flex items-center justify-center">
-                          <Wallet className="h-4 w-4 text-primary" />
-                        </div>
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">총 자산</p>
-                        <p className="text-2xl font-semibold text-gray-900">
-                          {formatCurrency(results?.finalAssets || 0)}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                          <Coins className="h-4 w-4 text-green-600" />
-                        </div>
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">누적 배당금</p>
-                        <p className="text-2xl font-semibold text-gray-900">
-                          {formatCurrency(results?.totalDividends || 0)}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
-                          <TrendingUp className="h-4 w-4 text-orange-600" />
-                        </div>
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-500">연간 배당금</p>
-                        <p className="text-2xl font-semibold text-gray-900">
-                          {results?.yearlyData && results.yearlyData.length > 0
-                            ? formatCurrency(results.yearlyData[results.yearlyData.length - 1].annualDividends)
-                            : formatCurrency(0)
-                          }
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Charts */}
-              {results && results.yearlyData && results.yearlyData.length > 0 && (
-                <ResultsCharts results={results} formatCurrency={formatCurrency} />
-              )}
-
-              {/* Results Table */}
-              {results && results.yearlyData && results.yearlyData.length > 0 && (
-                <ResultsTable
-                  results={results}
-                  formatCurrency={formatCurrency}
-                  targetMonthlyDividend={targetValue > 0 ? targetValue : undefined}
-                />
-              )}
+              <ResultsSummary results={results} formatCurrency={formatCurrency} formatShort={formatShort} />
+              <ResultsCharts results={results} formatCurrency={formatShort} currency={currency} />
+              <ResultsTable results={results} formatCurrency={formatShort} targetMonthlyDividend={targetValue || undefined} />
             </>
           ) : (
-            <Card className="h-96 flex items-center justify-center">
-              <CardContent className="text-center">
-                <TrendingUp className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  계산 결과를 확인하세요
-                </h3>
-                <p className="text-gray-500">
-                  왼쪽 패널에서 투자 정보를 입력하고 계산 버튼을 클릭하세요
-                </p>
-              </CardContent>
-            </Card>
+            <div className="space-y-3" aria-busy="true">
+              <div className="panel-hero h-[230px] animate-pulse" />
+              <div className="grid grid-cols-3 gap-3">
+                {[0, 1, 2].map((i) => <div key={i} className="panel h-[96px] animate-pulse" />)}
+              </div>
+              <div className="panel h-72 animate-pulse" />
+            </div>
           )}
         </div>
       </div>
 
-      {/* CTA Card */}
-      <div className="mt-8">
-        <Link href="/goal">
-          <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20 hover:border-primary/40 transition-colors cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Target className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">월 100만원 배당, 원금이 얼마 필요할까?</h3>
-                    <p className="text-sm text-gray-600">목표 배당금 계산기 바로가기</p>
-                  </div>
-                </div>
-                <ArrowRight className="h-5 w-5 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
+      {/* 다음 단계 */}
+      <div className="mt-10 grid grid-cols-1 gap-3 md:grid-cols-2">
+        {[
+          {
+            href: isEn ? "/en/goal" : "/goal",
+            icon: Target,
+            color: "text-gold bg-gold/10",
+            title: isEn ? "How much do I need for $1,000 a month?" : "월 100만원 배당, 원금은 얼마나 필요할까?",
+            sub: isEn ? "Goal calculator" : "목표 배당금 계산기",
+          },
+          {
+            href: isEn ? "/en/snowball" : "/snowball",
+            icon: Snowflake,
+            color: "text-iris bg-iris/10",
+            title: isEn ? "When do dividends outrun my savings?" : "배당이 스스로 굴러가는 시점은 언제일까?",
+            sub: isEn ? "Snowball simulator" : "스노우볼 시뮬레이터",
+          },
+        ].map((c) => (
+          <Link key={c.href} href={c.href}>
+            <span className="panel group flex items-center gap-4 p-5 transition-colors hover:border-border-strong">
+              <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${c.color}`}>
+                <c.icon className="h-5 w-5" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-[15px] font-semibold text-foreground">{c.title}</span>
+                <span className="mt-0.5 block text-[13px] text-muted-foreground">{c.sub}</span>
+              </span>
+              <ArrowUpRight className="h-5 w-5 shrink-0 text-subtle transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-foreground" />
+            </span>
+          </Link>
+        ))}
       </div>
 
       {/* ADSENSE_SLOT_BOTTOM */}
 
-      {/* Risk Disclaimer */}
-      <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <AlertTriangle className="h-5 w-5 text-yellow-400" />
-          </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-yellow-800">투자 위험 고지</h3>
-            <div className="mt-2 text-sm text-yellow-700">
-              <p>
-                본 계산기의 결과는 참고용이며, 실제 투자 수익을 보장하지 않습니다.
-                모든 투자에는 원금 손실의 위험이 있으며, 과거 성과가 미래 결과를 보장하지 않습니다.
-                투자 결정 전에 전문가와 상담하시기 바랍니다.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <RiskNote title={t.disclaimer.title}>{t.disclaimer.content}</RiskNote>
     </div>
   );
+}
+
+export default function Calculator() {
+  return <ReinvestPage lang="kr" />;
 }

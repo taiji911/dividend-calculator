@@ -23,6 +23,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import CalculatorTabs from "@/components/calculator-tabs";
+import PageHeader from "@/components/page-header";
 import {
   LineChart,
   Line,
@@ -263,22 +264,20 @@ export default function SnowballSimulator() {
   const goalHref = isEnglish ? "/en/goal" : "/goal";
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-          <Snowflake className="h-8 w-8 text-blue-500" />
-          {t.title}
-        </h1>
-        <p className="text-gray-600">{t.subtitle}</p>
-      </div>
+    <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+      <PageHeader
+        kicker={t.title}
+        title={isEnglish ? <>When do dividends <span className="text-mint">outrun</span> your savings?</> : <>배당이 내 저축을 <span className="text-mint">앞지르는</span> 순간</>}
+        subtitle={t.subtitle}
+      />
 
       {/* ADSENSE_SLOT_TOP */}
 
       <CalculatorTabs />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
         {/* Input Form */}
-        <Card className="lg:col-span-1">
+        <Card className="lg:col-span-1 lg:self-start">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calculator className="h-5 w-5" />
@@ -296,7 +295,7 @@ export default function SnowballSimulator() {
                 onChange={(e) => setInitialInvestmentStr(formatWithCommas(e.target.value))}
                 placeholder="10,000,000"
               />
-              {errors.initialInvestment && <p className="text-sm text-red-500">{errors.initialInvestment}</p>}
+              {errors.initialInvestment && <p className="text-sm text-coral">{errors.initialInvestment}</p>}
             </div>
 
             <div className="space-y-2">
@@ -309,7 +308,7 @@ export default function SnowballSimulator() {
                 onChange={(e) => setDividendYieldStr(e.target.value)}
                 placeholder="4.0"
               />
-              {errors.dividendYield && <p className="text-sm text-red-500">{errors.dividendYield}</p>}
+              {errors.dividendYield && <p className="text-sm text-coral">{errors.dividendYield}</p>}
             </div>
 
             <div className="space-y-2">
@@ -322,7 +321,7 @@ export default function SnowballSimulator() {
                 onChange={(e) => setDividendGrowthStr(e.target.value)}
                 placeholder="0.0"
               />
-              {errors.dividendGrowth && <p className="text-sm text-red-500">{errors.dividendGrowth}</p>}
+              {errors.dividendGrowth && <p className="text-sm text-coral">{errors.dividendGrowth}</p>}
             </div>
 
             <div className="space-y-2">
@@ -335,7 +334,7 @@ export default function SnowballSimulator() {
                 onChange={(e) => setMonthlyContributionStr(formatWithCommas(e.target.value))}
                 placeholder="500,000"
               />
-              {errors.monthlyContribution && <p className="text-sm text-red-500">{errors.monthlyContribution}</p>}
+              {errors.monthlyContribution && <p className="text-sm text-coral">{errors.monthlyContribution}</p>}
             </div>
 
             <div className="space-y-2">
@@ -349,7 +348,7 @@ export default function SnowballSimulator() {
                 onChange={(e) => setInvestmentPeriodStr(e.target.value)}
                 placeholder="15"
               />
-              {errors.investmentPeriod && <p className="text-sm text-red-500">{errors.investmentPeriod}</p>}
+              {errors.investmentPeriod && <p className="text-sm text-coral">{errors.investmentPeriod}</p>}
             </div>
 
             <div className="flex items-center justify-between py-2">
@@ -368,21 +367,21 @@ export default function SnowballSimulator() {
           {simulationResult ? (
             <>
               {/* Snowball Point Badge */}
-              <Card className={`border-2 ${simulationResult.snowballYear ? 'border-blue-400 bg-gradient-to-br from-blue-50 to-indigo-50' : 'border-gray-200'}`}>
+              <Card className={simulationResult.snowballYear ? 'panel-hero !border-mint/40' : ''}>
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center ${simulationResult.snowballYear ? 'bg-blue-500' : 'bg-gray-400'}`}>
-                      <Snowflake className="h-6 w-6 text-white" />
+                    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${simulationResult.snowballYear ? 'bg-mint/15 text-mint' : 'bg-surface-3 text-muted-foreground'}`}>
+                      <Snowflake className="h-6 w-6" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">{t.results.snowballPoint}</h3>
-                      <p className={`text-lg ${simulationResult.snowballYear ? 'text-blue-700 font-semibold' : 'text-gray-600'}`}>
+                      <h3 className="text-lg font-bold text-foreground mb-2">{t.results.snowballPoint}</h3>
+                      <p className={`text-[17px] leading-snug ${simulationResult.snowballYear ? 'font-semibold text-mint' : 'text-muted-foreground'}`}>
                         {simulationResult.snowballYear 
                           ? t.results.snowballFound(simulationResult.snowballYear)
                           : t.results.snowballNotFound(investmentPeriod)
                         }
                       </p>
-                      <p className="text-sm text-gray-500 mt-2">{t.results.disclaimer}</p>
+                      <p className="text-sm text-muted-foreground mt-2">{t.results.disclaimer}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -393,12 +392,12 @@ export default function SnowballSimulator() {
                 <Card>
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <Wallet className="h-5 w-5 text-gray-600" />
+                      <div className="w-10 h-10 bg-surface-2 rounded-lg flex items-center justify-center">
+                        <Wallet className="h-5 w-5 text-muted-foreground" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">{t.results.annualContribution}</p>
-                        <p className="text-xl font-bold text-gray-900">
+                        <p className="text-sm text-muted-foreground">{t.results.annualContribution}</p>
+                        <p className="text-xl font-bold text-foreground">
                           {formatCurrency(monthlyContribution * 12)}
                         </p>
                       </div>
@@ -406,15 +405,15 @@ export default function SnowballSimulator() {
                   </CardContent>
                 </Card>
 
-                <Card className={simulationResult.snowballYear ? 'border-2 border-green-400 bg-green-50' : ''}>
+                <Card className={simulationResult.snowballYear ? 'border-2 border-mint/60 bg-mint/10' : ''}>
                   <CardContent className="p-6">
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${simulationResult.snowballYear ? 'bg-green-500' : 'bg-orange-100'}`}>
-                        <TrendingUp className={`h-5 w-5 ${simulationResult.snowballYear ? 'text-white' : 'text-orange-600'}`} />
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${simulationResult.snowballYear ? 'bg-mint' : 'bg-gold/10'}`}>
+                        <TrendingUp className={`h-5 w-5 ${simulationResult.snowballYear ? 'text-foreground' : 'text-gold'}`} />
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm text-gray-500">{t.results.annualDividend}</p>
-                        <p className="text-xl font-bold text-gray-900">
+                        <p className="text-sm text-muted-foreground">{t.results.annualDividend}</p>
+                        <p className="text-xl font-bold text-foreground">
                           {formatCurrency(
                             simulationResult.snowballYear 
                               ? simulationResult.yearlyData[simulationResult.snowballYear - 1].annualDividend
@@ -423,7 +422,7 @@ export default function SnowballSimulator() {
                         </p>
                       </div>
                       {simulationResult.snowballYear && (
-                        <span className="px-2 py-1 bg-green-500 text-white text-xs font-bold rounded">
+                        <span className="px-2 py-1 bg-mint text-foreground text-xs font-bold rounded">
                           {t.results.exceeds}
                         </span>
                       )}
@@ -443,7 +442,7 @@ export default function SnowballSimulator() {
                   <div className="h-[300px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <ComposedChart data={simulationResult.yearlyData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                         <XAxis 
                           dataKey="year" 
                           tick={{ fontSize: 12 }}
@@ -474,13 +473,13 @@ export default function SnowballSimulator() {
                         {simulationResult.snowballYear && (
                           <ReferenceLine 
                             x={simulationResult.snowballYear} 
-                            stroke="#3b82f6" 
+                            stroke="hsl(var(--iris))" 
                             strokeWidth={2}
                             strokeDasharray="5 5"
                             label={{ 
                               value: isEnglish ? 'Transition' : '전환점', 
                               position: 'top',
-                              fill: '#3b82f6',
+                              fill: 'hsl(var(--iris))',
                               fontSize: 12
                             }}
                           />
@@ -489,16 +488,16 @@ export default function SnowballSimulator() {
                           type="monotone"
                           dataKey="annualDividend"
                           name={isEnglish ? "Annual Dividend" : "연 배당금"}
-                          fill="#22c55e"
+                          fill="hsl(var(--mint))"
                           fillOpacity={0.3}
-                          stroke="#22c55e"
+                          stroke="hsl(var(--mint))"
                           strokeWidth={2}
                         />
                         <Line
                           type="monotone"
                           dataKey="contributionAnnual"
                           name={isEnglish ? "Annual Contribution" : "연간 투자금"}
-                          stroke="#f97316"
+                          stroke="hsl(var(--gold))"
                           strokeWidth={2}
                           strokeDasharray="5 5"
                           dot={false}
@@ -506,7 +505,7 @@ export default function SnowballSimulator() {
                       </ComposedChart>
                     </ResponsiveContainer>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2 text-center">
+                  <p className="text-xs text-muted-foreground mt-2 text-center">
                     {isEnglish 
                       ? "The transition point is where the green area crosses above the orange line"
                       : "녹색 영역이 주황색 선을 넘는 지점이 전환점입니다"}
@@ -538,19 +537,19 @@ export default function SnowballSimulator() {
                           return (
                             <tr 
                               key={data.year} 
-                              className={`border-b ${isTransitionPoint ? 'bg-blue-50 font-semibold' : ''}`}
+                              className={`border-b ${isTransitionPoint ? 'bg-iris/10 font-semibold' : ''}`}
                             >
                               <td className="py-2 px-2">
                                 {data.year}
                                 {isTransitionPoint && (
-                                  <span className="ml-1 text-blue-500">★</span>
+                                  <span className="ml-1 text-mint">●</span>
                                 )}
                               </td>
                               <td className="text-right py-2 px-2">{formatCurrency(data.portfolioEnd)}</td>
                               <td className="text-right py-2 px-2">{formatCurrency(data.annualDividend)}</td>
                               <td className="text-right py-2 px-2">{formatCurrency(data.contributionAnnual)}</td>
                               <td className="text-right py-2 px-2">{data.dividendToContributionRatio.toFixed(2)}x</td>
-                              <td className={`text-right py-2 px-2 ${data.netGap >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              <td className={`text-right py-2 px-2 ${data.netGap >= 0 ? 'text-mint' : 'text-coral'}`}>
                                 {data.netGap >= 0 ? '+' : ''}{formatCurrency(data.netGap)}
                               </td>
                             </tr>
@@ -563,7 +562,7 @@ export default function SnowballSimulator() {
               </Card>
 
               {/* Insights */}
-              <Card className="bg-gray-50">
+              <Card className="bg-surface-2">
                 <CardHeader>
                   <CardTitle className="text-base flex items-center gap-2">
                     <Info className="h-4 w-4" />
@@ -571,10 +570,10 @@ export default function SnowballSimulator() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ul className="space-y-2 text-sm text-gray-600">
+                  <ul className="space-y-2 text-sm text-muted-foreground">
                     {t.insights.points.map((point, index) => (
                       <li key={index} className="flex items-start gap-2">
-                        <span className="text-gray-400">•</span>
+                        <span className="text-subtle">•</span>
                         {point}
                       </li>
                     ))}
@@ -585,11 +584,11 @@ export default function SnowballSimulator() {
           ) : (
             <Card className="h-64 flex items-center justify-center">
               <CardContent className="text-center">
-                <Snowflake className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                <Snowflake className="h-12 w-12 text-subtle mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-foreground mb-2">
                   {isEnglish ? "Enter your investment details" : "투자 정보를 입력하세요"}
                 </h3>
-                <p className="text-gray-500">
+                <p className="text-muted-foreground">
                   {isEnglish ? "Fill in the form to see when your dividends exceed contributions" : "배당이 기여금을 초과하는 시점을 확인하세요"}
                 </p>
               </CardContent>
@@ -602,10 +601,10 @@ export default function SnowballSimulator() {
       <Collapsible open={isDisclaimerOpen} onOpenChange={setIsDisclaimerOpen} className="mt-8">
         <Card>
           <CollapsibleTrigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-gray-50">
+            <CardHeader className="cursor-pointer hover:bg-surface-2">
               <CardTitle className="text-base flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                  <AlertTriangle className="h-4 w-4 text-gold" />
                   {t.assumptions.title}
                 </span>
                 {isDisclaimerOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -614,10 +613,10 @@ export default function SnowballSimulator() {
           </CollapsibleTrigger>
           <CollapsibleContent>
             <CardContent className="pt-0">
-              <ul className="space-y-2 text-sm text-gray-600">
+              <ul className="space-y-2 text-sm text-muted-foreground">
                 {t.assumptions.points.map((point, index) => (
                   <li key={index} className="flex items-start gap-2">
-                    <span className="text-yellow-500">⚠</span>
+                    <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-subtle" />
                     {point}
                   </li>
                 ))}
@@ -628,41 +627,21 @@ export default function SnowballSimulator() {
       </Collapsible>
 
       {/* Internal Links */}
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Link href={reinvestHref}>
-          <Card className="bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20 hover:border-primary/40 transition-colors cursor-pointer h-full">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <TrendingUp className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{t.links.reinvestCalc}</h3>
-                  </div>
-                </div>
-                <ArrowRight className="h-5 w-5 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
-        <Link href={goalHref}>
-          <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 hover:border-green-400 transition-colors cursor-pointer h-full">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Target className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{t.links.goalCalc}</h3>
-                  </div>
-                </div>
-                <ArrowRight className="h-5 w-5 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
+      <div className="mt-10 grid grid-cols-1 gap-3 md:grid-cols-2">
+        {[
+          { href: reinvestHref, label: t.links.reinvestCalc, icon: TrendingUp, color: "bg-gold/10 text-gold" },
+          { href: goalHref, label: t.links.goalCalc, icon: Target, color: "bg-iris/10 text-iris" },
+        ].map((c) => (
+          <Link key={c.href} href={c.href}>
+            <span className="panel group flex items-center gap-4 p-5 transition-colors hover:border-border-strong">
+              <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${c.color}`}>
+                <c.icon className="h-5 w-5" />
+              </span>
+              <span className="flex-1 text-[15px] font-semibold text-foreground">{c.label}</span>
+              <ArrowRight className="h-5 w-5 shrink-0 text-subtle transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
+            </span>
+          </Link>
+        ))}
       </div>
 
       {/* ADSENSE_SLOT_BOTTOM */}

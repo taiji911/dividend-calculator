@@ -1,533 +1,221 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ─────────────────────────────────────────
-   CSS Variables — Premium Finance Theme
-───────────────────────────────────────── */
+/* ─────────────────────────────────────────────────────────────
+   배당 계산기 디자인 시스템 — "Night Ledger"
+   어두운 바탕 + 흰 글자 기본, 포인트 3색은 숫자의 '의미'에만 씁니다.
+     · Gold  (배당/수익, 주요 버튼)  #F5B941
+     · Mint  (자산 성장, 좋은 신호)  #3DDCA8
+     · Iris  (원금/투자금, 정보)     #8B9CFF
+   세금·경고에만 Coral(#FF7B6B)을 보조로 씁니다.
+   색 값은 "H S% L%" 채널로 적어서 bg-gold/10 같은 투명도 표기가 됩니다.
+───────────────────────────────────────────────────────────── */
 :root {
-  /* Backgrounds */
-  --background: hsl(40, 12%, 97%);
-  --foreground: hsl(220, 25%, 10%);
+  /* 바탕과 면 */
+  --background: 225 33% 4%;       /* #07090F */
+  --surface: 222 29% 8%;          /* #0F131C 카드 */
+  --surface-2: 223 27% 12%;       /* #161B27 입력칸, 강조 면 */
+  --surface-3: 223 24% 16%;       /* #1F2533 hover */
 
-  /* Muted */
-  --muted: hsl(40, 8%, 93%);
-  --muted-foreground: hsl(220, 10%, 46%);
+  /* 글자 */
+  --foreground: 220 33% 97%;      /* #F4F6FA */
+  --muted-foreground: 220 14% 66%;/* #9AA3B5 */
+  --subtle: 220 11% 47%;          /* #6B7486 */
 
-  /* Popover / Card */
-  --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(220, 25%, 10%);
-  --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(220, 25%, 10%);
+  /* 선 */
+  --border: 222 23% 18%;          /* #232A39 */
+  --border-strong: 222 21% 25%;   /* #313A4D */
 
-  /* Borders & Inputs */
-  --border: hsl(38, 14%, 88%);
-  --input: hsl(38, 14%, 88%);
+  /* 포인트 3색 + 경고 */
+  --gold: 39 90% 61%;             /* #F5B941 */
+  --gold-foreground: 225 33% 6%;
+  --mint: 160 70% 55%;            /* #3DDCA8 */
+  --iris: 231 100% 77%;           /* #8B9CFF */
+  --coral: 6 100% 71%;            /* #FF7B6B */
 
-  /* Primary — Teal */
-  --primary: hsl(174, 82%, 34%);
-  --primary-foreground: hsl(0, 0%, 100%);
+  /* shadcn 컴포넌트가 쓰는 이름에 연결 */
+  --card: var(--surface);
+  --card-foreground: var(--foreground);
+  --popover: 222 27% 11%;
+  --popover-foreground: var(--foreground);
+  --muted: var(--surface-2);
+  --secondary: var(--surface-2);
+  --secondary-foreground: var(--foreground);
+  --primary: var(--gold);
+  --primary-foreground: var(--gold-foreground);
+  --accent: var(--surface-3);
+  --accent-foreground: var(--foreground);
+  --destructive: var(--coral);
+  --destructive-foreground: 225 33% 6%;
+  --input: var(--border-strong);
+  --ring: var(--gold);
+  --radius: 14px;
 
-  /* Secondary */
-  --secondary: hsl(40, 8%, 93%);
-  --secondary-foreground: hsl(220, 25%, 12%);
+  /* 차트: 원금=Iris, 자산=Mint, 배당=Gold, 세금=Coral */
+  --chart-1: var(--mint);
+  --chart-2: var(--gold);
+  --chart-3: var(--iris);
+  --chart-4: var(--coral);
+  --chart-5: var(--subtle);
 
-  /* Accent — Emerald */
-  --accent: hsl(158, 64%, 42%);
-  --accent-foreground: hsl(0, 0%, 100%);
-
-  /* Destructive */
-  --destructive: hsl(0, 74%, 54%);
-  --destructive-foreground: hsl(0, 0%, 100%);
-
-  /* Ring / Radius */
-  --ring: hsl(174, 82%, 34%);
-  --radius: 0.625rem;
-
-  /* Charts */
-  --chart-1: hsl(174, 82%, 34%);
-  --chart-2: hsl(158, 64%, 42%);
-  --chart-3: hsl(35, 92%, 54%);
-  --chart-4: hsl(220, 70%, 56%);
-  --chart-5: hsl(0, 74%, 54%);
-
-  /* Custom brand tokens */
-  --nav-bg: hsl(220, 40%, 9%);
-  --nav-border: hsl(220, 30%, 16%);
-  --nav-text: hsl(210, 20%, 78%);
-  --nav-text-active: hsl(0, 0%, 100%);
-  --nav-accent: hsl(174, 82%, 42%);
-  --surface: hsl(0, 0%, 100%);
-  --surface-hover: hsl(40, 12%, 95%);
-  --positive: hsl(158, 64%, 38%);
-  --negative: hsl(0, 74%, 52%);
-  --neutral: hsl(220, 10%, 46%);
+  color-scheme: dark;
 }
 
-.dark {
-  --background: hsl(222, 32%, 7%);
-  --foreground: hsl(210, 20%, 92%);
-  --muted: hsl(222, 28%, 13%);
-  --muted-foreground: hsl(215, 16%, 52%);
-  --popover: hsl(222, 32%, 10%);
-  --popover-foreground: hsl(210, 20%, 92%);
-  --card: hsl(222, 32%, 10%);
-  --card-foreground: hsl(210, 20%, 92%);
-  --border: hsl(222, 28%, 18%);
-  --input: hsl(222, 28%, 18%);
-  --primary: hsl(174, 72%, 44%);
-  --primary-foreground: hsl(222, 32%, 7%);
-  --secondary: hsl(222, 28%, 13%);
-  --secondary-foreground: hsl(210, 20%, 92%);
-  --accent: hsl(158, 58%, 48%);
-  --accent-foreground: hsl(222, 32%, 7%);
-  --destructive: hsl(0, 62%, 40%);
-  --destructive-foreground: hsl(210, 20%, 92%);
-  --ring: hsl(174, 72%, 44%);
-  --chart-1: hsl(174, 72%, 44%);
-  --chart-2: hsl(158, 58%, 48%);
-  --chart-3: hsl(35, 88%, 56%);
-  --chart-4: hsl(220, 62%, 60%);
-  --chart-5: hsl(0, 64%, 52%);
-}
-
-/* ─────────────────────────────────────────
-   Base Styles
-───────────────────────────────────────── */
 @layer base {
   * {
     @apply border-border;
   }
 
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 80px;
+  }
+
   body {
-    font-family: 'Noto Sans KR', -apple-system, sans-serif;
+    font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
     @apply antialiased bg-background text-foreground;
     font-size: 15px;
-    line-height: 1.65;
+    line-height: 1.6;
     letter-spacing: -0.01em;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+    background-image:
+      radial-gradient(1200px 520px at 15% -10%, hsl(var(--gold) / 0.07), transparent 60%),
+      radial-gradient(900px 480px at 100% 0%, hsl(var(--iris) / 0.06), transparent 60%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
   }
 
-  h1, h2, h3 {
-    font-family: 'Noto Serif KR', Georgia, serif;
+  h1, h2, h3, h4 {
     font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+    color: hsl(var(--foreground));
+  }
+
+  ::selection {
+    background: hsl(var(--gold) / 0.35);
+    color: hsl(var(--foreground));
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--gold));
+    outline-offset: 2px;
+  }
+
+  button, a, [role="tab"], [role="switch"], select, label[for] {
+    cursor: pointer;
+  }
+
+  /* 숫자 입력 화살표 숨김 */
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] { -moz-appearance: textfield; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* 숫자는 항상 같은 폭 — 표와 결과가 흔들리지 않게 */
+  .num {
+    font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
-    line-height: 1.3;
   }
 
-  h4, h5, h6 {
-    font-family: 'Noto Sans KR', sans-serif;
-    font-weight: 600;
-    letter-spacing: -0.01em;
+  /* 섹션 위 작은 라벨 */
+  .kicker {
+    @apply text-[12px] font-semibold tracking-[0.02em] uppercase text-subtle;
+  }
+
+  /* 기본 면(카드) */
+  .panel {
+    @apply rounded-[var(--radius)] border border-border bg-card;
+    box-shadow: 0 1px 0 hsl(0 0% 100% / 0.03) inset, 0 12px 32px -16px hsl(0 0% 0% / 0.6);
+  }
+
+  /* 결과 강조 면 */
+  .panel-hero {
+    @apply rounded-[var(--radius)] border bg-card;
+    border-color: hsl(var(--gold) / 0.28);
+    background-image:
+      radial-gradient(600px 220px at 0% 0%, hsl(var(--gold) / 0.12), transparent 70%),
+      linear-gradient(180deg, hsl(var(--surface-2)), hsl(var(--surface)));
+    box-shadow: 0 0 0 1px hsl(var(--gold) / 0.06), 0 24px 48px -24px hsl(var(--gold) / 0.25);
+  }
+
+  /* 네비게이션 */
+  .site-nav {
+    background: hsl(var(--background) / 0.78);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  /* 세그먼트 탭 */
+  .seg {
+    @apply flex gap-1 overflow-x-auto rounded-full border border-border bg-card p-1 [&>a]:shrink-0;
+    scrollbar-width: none;
+  }
+  .seg::-webkit-scrollbar { display: none; }
+  .seg-item {
+    @apply block shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-[13.5px] font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground;
+  }
+  .seg-item[data-active="true"] {
+    @apply bg-foreground text-background font-semibold;
+  }
+
+  /* 결과 표 */
+  .data-table thead th {
+    @apply sticky top-0 z-10 bg-[hsl(var(--surface-2))] px-4 py-3 text-left text-[12px] font-semibold tracking-wide text-subtle whitespace-nowrap;
+  }
+  .data-table tbody td {
+    @apply border-t border-border px-4 py-3 text-[14px] text-muted-foreground whitespace-nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .data-table tbody tr {
+    @apply transition-colors duration-150 hover:bg-[hsl(var(--surface-2))];
+  }
+
+  /* 프리셋 칩 */
+  .chip {
+    @apply rounded-xl border border-border bg-[hsl(var(--surface-2))] px-3 py-2.5 text-left transition-colors duration-200 hover:border-[hsl(var(--border-strong))];
+  }
+  .chip[data-active="true"] {
+    border-color: hsl(var(--gold) / 0.6);
+    background: hsl(var(--gold) / 0.08);
+  }
+
+  /* 안내 상자 */
+  .note {
+    @apply rounded-xl border px-4 py-3 text-[13.5px] leading-relaxed;
+  }
+  .note-info { border-color: hsl(var(--iris) / 0.3); background: hsl(var(--iris) / 0.07); }
+  .note-warn { border-color: hsl(var(--gold) / 0.3); background: hsl(var(--gold) / 0.07); }
+  .note-risk { border-color: hsl(var(--coral) / 0.3); background: hsl(var(--coral) / 0.07); }
+  .note-good { border-color: hsl(var(--mint) / 0.3); background: hsl(var(--mint) / 0.07); }
+
+  /* 범례 점 */
+  .dot {
+    @apply inline-block h-2 w-2 rounded-full;
   }
 }
 
-/* ─────────────────────────────────────────
-   Navigation — Dark Navy Premium
-───────────────────────────────────────── */
-.jay-nav {
-  background: var(--nav-bg);
-  border-bottom: 1px solid var(--nav-border);
-  box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 2px 16px rgba(0,0,0,0.32);
-}
+/* 스크롤바 */
+* { scrollbar-color: hsl(var(--border-strong)) transparent; scrollbar-width: thin; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: hsl(var(--border-strong)); border-radius: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
 
-.jay-nav-logo {
-  color: var(--nav-text-active);
-  font-family: 'Noto Sans KR', sans-serif;
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: -0.02em;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.jay-nav-logo-icon {
-  color: var(--nav-accent);
-}
-
-.jay-nav-link {
-  color: var(--nav-text);
-  font-size: 13px;
-  font-weight: 500;
-  padding: 6px 12px;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.jay-nav-link:hover {
-  color: var(--nav-text-active);
-  background: rgba(255,255,255,0.07);
-}
-
-.jay-nav-btn {
-  background: transparent;
-  border: 1px solid rgba(255,255,255,0.12);
-  color: var(--nav-text);
-  font-size: 12px;
-  font-weight: 500;
-  padding: 5px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.jay-nav-btn:hover {
-  border-color: rgba(255,255,255,0.24);
-  color: var(--nav-text-active);
-  background: rgba(255,255,255,0.06);
-}
-
-.jay-nav-divider {
-  width: 1px;
-  height: 20px;
-  background: rgba(255,255,255,0.1);
-}
-
-/* ─────────────────────────────────────────
-   Page Header
-───────────────────────────────────────── */
-.page-header {
-  padding: 2.5rem 0 1.5rem;
-  border-bottom: 1px solid hsl(38, 14%, 88%);
-  margin-bottom: 2rem;
-}
-
-.page-title {
-  font-family: 'Noto Serif KR', Georgia, serif;
-  font-size: clamp(22px, 3vw, 28px);
-  font-weight: 700;
-  color: hsl(220, 25%, 10%);
-  letter-spacing: -0.025em;
-  line-height: 1.25;
-}
-
-.page-subtitle {
-  font-size: 14px;
-  color: var(--neutral);
-  margin-top: 6px;
-  font-weight: 400;
-}
-
-/* ─────────────────────────────────────────
-   Tabs — Refined Underline Style
-───────────────────────────────────────── */
-.jay-tabs {
-  display: flex;
-  border-bottom: 1px solid hsl(38, 14%, 88%);
-  margin-bottom: 1.75rem;
-  gap: 4px;
-}
-
-.jay-tab {
-  padding: 10px 18px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--neutral);
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  background: none;
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  letter-spacing: -0.01em;
-}
-
-.jay-tab:hover {
-  color: hsl(220, 25%, 10%);
-}
-
-.jay-tab.active {
-  color: var(--primary);
-  border-bottom-color: var(--primary);
-  font-weight: 600;
-}
-
-/* ─────────────────────────────────────────
-   Cards — Elevated with warm shadows
-───────────────────────────────────────── */
-.jay-card {
-  background: var(--surface);
-  border: 1px solid hsl(38, 14%, 90%);
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
-  transition: box-shadow 0.2s ease;
-}
-
-.jay-card:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
-}
-
-/* ─────────────────────────────────────────
-   Summary Cards — Metric Display
-───────────────────────────────────────── */
-.metric-card {
-  background: var(--surface);
-  border: 1px solid hsl(38, 14%, 90%);
-  border-radius: 12px;
-  padding: 20px 22px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-  position: relative;
-  overflow: hidden;
-}
-
-.metric-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  opacity: 0.7;
-}
-
-.metric-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--neutral);
-  margin-bottom: 8px;
-}
-
-.metric-value {
-  font-family: 'Noto Sans KR', sans-serif;
-  font-size: clamp(18px, 2.5vw, 24px);
-  font-weight: 700;
-  color: hsl(220, 25%, 10%);
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-
-/* ─────────────────────────────────────────
-   Inputs — Clean and refined
-───────────────────────────────────────── */
-input[type="text"],
-input[type="number"],
-select {
-  font-family: 'Noto Sans KR', sans-serif !important;
-  letter-spacing: -0.01em;
-}
-
-/* ─────────────────────────────────────────
-   Buttons — Primary Teal
-───────────────────────────────────────── */
-.btn-primary {
-  background: var(--primary);
-  color: white;
-  font-family: 'Noto Sans KR', sans-serif;
-  font-weight: 600;
-  font-size: 14px;
-  letter-spacing: -0.01em;
-  padding: 12px 20px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.btn-primary:hover {
-  background: hsl(174, 82%, 29%);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(14, 165, 160, 0.3);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-/* ─────────────────────────────────────────
-   Table — Refined Data Table
-───────────────────────────────────────── */
-.jay-table thead tr {
-  background: hsl(40, 10%, 96%);
-  border-bottom: 2px solid hsl(38, 14%, 88%);
-}
-
-.jay-table thead th {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--neutral);
-  padding: 10px 16px;
-}
-
-.jay-table tbody tr {
-  border-bottom: 1px solid hsl(38, 14%, 92%);
-  transition: background 0.1s ease;
-}
-
-.jay-table tbody tr:hover {
-  background: hsl(40, 12%, 97%);
-}
-
-.jay-table tbody td {
-  padding: 12px 16px;
-  font-size: 13.5px;
-  color: hsl(220, 20%, 18%);
-  font-variant-numeric: tabular-nums;
-}
-
-/* ─────────────────────────────────────────
-   Number Colors
-───────────────────────────────────────── */
-.num-positive {
-  color: var(--positive) !important;
-  font-weight: 600;
-}
-
-.num-neutral {
-  color: var(--neutral);
-}
-
-/* ─────────────────────────────────────────
-   Preset Buttons
-───────────────────────────────────────── */
-.preset-btn {
-  border: 1px solid hsl(38, 14%, 88%);
-  border-radius: 8px;
-  padding: 10px 14px;
-  background: var(--surface);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-align: left;
-}
-
-.preset-btn:hover {
-  border-color: var(--primary);
-  background: hsl(174, 82%, 97%);
-}
-
-.preset-btn.active {
-  border-color: var(--primary);
-  background: hsl(174, 82%, 95%);
-  box-shadow: 0 0 0 3px hsla(174, 82%, 34%, 0.12);
-}
-
-/* ─────────────────────────────────────────
-   Background subtle texture
-───────────────────────────────────────── */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: radial-gradient(circle at 1px 1px, hsl(38, 14%, 88%) 1px, transparent 0);
-  background-size: 24px 24px;
-  opacity: 0.35;
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* ─────────────────────────────────────────
-   Form Label
-───────────────────────────────────────── */
-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: hsl(220, 20%, 22%);
-  letter-spacing: -0.01em;
-}
-
-/* ─────────────────────────────────────────
-   Section Dividers
-───────────────────────────────────────── */
-.section-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--primary);
-  background: hsla(174, 82%, 34%, 0.08);
-  border: 1px solid hsla(174, 82%, 34%, 0.2);
-  padding: 4px 10px;
-  border-radius: 20px;
-  margin-bottom: 16px;
-}
-
-/* ─────────────────────────────────────────
-   Scrollbar
-───────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: hsl(38, 14%, 82%);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(38, 14%, 72%);
-}
-
-/* ─────────────────────────────────────────
-   React Calendar (unchanged)
-───────────────────────────────────────── */
-.react-calendar-wrapper { width: 100%; }
-.react-calendar {
-  width: 100% !important;
-  background: white;
-  border: 1px solid hsl(38, 14%, 88%);
-  font-family: 'Noto Sans KR', sans-serif;
-  line-height: 1.125em;
-}
-.react-calendar--doubleView { width: 700px; }
-.react-calendar--doubleView .react-calendar__viewContainer { display: flex; margin: -0.5em; }
-.react-calendar--doubleView .react-calendar__viewContainer > * { width: 50%; margin: 0.5em; }
-.react-calendar, .react-calendar *, .react-calendar *:before, .react-calendar *:after { box-sizing: border-box; }
-.react-calendar button { margin: 0; border: 0; outline: none; }
-.react-calendar button:enabled:hover, .react-calendar button:enabled:focus { background-color: hsl(40, 12%, 95%); }
-.react-calendar__navigation { display: flex; height: 44px; margin-bottom: 1em; }
-.react-calendar__navigation button { min-width: 44px; background: none; font-size: 16px; font-weight: 500; }
-.react-calendar__navigation button:disabled { background-color: #f0f0f0; }
-.react-calendar__navigation button:enabled:hover, .react-calendar__navigation button:enabled:focus { background-color: hsl(38, 14%, 92%); }
-.react-calendar__month-view__weekdays { text-align: center; text-transform: uppercase; font-weight: bold; font-size: 0.75em; }
-.react-calendar__month-view__weekdays__weekday { padding: 0.5em; color: var(--neutral); }
-.react-calendar__month-view__days__day--weekend { color: #d10000; }
-.react-calendar__month-view__days__day--neighboringMonth { color: #9ca3af; }
-.react-calendar__year-view .react-calendar__tile,
-.react-calendar__decade-view .react-calendar__tile,
-.react-calendar__century-view .react-calendar__tile { padding: 2em 0.5em; }
-.react-calendar__tile { max-width: 100%; padding: 10px 6px; background: none; text-align: center; line-height: 16px; font-size: 0.875em; position: relative; }
-.react-calendar__tile:disabled { background-color: #f5f5f5; color: #9ca3af; }
-.react-calendar__tile:enabled:hover, .react-calendar__tile:enabled:focus { background-color: hsl(38, 14%, 92%); }
-.react-calendar__tile--now { background: var(--primary); color: white; }
-.react-calendar__tile--now:enabled:hover, .react-calendar__tile--now:enabled:focus { background: hsl(174, 82%, 29%); }
-.react-calendar__tile--active { background: hsl(174, 82%, 29%); color: white; }
-.react-calendar__tile--active:enabled:hover, .react-calendar__tile--active:enabled:focus { background: var(--primary); }
-.react-calendar__tile.has-events { background-color: #fef3c7 !important; color: #92400e; font-weight: 600; }
-.react-calendar__tile.has-events:hover { background-color: #fde68a !important; }
-.event-indicators { position: absolute; top: 2px; right: 2px; display: flex; align-items: center; gap: 2px; }
-.event-dot { width: 6px; height: 6px; background-color: #dc2626; border-radius: 50%; }
-.event-count { font-size: 10px; font-weight: bold; color: #dc2626; min-width: 12px; text-align: center; }
-
-/* ─────────────────────────────────────────
-   Utilities
-───────────────────────────────────────── */
-@layer utilities {
-  .text-balance { text-wrap: balance; }
-  .font-tabular { font-variant-numeric: tabular-nums; }
-}
+/* Recharts 다크 보정 */
+.recharts-cartesian-grid line { stroke: hsl(var(--border)); }
+.recharts-text { fill: hsl(var(--subtle)); font-size: 11px; }
+.recharts-default-tooltip { border-radius: 12px !important; }

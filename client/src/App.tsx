@@ -12,6 +12,7 @@ import Guide from "@/pages/guide";
 import SnowballSimulator from "@/pages/snowball-simulator";
 import TaxCalculator from "@/pages/tax-calculator";
 import Navigation from "@/components/navigation";
+import Footer from "@/components/footer";
 
 function Router() {
   return (
@@ -39,10 +40,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen bg-background">
+        <div className="flex min-h-screen flex-col">
           <Navigation />
           <Toaster />
-          <Router />
+          <main className="flex-1">
+            <Router />
+          </main>
+          <Footer />
         </div>
       </TooltipProvider>
     </QueryClientProvider>
