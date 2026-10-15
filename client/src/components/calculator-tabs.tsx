@@ -8,12 +8,12 @@ interface CalculatorTabsProps {
 /** 계산기 사이 이동 — 휴대폰에서는 옆으로 밀어서 넘겨요 */
 export default function CalculatorTabs({ className }: CalculatorTabsProps) {
   const [location] = useLocation();
-  const locale = location.startsWith("/en") ? "en" : location.startsWith("/kr") ? "kr" : "";
+  const locale = location.startsWith("/en") ? "en" : "";
   const isEnglish = locale === "en";
 
   const tabs = [
     {
-      href: locale ? `/${locale}` : "/kr",
+      href: locale ? `/${locale}` : "/",
       label: isEnglish ? "Reinvestment" : "재투자 계산기",
       active: ["/", "/kr", "/en", "/calculator"].includes(location),
     },

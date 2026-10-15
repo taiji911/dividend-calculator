@@ -1,125 +1,92 @@
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calculator, Info, Loader2 } from "lucide-react";
+import { ArrowDown, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useToast } from "@/hooks/use-toast";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
 import type { CalculationResults } from "@/pages/calculator";
-import { getCurrentLanguage, getTranslation, currencyOptions, type Language } from "@/lib/i18n";
-
-const calculationSchema = z.object({
-  initialInvestment: z.number().min(0),
-  monthlyInvestment: z.number().min(0),
-  investmentPeriod: z.number().min(1).max(50),
-  dividendYield: z.number().min(0).max(50),
-  dividendGrowthRate: z.number().min(-10).max(50),
-  currency: z.string(),
-  dripEnabled: z.boolean(),
-  taxCountry: z.enum(["KR", "US", "CUSTOM"]),
-  taxType: z.enum(["taxable", "tax_free"]),
-  customTaxRate: z.number().min(0).max(100).optional(),
-});
-
-type CalculationFormData = z.infer<typeof calculationSchema>;
+import { getCurrentLanguage, getTranslation, currencyOptions } from "@/lib/i18n";
+import { simulate, type AccountType } from "@/lib/dividend-engine";
 
 interface CalculatorFormProps {
   onCalculate: (results: CalculationResults, currency?: string) => void;
 }
 
+type FormState = {
+  initialInvestment: number;
+  monthlyInvestment: number;
+  investmentPeriod: number;
+  dividendYield: string;
+  dividendGrowthRate: string;
+  priceGrowthRate: string;
+  dripEnabled: boolean;
+  account: AccountType;
+  customTaxRate: string;
+  currency: string;
+};
+
+const num = (v: string | number) => {
+  const n = typeof v === "number" ? v : parseFloat(String(v).replace(/,/g, ""));
+  return isFinite(n) ? n : 0;
+};
+
+/**
+ * 투자 조건 입력 — 값을 바꾸는 즉시 브라우저에서 바로 계산해요 (서버 왕복 없음).
+ */
 export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
-  const { toast } = useToast();
-  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const language = getCurrentLanguage();
+  const isEn = language === "en";
   const t = getTranslation(language);
 
-  const form = useForm<CalculationFormData>({
-    resolver: zodResolver(calculationSchema),
-    defaultValues: {
-      // 처음 들어와도 결과가 바로 보이도록 예시 값을 채워 둡니다
-      initialInvestment: language === 'en' ? 10000 : 10000000,
-      monthlyInvestment: language === 'en' ? 500 : 500000,
-      investmentPeriod: 10,
-      dividendYield: 3.5,
-      dividendGrowthRate: 5.0,
-      currency: language === 'kr' ? 'KRW' : 'USD',
-      dripEnabled: true,
-      taxCountry: "KR" as const,
-      taxType: "taxable" as const,
-      customTaxRate: 0,
-    },
+  const [f, setF] = useState<FormState>({
+    // 처음 들어와도 결과가 바로 보이도록 예시 값을 채워 둡니다
+    initialInvestment: isEn ? 10000 : 10000000,
+    monthlyInvestment: isEn ? 500 : 500000,
+    investmentPeriod: 10,
+    dividendYield: "3.5",
+    dividendGrowthRate: "5",
+    priceGrowthRate: "5",
+    dripEnabled: true,
+    account: isEn ? "taxable_us" : "taxable_kr",
+    customTaxRate: "15",
+    currency: isEn ? "USD" : "KRW",
   });
-
-  const calculateMutation = useMutation({
-    mutationFn: async (data: CalculationFormData) => {
-      const response = await apiRequest("POST", "/api/calculate", data);
-      return response.json();
-    },
-    onSuccess: (results: CalculationResults) => {
-      onCalculate(results, selectedCurrency);
-      // 휴대폰에서 직접 계산 버튼을 누른 경우 결과로 내려가기
-      if (manualSubmit.current && window.matchMedia("(max-width: 1023px)").matches) {
-        setTimeout(() => document.getElementById("results")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
-      }
-      manualSubmit.current = false;
-    },
-    onError: (error: Error) => {
-      toast({
-        title: language === 'en' ? "Calculation Error" : "계산 오류",
-        description: error.message || (language === 'en' ? "An error occurred during calculation." : "계산 중 오류가 발생했습니다."),
-        variant: "destructive",
-      });
-    },
-  });
-
-  const manualSubmit = React.useRef(false);
-  const onSubmit = (data: CalculationFormData) => {
-    manualSubmit.current = true;
-    calculateMutation.mutate(data);
-  };
-
-  // 첫 화면에서 예시 값으로 한 번 계산
-  React.useEffect(() => {
-    calculateMutation.mutate(form.getValues());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const set = <K extends keyof FormState>(k: K, v: FormState[K]) => setF((p) => ({ ...p, [k]: v }));
 
   const presets = {
-    conservative: { dividendYield: 3.0, dividendGrowthRate: 3.0, label: language === 'en' ? "Conservative" : "보수적", description: language === 'en' ? "3% yield, 3% growth" : "배당률 3%, 성장률 3%" },
-    moderate: { dividendYield: 4.0, dividendGrowthRate: 5.0, label: language === 'en' ? "Moderate" : "중간", description: language === 'en' ? "4% yield, 5% growth" : "배당률 4%, 성장률 5%" },
-    aggressive: { dividendYield: 5.0, dividendGrowthRate: 8.0, label: language === 'en' ? "Growth" : "공격적", description: language === 'en' ? "5% yield, 8% growth" : "배당률 5%, 성장률 8%" },
-    schd: { dividendYield: 3.5, dividendGrowthRate: 12.0, label: language === 'en' ? "SCHD (Example)" : "SCHD (예시)", description: language === 'en' ? "3.5% yield, 12% growth" : "배당률 3.5%, 성장률 12%" },
+    conservative: { y: 3, dg: 3, pg: 3, label: isEn ? "Conservative" : "보수적", description: isEn ? "Yield 3% · div +3% · price +3%" : "배당률 3% · 배당 +3% · 주가 +3%" },
+    moderate: { y: 4, dg: 5, pg: 4, label: isEn ? "Moderate" : "중간", description: isEn ? "Yield 4% · div +5% · price +4%" : "배당률 4% · 배당 +5% · 주가 +4%" },
+    highYield: { y: 7, dg: 2, pg: 1, label: isEn ? "High yield" : "고배당", description: isEn ? "Yield 7% · div +2% · price +1%" : "배당률 7% · 배당 +2% · 주가 +1%" },
+    schd: { y: 3.5, dg: 10, pg: 9, label: isEn ? "SCHD-like" : "SCHD (예시)", description: isEn ? "Past 10-yr pace" : "과거 10년 흐름 참고" },
   };
+  type PresetKey = keyof typeof presets;
+  const activePreset = (Object.keys(presets) as PresetKey[]).find(
+    (k) => num(f.dividendYield) === presets[k].y && num(f.dividendGrowthRate) === presets[k].dg && num(f.priceGrowthRate) === presets[k].pg
+  );
 
-  const loadPreset = (presetName: keyof typeof presets) => {
-    const preset = presets[presetName];
-    form.setValue("dividendYield", preset.dividendYield);
-    form.setValue("dividendGrowthRate", preset.dividendGrowthRate);
-    setSelectedPreset(presetName);
-  };
+  const result = useMemo(
+    () =>
+      simulate({
+        initialInvestment: f.initialInvestment,
+        monthlyInvestment: f.monthlyInvestment,
+        years: Math.min(Math.max(num(f.investmentPeriod), 1), 50),
+        dividendYield: Math.min(Math.max(num(f.dividendYield), 0), 50),
+        dividendGrowthRate: Math.min(Math.max(num(f.dividendGrowthRate), -20), 50),
+        priceGrowthRate: Math.min(Math.max(num(f.priceGrowthRate), -20), 50),
+        drip: f.dripEnabled,
+        account: f.account,
+        customTaxRate: num(f.customTaxRate),
+      }),
+    [f]
+  );
 
-  const watchedValues = form.watch(["dividendYield", "dividendGrowthRate"]);
-  React.useEffect(() => {
-    if (selectedPreset) {
-      const preset = presets[selectedPreset as keyof typeof presets];
-      const [currentYield, currentGrowth] = watchedValues;
-      if (currentYield !== preset.dividendYield || currentGrowth !== preset.dividendGrowthRate) {
-        setSelectedPreset(null);
-      }
-    }
-  }, [watchedValues]);
+  useEffect(() => {
+    onCalculate(result, f.currency);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result, f.currency]);
 
-  const selectedCurrency = form.watch("currency") || (language === 'kr' ? 'KRW' : 'USD');
-  const currencySymbol = currencyOptions[selectedCurrency as keyof typeof currencyOptions]?.symbol || '$';
-
-  const isEn = language === 'en';
+  const currencySymbol = currencyOptions[f.currency as keyof typeof currencyOptions]?.symbol || "₩";
 
   const hint = (children: React.ReactNode) => (
     <Tooltip>
@@ -143,20 +110,70 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
         inputMode="numeric"
         placeholder={placeholder}
         className="pl-9 text-[16px] font-semibold"
-        value={form.watch(name)?.toLocaleString() || "0"}
+        value={f[name] ? f[name].toLocaleString() : ""}
         onChange={(e) => {
-          const numValue = parseFloat(e.target.value.replace(/[^0-9.]/g, ""));
-          form.setValue(name, isNaN(numValue) ? 0 : numValue);
+          const n = parseFloat(e.target.value.replace(/[^0-9.]/g, ""));
+          set(name, isNaN(n) ? 0 : n);
         }}
       />
     </div>
   );
 
+  const pctInput = (name: "dividendYield" | "dividendGrowthRate" | "priceGrowthRate" | "customTaxRate", placeholder: string) => (
+    <div className="relative">
+      <Input
+        type="text"
+        inputMode="decimal"
+        placeholder={placeholder}
+        className="pr-9"
+        value={f[name]}
+        onChange={(e) => set(name, e.target.value.replace(/[^0-9.\-]/g, ""))}
+      />
+      <span className={`${affix} right-3.5`}>%</span>
+    </div>
+  );
+
+  const accountOptions: { value: AccountType; label: string }[] = isEn
+    ? [
+        { value: "taxable_us", label: "Taxable · US stocks (15%)" },
+        { value: "taxable_kr", label: "Taxable · Korean stocks (15.4%)" },
+        { value: "tax_free", label: "Tax-free account" },
+        { value: "custom", label: "Custom tax rate" },
+      ]
+    : [
+        { value: "taxable_kr", label: "일반계좌 · 국내 주식·ETF (15.4%)" },
+        { value: "taxable_us", label: "일반계좌 · 미국 주식 (15%)" },
+        { value: "isa", label: "ISA 일반형 (만기 때 과세)" },
+        { value: "isa_low", label: "ISA 서민형 (만기 때 과세)" },
+        { value: "pension", label: "연금저축·IRP (과세이연)" },
+        { value: "custom", label: "세율 직접 입력" },
+      ];
+
+  const accountNote: Partial<Record<AccountType, string>> = isEn
+    ? {
+        taxable_kr: "15.4% is withheld from every dividend.",
+        taxable_us: "15% US withholding on every dividend.",
+        tax_free: "No tax is applied to dividends.",
+        custom: "Your rate is applied to every dividend.",
+      }
+    : {
+        taxable_kr: "배당을 받을 때마다 15.4%(지방세 포함)가 원천징수돼요.",
+        taxable_us: "미국에서 15%가 원천징수되고, 국내 추가 원천징수는 없어요.",
+        isa: "기간 중에는 세금 없이 굴리고, 만기 때 순이익 200만원 초과분에 9.9%를 내요.",
+        isa_low: "기간 중에는 세금 없이 굴리고, 만기 때 순이익 400만원 초과분에 9.9%를 내요.",
+        pension: "기간 중 세금을 미뤄요. 연금으로 받을 때 나이에 따라 3.3~5.5%를 내요.",
+        custom: "입력한 세율을 배당마다 적용해요.",
+      };
+
+  const scrollToResults = () => {
+    document.getElementById("results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="panel p-5 sm:p-6">
+    <form onSubmit={(e) => e.preventDefault()} className="panel p-5 sm:p-6">
       <div className="mb-5 flex items-center justify-between">
         <h2 className="text-[17px] font-semibold">{t.calculator.title}</h2>
-        <span className="kicker">{isEn ? 'Inputs' : 'INPUT'}</span>
+        <span className="kicker">{isEn ? "Live" : "실시간 계산"}</span>
       </div>
 
       <div className="space-y-5">
@@ -164,7 +181,7 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
         <div>
           <label className={fieldLabel}>
             {t.calculator.initialInvestment}
-            {hint(isEn ? 'Initial capital to start investing' : '투자를 시작할 때 한 번에 넣는 돈')}
+            {hint(isEn ? "Initial capital to start investing" : "투자를 시작할 때 한 번에 넣는 돈")}
           </label>
           {moneyInput("initialInvestment", t.calculator.placeholders.initialAmount)}
         </div>
@@ -172,7 +189,7 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
         <div>
           <label className={fieldLabel}>
             {t.calculator.monthlyInvestment}
-            {hint(isEn ? 'Regular monthly investment amount' : '매달 꾸준히 더 넣을 돈')}
+            {hint(isEn ? "Regular monthly investment amount" : "매달 꾸준히 더 넣을 돈")}
           </label>
           {moneyInput("monthlyInvestment", t.calculator.placeholders.monthlyAmount)}
         </div>
@@ -181,19 +198,25 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
           <div>
             <label className={fieldLabel}>
               {t.calculator.investmentPeriod}
-              {hint(isEn ? 'Total investment period' : '투자를 이어갈 기간')}
+              {hint(isEn ? "1 to 50 years" : "1~50년")}
             </label>
             <div className="relative">
-              <Input type="number" inputMode="numeric" placeholder={t.calculator.placeholders.years} className="pr-10"
-                {...form.register("investmentPeriod", { valueAsNumber: true })} />
-              <span className={`${affix} right-3.5`}>{isEn ? 'yrs' : '년'}</span>
+              <Input
+                type="text"
+                inputMode="numeric"
+                placeholder={t.calculator.placeholders.years}
+                className="pr-10"
+                value={f.investmentPeriod || ""}
+                onChange={(e) => set("investmentPeriod", Math.min(parseInt(e.target.value.replace(/[^0-9]/g, "") || "0", 10), 50))}
+              />
+              <span className={`${affix} right-3.5`}>{isEn ? "yrs" : "년"}</span>
             </div>
           </div>
 
           {isEn ? (
             <div>
               <label className={fieldLabel}>{t.calculator.currency}</label>
-              <Select value={form.watch("currency")} onValueChange={(value) => form.setValue("currency", value)}>
+              <Select value={f.currency} onValueChange={(v) => set("currency", v)}>
                 <SelectTrigger><SelectValue placeholder="Currency" /></SelectTrigger>
                 <SelectContent>
                   {Object.entries(currencyOptions).map(([code, info]) => (
@@ -205,12 +228,12 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
           ) : (
             <div>
               <label className={fieldLabel}>
-                {t.calculator.dripEnabled.replace(' (DRIP)', '')}
-                {hint("배당금을 현금으로 받지 않고 다시 사들이는 방식이에요")}
+                배당 재투자
+                {hint("배당금을 현금으로 받지 않고 그 돈으로 주식을 더 사는 방식이에요")}
               </label>
               <label htmlFor="drip" className="flex h-11 items-center justify-between rounded-xl border border-border bg-surface-2 px-3.5">
-                <span className="text-[14px] text-foreground">{form.watch("dripEnabled") ? '켜짐' : '꺼짐'}</span>
-                <Switch id="drip" checked={form.watch("dripEnabled")} onCheckedChange={(checked) => form.setValue("dripEnabled", checked)} />
+                <span className="text-[14px] text-foreground">{f.dripEnabled ? "켜짐" : "꺼짐"}</span>
+                <Switch id="drip" checked={f.dripEnabled} onCheckedChange={(c) => set("dripEnabled", c)} />
               </label>
             </div>
           )}
@@ -220,113 +243,84 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
           <label htmlFor="drip" className="flex h-11 items-center justify-between rounded-xl border border-border bg-surface-2 px-3.5">
             <span className="flex items-center text-[14px] text-foreground">
               {t.calculator.dripEnabled}
-              {hint("Automatically reinvest dividends instead of receiving cash")}
+              {hint("Use dividends to buy more shares instead of taking cash")}
             </span>
-            <Switch id="drip" checked={form.watch("dripEnabled")} onCheckedChange={(checked) => form.setValue("dripEnabled", checked)} />
+            <Switch id="drip" checked={f.dripEnabled} onCheckedChange={(c) => set("dripEnabled", c)} />
           </label>
         )}
 
         <div className="h-px bg-border" />
 
-        {/* 배당 가정 */}
+        {/* 가정 */}
         <div>
-          <p className="mb-2.5 text-[13.5px] font-medium text-muted-foreground">{isEn ? 'Quick presets' : '빠른 설정'}</p>
+          <p className="mb-2.5 text-[13.5px] font-medium text-muted-foreground">{isEn ? "Quick presets" : "빠른 설정"}</p>
           <div className="grid grid-cols-2 gap-2">
-            {Object.entries(presets).map(([key, preset]) => (
-              <button
-                type="button"
-                key={key}
-                data-active={selectedPreset === key}
-                className="chip"
-                onClick={() => loadPreset(key as keyof typeof presets)}
-              >
-                <span className="block text-[14px] font-semibold text-foreground">{preset.label}</span>
-                <span className="mt-0.5 block text-[12px] text-subtle">{preset.description}</span>
-              </button>
-            ))}
+            {(Object.keys(presets) as PresetKey[]).map((key) => {
+              const p = presets[key];
+              return (
+                <button
+                  type="button"
+                  key={key}
+                  data-active={activePreset === key}
+                  className="chip"
+                  onClick={() => setF((prev) => ({ ...prev, dividendYield: String(p.y), dividendGrowthRate: String(p.dg), priceGrowthRate: String(p.pg) }))}
+                >
+                  <span className="block text-[14px] font-semibold text-foreground">{p.label}</span>
+                  <span className="mt-0.5 block text-[12px] leading-snug text-subtle">{p.description}</span>
+                </button>
+              );
+            })}
           </div>
+        </div>
+
+        <div>
+          <label className={fieldLabel}>
+            {t.calculator.dividendYield}
+            {hint(isEn ? "Annual dividend ÷ current price" : "지금 주가 대비 1년 배당금 비율이에요")}
+          </label>
+          {pctInput("dividendYield", "3.5")}
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className={fieldLabel}>
-              {t.calculator.dividendYield}
-              {hint(isEn ? 'Annual dividend ÷ current price' : '지금 주가 대비 1년 배당금 비율')}
+              {isEn ? "Dividend growth" : "배당 성장률"}
+              {hint(isEn ? "How fast the dividend per share grows each year" : "주당 배당금이 1년에 몇 % 늘어나는지")}
             </label>
-            <div className="relative">
-              <Input type="number" inputMode="decimal" step="0.1" placeholder={t.calculator.placeholders.yieldPercent} className="pr-9"
-                {...form.register("dividendYield", { valueAsNumber: true, onChange: () => setSelectedPreset(null) })} />
-              <span className={`${affix} right-3.5`}>%</span>
-            </div>
+            {pctInput("dividendGrowthRate", "5")}
           </div>
           <div>
             <label className={fieldLabel}>
-              {t.calculator.dividendGrowthRate}
-              {hint(isEn ? 'Annual dividend growth rate' : '배당금이 매년 늘어나는 비율')}
+              {isEn ? "Price growth" : "주가 상승률"}
+              {hint(isEn ? "How fast the share price grows each year" : "주가가 1년에 몇 % 오르는지. 배당 성장률보다 낮으면 시가 배당률이 점점 올라가요")}
             </label>
-            <div className="relative">
-              <Input type="number" inputMode="decimal" step="0.1" placeholder={t.calculator.placeholders.growthPercent} className="pr-9"
-                {...form.register("dividendGrowthRate", { valueAsNumber: true, onChange: () => setSelectedPreset(null) })} />
-              <span className={`${affix} right-3.5`}>%</span>
-            </div>
+            {pctInput("priceGrowthRate", "5")}
           </div>
         </div>
 
         <div className="h-px bg-border" />
 
         {/* 세금 */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className={fieldLabel}>
-              {t.calculator.taxCountry}
-              {hint(isEn ? 'Country where dividend tax rate applies' : '배당세율이 적용될 국가')}
-            </label>
-            <Select value={form.watch("taxCountry")} onValueChange={(value: "KR" | "US" | "CUSTOM") => {
-              form.setValue("taxCountry", value);
-              if (value === "CUSTOM") { form.setValue("taxType", "taxable"); form.setValue("customTaxRate", 0); }
-            }}>
-              <SelectTrigger><SelectValue placeholder={isEn ? 'Select country' : '국가 선택'} /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="KR">{t.calculator.options.korea}</SelectItem>
-                <SelectItem value="US">{t.calculator.options.us}</SelectItem>
-                <SelectItem value="CUSTOM">{isEn ? 'Custom' : '직접 입력'}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <label className={fieldLabel}>
-              {t.calculator.taxType}
-              {hint(isEn ? 'Tax application based on account type' : '과세 여부에 따른 세금 적용')}
-            </label>
-            <Select value={form.watch("taxType")} onValueChange={(value: "taxable" | "tax_free") => form.setValue("taxType", value)} disabled={form.watch("taxCountry") === "CUSTOM"}>
-              <SelectTrigger><SelectValue placeholder={isEn ? 'Account type' : '계좌 유형'} /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="taxable">{t.calculator.options.taxable}</SelectItem>
-                <SelectItem value="tax_free">{t.calculator.options.taxFree}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <div>
+          <label className={fieldLabel}>
+            {isEn ? "Account & tax" : "계좌·세금"}
+            {hint(isEn ? "How dividends are taxed" : "어떤 계좌에서 투자하는지에 따라 세금이 달라져요")}
+          </label>
+          <Select value={f.account} onValueChange={(v) => set("account", v as AccountType)}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {accountOptions.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {f.account === "custom" && <div className="mt-2.5">{pctInput("customTaxRate", "15")}</div>}
+          <p className="mt-2 text-[12.5px] leading-relaxed text-subtle">{accountNote[f.account]}</p>
         </div>
 
-        {form.watch("taxCountry") === "CUSTOM" && (
-          <div>
-            <label className={fieldLabel}>{isEn ? 'Tax rate' : '세율'}</label>
-            <div className="relative">
-              <Input type="number" inputMode="decimal" step="0.1" placeholder="15.0" className="pr-9" {...form.register("customTaxRate", { valueAsNumber: true })} />
-              <span className={`${affix} right-3.5`}>%</span>
-            </div>
-          </div>
-        )}
-
-        <p className="text-[12.5px] leading-relaxed text-subtle">
-          {isEn
-            ? 'Tax: Korea 15.4% / US 15% withholding. Tax-free accounts apply 0%.'
-            : '세율: 한국 주식 15.4% · 미국 주식 15% 원천징수 기준이에요.'}
-        </p>
-
-        <Button type="submit" className="h-12 w-full text-[15px]" disabled={calculateMutation.isPending}>
-          {calculateMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Calculator className="h-4 w-4" />}
-          {calculateMutation.isPending ? (isEn ? 'Calculating…' : '계산 중…') : t.calculator.calculateButton}
+        <Button type="button" onClick={scrollToResults} className="h-12 w-full text-[15px] lg:hidden">
+          <ArrowDown className="h-4 w-4" />
+          {isEn ? "See results" : "결과 보기"}
         </Button>
       </div>
     </form>

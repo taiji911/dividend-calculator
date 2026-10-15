@@ -28,7 +28,11 @@ export default function ResultsSummary({ results, formatCurrency, formatShort }:
         <p className="num mt-2 text-[38px] font-bold leading-none tracking-[-0.04em] text-foreground sm:text-[52px]">
           {formatShort(total)}
         </p>
-        <p className="num mt-2 text-[13px] text-subtle">{formatCurrency(total)}</p>
+        <p className="num mt-2 text-[13px] text-subtle">
+          {formatCurrency(total)}
+          <span className="mx-2 text-border-strong">|</span>
+          {isEn ? "Annualized return" : "연평균 수익률"} <span className="font-semibold text-foreground">{results.cagr.toFixed(1)}%</span>
+        </p>
 
         {/* 원금 vs 늘어난 돈 비율 막대 */}
         <div className="mt-6">
@@ -57,9 +61,30 @@ export default function ResultsSummary({ results, formatCurrency, formatShort }:
         </div>
       </section>
 
+      {(results.exitTax > 0 || results.account === "pension" || results.warnings.length > 0) && (
+        <div className="space-y-2">
+          {results.exitTax > 0 && (
+            <div className="note note-warn flex flex-wrap items-center justify-between gap-2">
+              <span className="text-muted-foreground">ISA 만기 때 낼 세금 (순이익 중 비과세 한도 초과분 × 9.9%)</span>
+              <span className="num font-semibold text-foreground">
+                −{formatShort(results.exitTax)} <span className="font-normal text-subtle">→ 세후 {formatShort(results.finalAfterTax)}</span>
+              </span>
+            </div>
+          )}
+          {results.account === "pension" && (
+            <div className="note note-info text-muted-foreground">
+              연금으로 받을 때 연금소득세 3.3~5.5%(나이에 따라)가 붙어요. 1년에 받는 사적연금이 1,500만원을 넘으면 종합과세나 16.5% 분리과세 중에서 골라야 해요.
+            </div>
+          )}
+          {results.warnings.map((w) => (
+            <div key={w} className="note note-risk text-muted-foreground">{w}</div>
+          ))}
+        </div>
+      )}
+
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: isEn ? "Monthly dividend" : "월 배당금", sub: isEn ? `in year ${years}` : `${years}년차`, value: monthly, accent: true },
+          { label: isEn ? "Monthly dividend" : "월 배당금", sub: isEn ? `in year ${years}` : results.account === "taxable_kr" || results.account === "taxable_us" || results.account === "custom" ? `${years}년차 · 세후` : `${years}년차 · 세전`, value: monthly, accent: true },
           { label: isEn ? "Annual dividend" : "연 배당금", sub: isEn ? `in year ${years}` : `${years}년차`, value: last.annualDividends },
           { label: isEn ? "Total dividends" : "누적 배당금", sub: isEn ? `${years} yrs` : `${years}년 합계`, value: results.totalDividends },
         ].map((s) => (

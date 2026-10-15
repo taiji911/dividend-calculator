@@ -4,9 +4,9 @@ import BrandMark from "@/components/brand-mark";
 export default function Footer() {
   const [location] = useLocation();
   const isEn = location.startsWith("/en");
-  const l = isEn ? "/en" : "/kr";
+  const l = isEn ? "/en" : "";
   const links = [
-    { href: l, label: isEn ? "Reinvestment" : "재투자 계산기" },
+    { href: l || "/", label: isEn ? "Reinvestment" : "재투자 계산기" },
     { href: `${l}/goal`, label: isEn ? "Goal" : "목표 배당금" },
     { href: `${l}/snowball`, label: isEn ? "Snowball" : "스노우볼" },
     ...(!isEn ? [{ href: "/tax", label: "종합과세" }] : []),

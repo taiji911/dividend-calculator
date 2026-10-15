@@ -8,6 +8,7 @@ import { AlertTriangle, Target, Wallet, Calculator, BookOpen, Snowflake, ArrowRi
 import { Button } from "@/components/ui/button";
 import CalculatorTabs from "@/components/calculator-tabs";
 import PageHeader from "@/components/page-header";
+import { useSeo } from "@/lib/seo";
 import RiskNote from "@/components/risk-note";
 import { moneyShort } from "@/lib/format";
 
@@ -24,6 +25,7 @@ type TaxOption = 'tax_free' | 'korea' | 'us' | 'custom';
 export default function GoalCalculator() {
   const [location] = useLocation();
   const isEnglish = location.startsWith('/en');
+  useSeo("goal", isEnglish ? "en" : "ko");
   
   const [targetMonthlyDividendStr, setTargetMonthlyDividendStr] = useState(isEnglish ? "1,000" : "1,000,000");
   const [dividendYieldStr, setDividendYieldStr] = useState("4.0");
@@ -79,7 +81,7 @@ export default function GoalCalculator() {
     dividendYieldHelper: isEnglish ? "e.g., SCHD: ~3.5%, High-yield ETFs: ~8%" : "예: SCHD 약 3.5%, 고배당 ETF 약 8%",
     taxOption: isEnglish ? "Tax Rate" : "세금 옵션",
     taxOptions: {
-      tax_free: isEnglish ? "Tax-free (ISA/Pension)" : "비과세 (ISA/연금저축)",
+      tax_free: isEnglish ? "No tax (tax-advantaged account)" : "세금 없음 (절세계좌 가정)",
       korea: isEnglish ? "Korea (15.4%)" : "한국 일반계좌 (15.4%)",
       us: isEnglish ? "US (15% treaty rate)" : "미국 주식 (15%)",
       custom: isEnglish ? "Custom rate" : "직접 입력",
@@ -118,50 +120,6 @@ export default function GoalCalculator() {
     guideLink: isEnglish ? "View Usage Guide" : "사용 가이드 보기",
   };
 
-  useEffect(() => {
-    if (isEnglish) {
-      document.title = "Dividend Goal Calculator | How Much to Invest";
-      document.documentElement.lang = "en";
-      
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.setAttribute('content', 'Calculate how much you need to invest to achieve your target monthly dividend income after tax.');
-      }
-
-      const ogTitle = document.querySelector('meta[property="og:title"]');
-      if (ogTitle) {
-        ogTitle.setAttribute('content', 'Dividend Goal Calculator | How Much to Invest');
-      }
-
-      const ogDescription = document.querySelector('meta[property="og:description"]');
-      if (ogDescription) {
-        ogDescription.setAttribute('content', 'Calculate how much you need to invest to achieve your target monthly dividend income after tax.');
-      }
-    } else {
-      document.title = "목표 배당금 계산기 | 필요 투자금 계산";
-      document.documentElement.lang = "ko";
-      
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.setAttribute('content', '월 100만원 배당을 받으려면 얼마를 투자해야 할까요? 세금을 고려한 목표 배당금 계산기입니다.');
-      }
-
-      const metaKeywords = document.querySelector('meta[name="keywords"]');
-      if (metaKeywords) {
-        metaKeywords.setAttribute('content', '배당, 목표 배당금, 월 배당, 투자 원금, 배당 계산기, 파이어, FIRE, 경제적 자유, 세금');
-      }
-
-      const ogTitle = document.querySelector('meta[property="og:title"]');
-      if (ogTitle) {
-        ogTitle.setAttribute('content', '목표 배당금 계산기 | 필요 투자금 계산');
-      }
-
-      const ogDescription = document.querySelector('meta[property="og:description"]');
-      if (ogDescription) {
-        ogDescription.setAttribute('content', '월 100만원 배당을 받으려면 얼마를 투자해야 할까요? 세금을 고려한 목표 배당금 계산기입니다.');
-      }
-    }
-  }, [isEnglish]);
 
   const formatCurrency = (amount: number) => {
     if (isEnglish) {

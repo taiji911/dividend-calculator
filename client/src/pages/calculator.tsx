@@ -12,29 +12,17 @@ import PageHeader from "@/components/page-header";
 import RiskNote from "@/components/risk-note";
 import { getTranslation, formatCurrencyByLanguage, currencyOptions, type Language } from "@/lib/i18n";
 import { moneyShort } from "@/lib/format";
+import type { SimResult } from "@/lib/dividend-engine";
+import { useSeo } from "@/lib/seo";
 
-export interface CalculationResults {
-  finalAssets: number;
-  totalDividends: number;
-  cagr: number;
-  yearlyData: Array<{
-    year: number;
-    totalAssets: number;
-    cumulativeDividends: number;
-    annualDividends: number;
-    totalInvested: number;
-    returnPercentage: number;
-    holdingAssets?: number;
-    yieldOnCost?: number;
-  }>;
-  totalInvested: number;
-  initialInvestment?: number;
-}
+/** 계산 결과 모양 — 계산 엔진(lib/dividend-engine.ts)의 결과를 그대로 씁니다 */
+export type CalculationResults = SimResult;
 
 /** 배당 재투자 계산기 — 한국어(/, /kr)와 영어(/en)가 같은 화면을 씁니다 */
 export function ReinvestPage({ lang = "kr" }: { lang?: Language }) {
   const isEn = lang === "en";
   const t = getTranslation(lang);
+  useSeo("reinvest", isEn ? "en" : "ko");
   const [results, setResults] = useState<CalculationResults | null>(null);
   const [currency, setCurrency] = useState(isEn ? "USD" : "KRW");
   const [target, setTarget] = useState<string>("");

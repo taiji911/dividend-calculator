@@ -84,7 +84,7 @@ export default function ResultsTable({ results, formatCurrency, targetMonthlyDiv
         </table>
       </div>
       <p className="border-t border-border px-5 py-3 text-[12px] text-subtle sm:px-6">
-        {isEn ? "Monthly dividend = that year's after-tax dividend ÷ 12" : "월 배당 = 그 해 세후 배당금 ÷ 12"}
+        {isEn ? "Monthly dividend = dividends received that year ÷ 12" : "월 배당 = 그 해 받은 배당금 ÷ 12 (일반계좌는 세후)"}
       </p>
     </section>
   );

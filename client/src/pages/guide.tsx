@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import PageHeader from "@/components/page-header";
+import { useSeo } from "@/lib/seo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -27,55 +28,12 @@ import {
 export default function Guide() {
   const [location] = useLocation();
   const isEnglish = location.startsWith('/en');
+  useSeo("guide", isEnglish ? "en" : "ko");
 
-  const reinvestHref = isEnglish ? "/en" : "/kr";
+  const reinvestHref = isEnglish ? "/en" : "/";
   const goalHref = isEnglish ? "/en/goal" : "/goal";
   const snowballHref = isEnglish ? "/en/snowball" : "/snowball";
 
-  useEffect(() => {
-    if (isEnglish) {
-      document.title = "Dividend Calculator Guide | How to Use";
-      document.documentElement.lang = "en";
-      
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.setAttribute('content', 'Learn how to use the dividend reinvestment calculator and dividend goal calculator. Understand input values, result interpretation, and important assumptions.');
-      }
-
-      const ogTitle = document.querySelector('meta[property="og:title"]');
-      if (ogTitle) {
-        ogTitle.setAttribute('content', 'Dividend Calculator Guide | How to Use');
-      }
-
-      const ogDescription = document.querySelector('meta[property="og:description"]');
-      if (ogDescription) {
-        ogDescription.setAttribute('content', 'Learn how to use the dividend reinvestment calculator and dividend goal calculator. Understand input values, result interpretation, and important assumptions.');
-      }
-    } else {
-      document.title = "배당 계산기 사용 가이드 | 배당 재투자·목표 배당금 계산 방법";
-      document.documentElement.lang = "ko";
-      
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.setAttribute('content', '배당 재투자 계산기와 목표 배당금 계산기를 언제·어떻게 활용하는지, 입력값과 결과 해석, 가정과 한계를 정리한 사용 가이드입니다.');
-      }
-
-      const metaKeywords = document.querySelector('meta[name="keywords"]');
-      if (metaKeywords) {
-        metaKeywords.setAttribute('content', '배당 계산기 사용법, 배당 재투자 계산기, 목표 배당금 계산기, DRIP 계산, 배당 투자 가이드');
-      }
-
-      const ogTitle = document.querySelector('meta[property="og:title"]');
-      if (ogTitle) {
-        ogTitle.setAttribute('content', '배당 계산기 사용 가이드 | 배당 재투자·목표 배당금 계산 방법');
-      }
-
-      const ogDescription = document.querySelector('meta[property="og:description"]');
-      if (ogDescription) {
-        ogDescription.setAttribute('content', '배당 재투자 계산기와 목표 배당금 계산기를 언제·어떻게 활용하는지, 입력값과 결과 해석, 가정과 한계를 정리한 사용 가이드입니다.');
-      }
-    }
-  }, [isEnglish]);
 
   const t = {
     title: isEnglish ? "Dividend Calculator Usage Guide" : "배당 계산기 사용 가이드",
@@ -186,7 +144,7 @@ export default function Guide() {
         "US: Treaty rate for US stocks (15%)",
         "Custom: Enter your own tax rate"
       ] : [
-        "비과세: ISA, 연금저축 등 비과세 계좌 (0%)",
+        "세금 없음: 절세계좌를 가정한 0% (ISA는 만기 때 순이익 200만원 초과분 9.9%, 연금계좌는 연금 수령 때 3.3~5.5% 과세)",
         "한국 일반계좌: 배당소득세 포함 (15.4%)",
         "미국 주식: 조세조약 세율 (15%)",
         "직접 입력: 원하는 세율을 직접 입력"
@@ -235,8 +193,8 @@ export default function Guide() {
           content: "Dividend amounts and yields can increase, decrease, or be suspended entirely depending on company performance, policy changes, and market conditions."
         },
         {
-          title: "Price Changes Not Fully Reflected",
-          content: "The calculators may simplify or not reflect stock price changes and capital gains/losses. Results focus on dividend income projections."
+          title: "Prices Follow a Steady Assumption",
+          content: "Share prices rise at the fixed price growth rate you enter. Real markets move up and down, so treat results as a steady-path estimate."
         },
         {
           title: "Taxes and Fees May Vary",
@@ -256,8 +214,8 @@ export default function Guide() {
           content: "배당금은 기업 실적, 정책 변화, 시장 환경에 따라 증가하거나 감소할 수 있으며, 경우에 따라 배당이 중단될 수도 있습니다."
         },
         {
-          title: "주가 변동은 단순화되어 있습니다",
-          content: "본 계산기는 주가 변동 및 자본손익을 단순화하거나 반영하지 않을 수 있습니다. 결과는 배당 수입 추정에 초점을 맞추고 있습니다."
+          title: "주가는 일정하게 오른다고 가정해요",
+          content: "주가는 입력한 주가 상승률대로 매년 꾸준히 오른다고 계산해요. 실제 시장은 오르내림이 있으니, 결과는 평균적인 흐름에 대한 추정으로 봐주세요."
         },
         {
           title: "세금 및 수수료는 개인마다 다릅니다",

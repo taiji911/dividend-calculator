@@ -8,11 +8,12 @@ export default function Navigation() {
   const [location] = useLocation();
 
   const isEnglish = location.startsWith("/en");
-  const locale = isEnglish ? "/en" : "/kr";
+  // 한국어는 접두어 없이 (/, /goal …), 영어는 /en 아래
+  const locale = isEnglish ? "/en" : "";
 
   const switchHref = () => {
     const rest = location.replace(/^\/(en|kr)/, "");
-    if (isEnglish) return rest === "" ? "/kr" : `/kr${rest}`;
+    if (isEnglish) return rest === "" ? "/" : rest;
     // 종합과세는 한국어 전용 → 영어로 바꿀 땐 재투자 계산기로
     if (rest === "/tax") return "/en";
     return rest === "" || rest === "/" || rest === "/calculator" ? "/en" : `/en${rest}`;
@@ -20,7 +21,7 @@ export default function Navigation() {
 
   const items = [
     {
-      href: locale,
+      href: locale || "/",
       label: isEnglish ? "Reinvestment" : "재투자 계산기",
       icon: TrendingUp,
       active: ["/", "/kr", "/en", "/calculator"].includes(location),
@@ -34,7 +35,7 @@ export default function Navigation() {
   return (
     <nav className="site-nav sticky top-0 z-50">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href={locale}>
+        <Link href={locale || "/"}>
           <span className="flex items-center gap-2.5">
             <BrandMark size={28} />
             <span className="text-[16px] font-bold tracking-tight text-foreground">

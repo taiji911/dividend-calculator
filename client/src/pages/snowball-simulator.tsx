@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/collapsible";
 import CalculatorTabs from "@/components/calculator-tabs";
 import PageHeader from "@/components/page-header";
+import { useSeo } from "@/lib/seo";
+import { simulate } from "@/lib/dividend-engine";
 import {
   LineChart,
   Line,
@@ -58,10 +60,12 @@ interface SimulationResult {
 export default function SnowballSimulator() {
   const [location] = useLocation();
   const isEnglish = location.startsWith('/en');
+  useSeo("snowball", isEnglish ? "en" : "ko");
   
   const [initialInvestmentStr, setInitialInvestmentStr] = useState("10,000,000");
   const [dividendYieldStr, setDividendYieldStr] = useState("4.0");
-  const [dividendGrowthStr, setDividendGrowthStr] = useState("0.0");
+  const [dividendGrowthStr, setDividendGrowthStr] = useState("5.0");
+  const [priceGrowthStr, setPriceGrowthStr] = useState("4.0");
   const [monthlyContributionStr, setMonthlyContributionStr] = useState("500,000");
   const [investmentPeriodStr, setInvestmentPeriodStr] = useState("15");
   const [reinvestDividends, setReinvestDividends] = useState(true);
@@ -84,6 +88,7 @@ export default function SnowballSimulator() {
   const initialInvestment = parseNumber(initialInvestmentStr);
   const dividendYield = parseNumber(dividendYieldStr);
   const dividendGrowth = parseNumber(dividendGrowthStr);
+  const priceGrowth = parseNumber(priceGrowthStr);
   const monthlyContribution = parseNumber(monthlyContributionStr);
   const investmentPeriod = parseInt(investmentPeriodStr) || 0;
 
@@ -96,6 +101,7 @@ export default function SnowballSimulator() {
       initialInvestment: isEnglish ? "Initial Investment (USD)" : "초기 투자금 (원)",
       dividendYield: isEnglish ? "Expected Dividend Yield (%/year)" : "예상 배당률 (연 %)",
       dividendGrowth: isEnglish ? "Dividend Growth Rate (%/year)" : "배당 성장률 (연 %)",
+      priceGrowth: isEnglish ? "Price Growth Rate (%/year)" : "주가 상승률 (연 %)",
       monthlyContribution: isEnglish ? "Monthly Contribution (USD)" : "월 추가 투자금 (원)",
       investmentPeriod: isEnglish ? "Investment Period (years)" : "투자 기간 (년)",
       reinvestDividends: isEnglish ? "Reinvest Dividends" : "배당금 재투자",
@@ -137,11 +143,11 @@ export default function SnowballSimulator() {
       title: isEnglish ? "Notes" : "참고사항",
       points: isEnglish ? [
         "Dividend rates and amounts are not fixed and may fluctuate.",
-        "Taxes, fees, exchange rates, and capital gains/losses from price changes are not reflected.",
+        "Pre-tax figures. Fees and exchange rates are not reflected; price changes follow your price growth assumption.",
         "This tool is a simulation to assist decision-making, not investment advice.",
       ] : [
         "배당률/배당금은 고정이 아니며 변동될 수 있습니다.",
-        "세금, 수수료, 환율, 주가 변동에 따른 자본손익은 반영하지 않았습니다.",
+        "세전 기준이에요. 수수료와 환율은 반영하지 않았고, 주가는 입력한 주가 상승률대로 움직인다고 가정했어요.",
         "본 도구는 투자 조언이 아닌, 의사결정 보조를 위한 시뮬레이션입니다.",
       ],
     },
@@ -156,25 +162,6 @@ export default function SnowballSimulator() {
     },
   };
 
-  useEffect(() => {
-    if (isEnglish) {
-      document.title = "Dividend Snowball Simulator | When Dividends Exceed Contributions";
-      document.documentElement.lang = "en";
-      
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.setAttribute('content', 'Calculate when your annual dividends exceed your annual contributions under dividend reinvestment assumptions.');
-      }
-    } else {
-      document.title = "배당 스노우볼 시뮬레이터 | 배당이 기여금을 넘는 시점 계산";
-      document.documentElement.lang = "ko";
-      
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        metaDescription.setAttribute('content', '월 추가 투자와 배당 재투자 가정 하에서, 연 배당금이 연간 추가 투자금을 초과하는 스노우볼 전환점이 언제 발생하는지 계산합니다.');
-      }
-    }
-  }, [isEnglish]);
 
   const formatCurrency = (amount: number) => {
     if (isEnglish) {
@@ -215,52 +202,42 @@ export default function SnowballSimulator() {
     if (!isValid) return null;
     if (dividendYield <= 0 || investmentPeriod < 1) return null;
 
+    // 재투자 계산기와 같은 계산 엔진을 써요 (주가·배당을 따로 움직이는 월 단위 모델, 세전 기준)
+    const sim = simulate({
+      initialInvestment,
+      monthlyInvestment: monthlyContribution,
+      years: investmentPeriod,
+      dividendYield,
+      dividendGrowthRate: dividendGrowth,
+      priceGrowthRate: priceGrowth,
+      drip: reinvestDividends,
+      account: "tax_free",
+    });
     const contributionAnnual = monthlyContribution * 12;
-    const yearlyData: YearlyData[] = [];
-    let snowballYear: number | null = null;
-    let portfolioEnd = initialInvestment;
-    let totalDividends = 0;
-
-    for (let year = 1; year <= investmentPeriod; year++) {
-      const portfolioStart = portfolioEnd;
-      
-      const annualDividend = portfolioStart * (dividendYield / 100) * Math.pow(1 + dividendGrowth / 100, year - 1);
-      
-      totalDividends += annualDividend;
-
-      if (reinvestDividends) {
-        portfolioEnd = portfolioStart + contributionAnnual + annualDividend;
-      } else {
-        portfolioEnd = portfolioStart + contributionAnnual;
-      }
-
-      const dividendToContributionRatio = contributionAnnual > 0 ? annualDividend / contributionAnnual : 0;
-      const netGap = annualDividend - contributionAnnual;
-
-      yearlyData.push({
-        year,
-        portfolioStart: Math.round(portfolioStart),
-        portfolioEnd: Math.round(portfolioEnd),
-        annualDividend: Math.round(annualDividend),
+    let prevEnd = initialInvestment;
+    const yearlyData: YearlyData[] = sim.yearlyData.map((row) => {
+      const item: YearlyData = {
+        year: row.year,
+        portfolioStart: Math.round(prevEnd),
+        portfolioEnd: row.totalAssets,
+        annualDividend: row.annualDividends,
         contributionAnnual: Math.round(contributionAnnual),
-        dividendToContributionRatio,
-        netGap: Math.round(netGap),
-      });
-
-      if (snowballYear === null && annualDividend >= contributionAnnual && contributionAnnual > 0) {
-        snowballYear = year;
-      }
-    }
+        dividendToContributionRatio: contributionAnnual > 0 ? row.annualDividends / contributionAnnual : 0,
+        netGap: Math.round(row.annualDividends - contributionAnnual),
+      };
+      prevEnd = row.totalAssets;
+      return item;
+    });
 
     return {
       yearlyData,
-      snowballYear,
-      finalPortfolio: Math.round(portfolioEnd),
-      totalDividends: Math.round(totalDividends),
+      snowballYear: sim.snowballYear,
+      finalPortfolio: sim.finalAssets,
+      totalDividends: sim.totalDividends,
     };
-  }, [initialInvestment, dividendYield, dividendGrowth, monthlyContribution, investmentPeriod, reinvestDividends, isValid]);
+  }, [initialInvestment, dividendYield, dividendGrowth, priceGrowth, monthlyContribution, investmentPeriod, reinvestDividends, isValid]);
 
-  const reinvestHref = isEnglish ? "/en" : "/kr";
+  const reinvestHref = isEnglish ? "/en" : "/";
   const goalHref = isEnglish ? "/en/goal" : "/goal";
 
   return (
@@ -322,6 +299,18 @@ export default function SnowballSimulator() {
                 placeholder="0.0"
               />
               {errors.dividendGrowth && <p className="text-sm text-coral">{errors.dividendGrowth}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="priceGrowth">{t.form.priceGrowth}</Label>
+              <Input
+                id="priceGrowth"
+                type="text"
+                inputMode="decimal"
+                value={priceGrowthStr}
+                onChange={(e) => setPriceGrowthStr(e.target.value)}
+                placeholder="4.0"
+              />
             </div>
 
             <div className="space-y-2">
