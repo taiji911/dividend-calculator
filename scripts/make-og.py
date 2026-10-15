@@ -52,6 +52,17 @@ PAGES = {
 # 배당 ETF 페이지 — client/src/content/etf-data.json 에서 자동으로 만들어요
 ETF = json.loads((ROOT / "client/src/content/etf-data.json").read_text(encoding="utf-8"))
 GROUP_TITLE = {g["id"]: g["title"] for g in ETF["groups"]}
+PAGES["calendar"] = {"ko": ("배당 달력", ["매달 배당 받는", "포트폴리오 만들기"], "지급 월 한눈에 · 빈 달 채우기")}
+PAGES["learn"] = {"ko": ("배당 공부", ["배당 투자,", "이것만 알면 돼요"], "세금 · ISA · 연금저축 · 배당락일 · 커버드콜")}
+_LEARN_OG = {
+    "dividend-tax": ("세금", ["배당소득세 15.4%,", "한 번에 정리"], "국내·미국 배당 세금 · 종합과세 · 건보료"),
+    "isa": ("절세 계좌", ["ISA 계좌로", "배당 투자하는 법"], "비과세 200만원 · 9.9% 분리과세"),
+    "pension-savings": ("절세 계좌", ["연금저축으로", "배당 ETF 모으기"], "세액공제 16.5% · 과세이연 · 연금 수령"),
+    "ex-dividend-date": ("배당 기초", ["배당락일, 언제까지", "사야 배당을 받을까?"], "미국·한국 주식 · 국내 월배당 ETF"),
+    "covered-call-etf": ("ETF 이해", ["커버드콜 ETF,", "분배율 10%의 진짜 의미"], "JEPI · JEPQ · QYLD · 국내 커버드콜"),
+}
+for _k, _v in _LEARN_OG.items():
+    PAGES[f"learn-{_k}"] = {"ko": _v}
 PAGES["etf"] = {"ko": ("배당 ETF 정보", ["인기 배당 ETF,", "한눈에 비교"], f"배당률 · 총보수 · 배당 주기 · {len(ETF['etfs'])}개")}
 def _pct(v):
     s = f"{v:.4f}".rstrip("0").rstrip(".")

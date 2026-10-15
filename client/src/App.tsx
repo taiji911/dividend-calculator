@@ -10,6 +10,8 @@ import SnowballSimulator from "@/pages/snowball-simulator";
 import TaxCalculator from "@/pages/tax-calculator";
 import AccountCompare from "@/pages/account-compare";
 import EtfIndex from "@/pages/etf-index";
+import DividendCalendar from "@/pages/dividend-calendar";
+import { LearnIndex, LearnArticle } from "@/pages/learn";
 import EtfDetail from "@/pages/etf-detail";
 import Navigation from "@/components/navigation";
 import Footer from "@/components/footer";
@@ -32,6 +34,9 @@ function Router() {
       <Route path="/en/snowball" component={SnowballSimulator} />
       <Route path="/tax" component={TaxCalculator} />
       <Route path="/compare" component={AccountCompare} />
+      <Route path="/calendar" component={DividendCalendar} />
+      <Route path="/learn" component={LearnIndex} />
+      <Route path="/learn/:slug" component={LearnArticle} />
       <Route path="/etf" component={EtfIndex} />
       <Route path="/etf/:slug" component={EtfDetail} />
       <Route component={NotFound} />

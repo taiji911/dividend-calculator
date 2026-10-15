@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Menu, Target, BookOpen, TrendingUp, Snowflake, Receipt, Scale, LayoutGrid, Languages, ChevronRight } from "lucide-react";
+import { Menu, Target, BookOpen, TrendingUp, Snowflake, Calculator, CalendarDays, LayoutGrid, Languages, ChevronRight } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import BrandMark from "@/components/brand-mark";
@@ -15,28 +15,24 @@ export default function Navigation() {
     const rest = location.replace(/^\/(en|kr)/, "");
     if (isEnglish) return rest === "" ? "/" : rest;
     // 종합과세는 한국어 전용 → 영어로 바꿀 땐 재투자 계산기로
-    if (rest === "/tax" || rest === "/compare" || rest.startsWith("/etf")) return "/en";
+    if (["/tax", "/compare", "/calendar"].includes(rest) || rest.startsWith("/etf") || rest.startsWith("/learn")) return "/en";
     return rest === "" || rest === "/" || rest === "/calculator" ? "/en" : `/en${rest}`;
   };
 
-  const items = [
-    {
-      href: locale || "/",
-      label: isEnglish ? "Reinvestment" : "재투자 계산기",
-      icon: TrendingUp,
-      active: ["/", "/kr", "/en", "/calculator"].includes(location),
-    },
-    { href: `${locale}/goal`, label: isEnglish ? "Goal" : "목표 배당금", icon: Target, active: location.includes("/goal") },
-    { href: `${locale}/snowball`, label: isEnglish ? "Snowball" : "스노우볼", icon: Snowflake, active: location.includes("/snowball") },
-    ...(!isEnglish
-      ? [
-          { href: "/etf", label: "배당 ETF", icon: LayoutGrid, active: location.startsWith("/etf") },
-          { href: "/compare", label: "계좌 비교", icon: Scale, active: location === "/compare" },
-          { href: "/tax", label: "종합과세", icon: Receipt, active: location === "/tax" },
-        ]
-      : []),
-    { href: `${locale}/guide`, label: isEnglish ? "Guide" : "가이드", icon: BookOpen, active: location.includes("/guide") },
-  ];
+  const calcPaths = ["/", "/kr", "/calculator", "/goal", "/snowball", "/compare", "/tax"];
+  const items = isEnglish
+    ? [
+        { href: "/en", label: "Reinvestment", icon: TrendingUp, active: location === "/en" },
+        { href: "/en/goal", label: "Goal", icon: Target, active: location.includes("/goal") },
+        { href: "/en/snowball", label: "Snowball", icon: Snowflake, active: location.includes("/snowball") },
+        { href: "/en/guide", label: "Guide", icon: BookOpen, active: location.includes("/guide") },
+      ]
+    : [
+        { href: "/", label: "계산기", icon: Calculator, active: calcPaths.includes(location) || location.startsWith("/kr/") },
+        { href: "/calendar", label: "배당 달력", icon: CalendarDays, active: location === "/calendar" },
+        { href: "/etf", label: "배당 ETF", icon: LayoutGrid, active: location.startsWith("/etf") },
+        { href: "/learn", label: "배당 공부", icon: BookOpen, active: location.startsWith("/learn") || location === "/guide" },
+      ];
 
   return (
     <nav className="site-nav sticky top-0 z-50">

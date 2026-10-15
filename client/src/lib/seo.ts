@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { ETFS, ETF_AS_OF_LABEL, etfLabel, feeText, yieldText } from "./etf";
+import { LEARN } from "@/content/learn-meta";
 
 /**
  * 페이지별 검색 정보(제목·설명·대표 주소·언어 연결)를 한 곳에서 관리해요.
@@ -95,6 +96,27 @@ const STATIC_PAGES = {
       en: "How to use the dividend reinvestment, goal and snowball calculators, and how to read the results.",
     },
   },
+  learn: {
+    path: { ko: "/learn", en: null },
+    name: { ko: "배당 공부", en: "Learn" },
+    title: { ko: "배당 공부 | 배당소득세·ISA·연금저축·배당락일·커버드콜 쉽게 정리", en: "Learn about dividend investing" },
+    description: {
+      ko: "배당 투자를 시작할 때 꼭 알아야 할 배당소득세, ISA, 연금저축, 배당락일, 커버드콜 ETF를 2026년 기준으로 쉽게 정리했어요.",
+      en: "Guides to dividend taxes, accounts and ETFs in Korea.",
+    },
+  },
+  calendar: {
+    path: { ko: "/calendar", en: null },
+    name: { ko: "배당 달력", en: "Dividend Calendar" },
+    title: {
+      ko: "배당 달력 | 월배당 포트폴리오 만들기 (SCHD·JEPI·코카콜라 지급월)",
+      en: "Dividend Calendar | Build a Monthly Dividend Portfolio",
+    },
+    description: {
+      ko: "가진 배당주·ETF와 금액을 넣으면 몇 월에 배당이 얼마 들어오는지 달력으로 보여줘요. 배당이 비는 달을 채워 줄 종목 추천까지, 월배당 포트폴리오를 쉽게 만들어 보세요.",
+      en: "See which months your dividend stocks and ETFs pay, and fill the gaps for monthly income.",
+    },
+  },
   etf: {
     path: { ko: "/etf", en: null },
     name: { ko: "배당 ETF 정보", en: "Dividend ETFs" },
@@ -129,9 +151,22 @@ const ETF_PAGES = Object.fromEntries(
   })
 ) as Record<`etf-${string}`, PageSeo>;
 
-export const SEO_PAGES: typeof STATIC_PAGES & Record<`etf-${string}`, PageSeo> = { ...STATIC_PAGES, ...ETF_PAGES };
+/** 배당 공부 글 검색 정보 — content/learn-meta.ts 에서 자동으로 만들어요 */
+const LEARN_PAGES = Object.fromEntries(
+  LEARN.map((a) => [
+    `learn-${a.slug}`,
+    {
+      path: { ko: `/learn/${a.slug}`, en: null },
+      name: { ko: a.title, en: a.title },
+      title: { ko: a.seoTitle, en: a.title },
+      description: { ko: a.description, en: a.description },
+    } satisfies PageSeo,
+  ])
+) as Record<`learn-${string}`, PageSeo>;
 
-export type SeoKey = keyof typeof STATIC_PAGES | `etf-${string}`;
+export const SEO_PAGES: typeof STATIC_PAGES & Record<`etf-${string}` | `learn-${string}`, PageSeo> = { ...STATIC_PAGES, ...ETF_PAGES, ...LEARN_PAGES };
+
+export type SeoKey = keyof typeof STATIC_PAGES | `etf-${string}` | `learn-${string}`;
 
 function upsertMeta(attr: "name" | "property", key: string, content: string) {
   let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`);

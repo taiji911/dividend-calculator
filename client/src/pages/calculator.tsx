@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Target, Snowflake, ArrowUpRight, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import HomeHub from "@/components/home-hub";
 import CalculatorForm, { defaultForm, toSimInput } from "@/components/calculator-form";
 // 차트(용량이 큰 부분)는 나중에 불러와서 첫 화면을 빠르게
 const ResultsCharts = lazy(() => import("@/components/results-charts"));
@@ -124,7 +125,9 @@ export function ReinvestPage({ lang = "kr" }: { lang?: Language }) {
         </div>
       </div>
 
-      {/* 다음 단계 */}
+      {/* 다음 단계 — 한국어는 세 갈래 안내, 영어는 두 계산기 */}
+      {!isEn && <HomeHub />}
+      {isEn && (
       <div className="mt-10 grid grid-cols-1 gap-3 md:grid-cols-2">
         {[
           {
@@ -156,6 +159,7 @@ export function ReinvestPage({ lang = "kr" }: { lang?: Language }) {
           </Link>
         ))}
       </div>
+      )}
 
       {/* ADSENSE_SLOT_BOTTOM */}
 

@@ -4,14 +4,24 @@ import BrandMark from "@/components/brand-mark";
 export default function Footer() {
   const [location] = useLocation();
   const isEn = location.startsWith("/en");
-  const l = isEn ? "/en" : "";
-  const links = [
-    { href: l || "/", label: isEn ? "Reinvestment" : "재투자 계산기" },
-    { href: `${l}/goal`, label: isEn ? "Goal" : "목표 배당금" },
-    { href: `${l}/snowball`, label: isEn ? "Snowball" : "스노우볼" },
-    ...(!isEn ? [{ href: "/etf", label: "배당 ETF" }, { href: "/compare", label: "계좌 비교" }, { href: "/tax", label: "종합과세" }] : []),
-    { href: `${l}/guide`, label: isEn ? "Guide" : "가이드" },
-  ];
+  const links = isEn
+    ? [
+        { href: "/en", label: "Reinvestment" },
+        { href: "/en/goal", label: "Goal" },
+        { href: "/en/snowball", label: "Snowball" },
+        { href: "/en/guide", label: "Guide" },
+      ]
+    : [
+        { href: "/", label: "재투자 계산기" },
+        { href: "/goal", label: "목표 배당금" },
+        { href: "/snowball", label: "스노우볼" },
+        { href: "/compare", label: "계좌 비교" },
+        { href: "/tax", label: "종합과세" },
+        { href: "/calendar", label: "배당 달력" },
+        { href: "/etf", label: "배당 ETF" },
+        { href: "/learn", label: "배당 공부" },
+        { href: "/guide", label: "사용 가이드" },
+      ];
   return (
     <footer className="border-t border-border">
       <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6">

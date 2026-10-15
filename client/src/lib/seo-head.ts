@@ -5,6 +5,7 @@
 import { SEO_PAGES, SITE_URL, SITE_NAME_KO, SITE_NAME_EN, ogImageFor, type SeoKey, type Lang } from "./seo";
 import { FAQ } from "@/content/faq";
 import { ETFS } from "./etf";
+import { LEARN } from "@/content/learn-meta";
 
 export interface RouteDef {
   path: string;
@@ -19,6 +20,9 @@ export const ROUTES: RouteDef[] = [
   { path: "/snowball", key: "snowball", lang: "ko" },
   { path: "/tax", key: "tax", lang: "ko" },
   { path: "/compare", key: "compare", lang: "ko" },
+  { path: "/calendar", key: "calendar", lang: "ko" },
+  { path: "/learn", key: "learn", lang: "ko" },
+  ...LEARN.map((a) => ({ path: `/learn/${a.slug}`, key: `learn-${a.slug}` as SeoKey, lang: "ko" as Lang })),
   { path: "/etf", key: "etf", lang: "ko" },
   ...ETFS.map((e) => ({ path: `/etf/${e.slug}`, key: `etf-${e.slug}` as SeoKey, lang: "ko" as Lang })),
   { path: "/guide", key: "guide", lang: "ko" },
@@ -73,8 +77,8 @@ export function headTags(key: SeoKey, lang: Lang): string {
 
   // 구조화 데이터
   const graph: Record<string, unknown>[] = [];
-  const isEtf = key === "etf" || key.startsWith("etf-");
-  if (key !== "guide" && !isEtf) {
+  const isContent = key === "etf" || key.startsWith("etf-") || key === "learn" || key.startsWith("learn-");
+  if (key !== "guide" && !isContent) {
     graph.push({
       "@type": "WebApplication",
       name: page.name[lang],
@@ -92,13 +96,29 @@ export function headTags(key: SeoKey, lang: Lang): string {
   } else {
     const crumbs = [{ name: siteName, item: abs(homePath) }];
     if (key.startsWith("etf-")) crumbs.push({ name: "배당 ETF 정보", item: abs("/etf") });
+    if (key.startsWith("learn-")) crumbs.push({ name: "배당 공부", item: abs("/learn") });
     crumbs.push({ name: page.name[lang], item: url });
     graph.push({
       "@type": "BreadcrumbList",
       itemListElement: crumbs.map((c, i) => ({ "@type": "ListItem", position: i + 1, ...c })),
     });
   }
-  const faqs = FAQ[key]?.[lang];
+  const article = key.startsWith("learn-") ? LEARN.find((a) => `learn-${a.slug}` === key) : undefined;
+  if (article) {
+    graph.push({
+      "@type": "Article",
+      headline: article.title,
+      description: article.description,
+      inLanguage: "ko",
+      datePublished: article.updated,
+      dateModified: article.updated,
+      mainEntityOfPage: url,
+      image: img,
+      author: { "@type": "Organization", name: SITE_NAME_KO, url: abs("/") },
+      publisher: { "@type": "Organization", name: SITE_NAME_KO, url: abs("/") },
+    });
+  }
+  const faqs = article ? article.faq : FAQ[key]?.[lang];
   if (faqs?.length) {
     graph.push({
       "@type": "FAQPage",
