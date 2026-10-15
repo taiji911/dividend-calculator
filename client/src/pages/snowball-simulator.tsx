@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
+import { lazyWithReload } from "@/lib/lazy-reload";
 import { useLocation, Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,7 +29,7 @@ import { useSeo } from "@/lib/seo";
 import { simulate } from "@/lib/dividend-engine";
 import { SnowballContentKo, SnowballContentEn } from "@/content/snowball-content";
 // 차트는 용량이 커서 나중에 불러와요
-const SnowballChart = lazy(() => import("@/components/snowball-chart"));
+const SnowballChart = lazyWithReload(() => import("@/components/snowball-chart"));
 
 interface YearlyData {
   year: number;

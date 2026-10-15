@@ -16,6 +16,7 @@ import { LearnIndex, LearnArticle } from "@/pages/learn";
 import EtfDetail from "@/pages/etf-detail";
 import Navigation from "@/components/navigation";
 import Footer from "@/components/footer";
+import ErrorBoundary from "@/components/error-boundary";
 
 /** 다른 페이지로 넘어가면 맨 위에서 시작해요 (#으로 같은 페이지 안을 이동할 때는 그대로) */
 function ScrollToTop() {
@@ -25,6 +26,16 @@ function ScrollToTop() {
     window.scrollTo(0, 0);
   }, [location]);
   return null;
+}
+
+/** 페이지가 바뀌면 오류 표시를 초기화해요 */
+function SafeRouter() {
+  const [location] = useLocation();
+  return (
+    <ErrorBoundary key={location}>
+      <Router />
+    </ErrorBoundary>
+  );
 }
 
 function Router() {
@@ -64,7 +75,7 @@ function App({ ssrPath }: { ssrPath?: string }) {
         <div className="flex min-h-screen flex-col">
           <Navigation />
           <main className="flex-1">
-            <Router />
+            <SafeRouter />
           </main>
           <Footer />
         </div>

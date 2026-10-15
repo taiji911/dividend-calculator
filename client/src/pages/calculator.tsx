@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState } from "react";
+import { lazyWithReload } from "@/lib/lazy-reload";
 import { Link } from "wouter";
 import { Target, Snowflake, ArrowUpRight, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import HomeHub from "@/components/home-hub";
 import CalculatorForm, { defaultForm, toSimInput } from "@/components/calculator-form";
 // 차트(용량이 큰 부분)는 나중에 불러와서 첫 화면을 빠르게
-const ResultsCharts = lazy(() => import("@/components/results-charts"));
+const ResultsCharts = lazyWithReload(() => import("@/components/results-charts"));
 import ResultsTable from "@/components/results-table";
 import ResultsSummary from "@/components/results-summary";
 import CalculatorTabs from "@/components/calculator-tabs";
