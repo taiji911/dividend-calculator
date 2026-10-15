@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { ArrowRight, Check, CircleAlert } from "lucide-react";
 import PageHeader from "@/components/page-header";
+import StartQuest from "@/components/start-quest";
 import { ContentArticle, FaqList, RelatedLinks, Updated } from "@/components/content";
 import { FAQ } from "@/content/faq";
 import { useSeo } from "@/lib/seo";
@@ -163,16 +164,19 @@ export default function Start() {
       <PageHeader
         kicker="처음 시작하기"
         title={<>배당 투자, <span className="text-gold">이 순서대로</span> 시작하세요</>}
-        subtitle="배당 투자가 처음이라면 뭐부터 해야 할지 막막하죠. 비상금부터 첫 ETF, 자동 투자, 세금까지 7단계로 정리했어요. 단계마다 바로 써 볼 수 있는 계산기와 정리 글을 연결해 뒀어요."
+        subtitle="뭐부터 해야 할지 막막하다면 질문 6개에 답해 보세요. 나에게 맞는 계좌와 ETF, 첫 달 미션까지 정리해 드려요. 아래에는 7단계 순서를 자세히 적어 뒀어요."
       />
 
+      <StartQuest />
+
+      <h2 className="mb-4 mt-12 text-[22px] font-bold tracking-[-0.03em] sm:text-[24px]">7단계, 자세히 보기</h2>
       <ol className="relative space-y-4">
         {STEPS.map((s, i) => (
           <li key={s.title} className="panel relative p-5 sm:p-6">
             <div className="flex items-start gap-4">
               <span className="num flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gold text-[15px] font-bold text-gold-foreground">{i + 1}</span>
               <div className="min-w-0 flex-1">
-                <h2 className="text-[18px] font-bold leading-snug tracking-[-0.02em] sm:text-[19px]">{s.title}</h2>
+                <h3 className="text-[18px] font-bold leading-snug tracking-[-0.02em] sm:text-[19px]">{s.title}</h3>
                 <div className="mt-2 text-[15px] leading-[1.75] text-muted-foreground [&_strong]:font-semibold [&_strong]:text-foreground">{s.body}</div>
                 {s.tip && <p className="note note-info mt-3 text-[13.5px]">{s.tip}</p>}
                 {s.links.length > 0 && (
@@ -204,9 +208,9 @@ export default function Start() {
         </ul>
       </section>
 
-      <section className="mt-8 panel-hero p-5 sm:p-6" aria-labelledby="check">
+      <section id="missions" className="mt-8 scroll-mt-24 panel-hero p-5 sm:p-6" aria-labelledby="check">
         <div className="flex items-end justify-between gap-3">
-          <h2 id="check" className="text-[18px] font-bold">첫 달 체크리스트</h2>
+          <h2 id="check" className="text-[18px] font-bold">첫 달 미션</h2>
           <span className="num text-[14px] font-semibold text-gold">
             {count} / {CHECKS.length}
           </span>
@@ -232,7 +236,7 @@ export default function Start() {
             </li>
           ))}
         </ul>
-        {count === CHECKS.length && <p className="mt-4 text-[14px] font-semibold text-mint">준비 끝! 이제 꾸준히 모으기만 하면 돼요.</p>}
+        {count === CHECKS.length && <p className="mt-4 text-[14px] font-semibold text-mint">미션 완료! 이제 배당 숲을 가꾸기만 하면 돼요. 🌳</p>}
       </section>
 
       <ContentArticle>
