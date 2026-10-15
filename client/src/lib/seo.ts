@@ -96,6 +96,15 @@ const STATIC_PAGES = {
       en: "How to use the dividend reinvestment, goal and snowball calculators, and how to read the results.",
     },
   },
+  start: {
+    path: { ko: "/start", en: null },
+    name: { ko: "배당 투자 처음 시작하기", en: "Start dividend investing" },
+    title: { ko: "배당 투자 처음 시작하기 | 7단계 순서대로 따라 하는 첫 배당 포트폴리오", en: "How to start dividend investing" },
+    description: {
+      ko: "배당 투자가 처음이라면 이 순서대로 해 보세요. 비상금, 목표 정하기, 연금저축·ISA 계좌 고르기, 첫 배당 ETF, 매달 자동 투자, 배당 재투자, 세금 확인까지 7단계와 첫 달 체크리스트.",
+      en: "A step-by-step guide to start dividend investing in Korea.",
+    },
+  },
   learn: {
     path: { ko: "/learn", en: null },
     name: { ko: "배당 공부", en: "Learn" },

@@ -12,6 +12,7 @@ export default function Footer() {
         { href: "/en/guide", label: "Guide" },
       ]
     : [
+        { href: "/start", label: "처음 시작하기" },
         { href: "/", label: "재투자 계산기" },
         { href: "/goal", label: "목표 배당금" },
         { href: "/snowball", label: "스노우볼" },

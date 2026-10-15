@@ -53,6 +53,7 @@ PAGES = {
 ETF = json.loads((ROOT / "client/src/content/etf-data.json").read_text(encoding="utf-8"))
 GROUP_TITLE = {g["id"]: g["title"] for g in ETF["groups"]}
 PAGES["calendar"] = {"ko": ("배당 달력", ["매달 배당 받는", "포트폴리오 만들기"], "지급 월 한눈에 · 빈 달 채우기")}
+PAGES["start"] = {"ko": ("처음 시작하기", ["배당 투자,", "이 순서대로 시작하세요"], "비상금 · 계좌 · 첫 ETF · 자동 투자 · 세금")}
 PAGES["learn"] = {"ko": ("배당 공부", ["배당 투자,", "이것만 알면 돼요"], "세금 · ISA · 연금저축 · 배당락일 · 커버드콜")}
 _LEARN_OG = {
     "dividend-tax": ("세금", ["배당소득세 15.4%,", "한 번에 정리"], "국내·미국 배당 세금 · 종합과세 · 건보료"),

@@ -22,6 +22,16 @@ export function LearnIndex() {
         title={<>배당 투자, <span className="text-gold">이것만 알면</span> 돼요</>}
         subtitle="세금, 절세 계좌, 배당 받는 날짜, 커버드콜까지. 배당 투자를 시작할 때 꼭 필요한 내용만 쉽게 정리했어요."
       />
+      <Link href="/start">
+        <span className="panel-hero group mb-3 flex items-center justify-between gap-4 p-5">
+          <span>
+            <span className="kicker text-gold">여기서부터 시작</span>
+            <span className="mt-1 block text-[17px] font-bold text-foreground">배당 투자 처음 시작하기 · 7단계</span>
+            <span className="mt-0.5 block text-[13px] text-muted-foreground">무엇부터 해야 할지 순서대로 정리했어요.</span>
+          </span>
+          <ArrowUpRight className="h-5 w-5 shrink-0 text-gold" />
+        </span>
+      </Link>
       <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {LEARN.map((a) => (
           <li key={a.slug}>

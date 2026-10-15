@@ -21,6 +21,7 @@ export const ROUTES: RouteDef[] = [
   { path: "/tax", key: "tax", lang: "ko" },
   { path: "/compare", key: "compare", lang: "ko" },
   { path: "/calendar", key: "calendar", lang: "ko" },
+  { path: "/start", key: "start", lang: "ko" },
   { path: "/learn", key: "learn", lang: "ko" },
   ...LEARN.map((a) => ({ path: `/learn/${a.slug}`, key: `learn-${a.slug}` as SeoKey, lang: "ko" as Lang })),
   { path: "/etf", key: "etf", lang: "ko" },
@@ -77,7 +78,7 @@ export function headTags(key: SeoKey, lang: Lang): string {
 
   // 구조화 데이터
   const graph: Record<string, unknown>[] = [];
-  const isContent = key === "etf" || key.startsWith("etf-") || key === "learn" || key.startsWith("learn-");
+  const isContent = key === "etf" || key.startsWith("etf-") || key === "learn" || key.startsWith("learn-") || key === "start";
   if (key !== "guide" && !isContent) {
     graph.push({
       "@type": "WebApplication",

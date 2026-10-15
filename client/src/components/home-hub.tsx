@@ -44,6 +44,16 @@ export default function HomeHub() {
         배당 투자, 여기서 다 해 보세요
       </h2>
       <p className="mt-1 text-[14px] text-muted-foreground">계산하고, 확인하고, 이해하는 배당 투자자의 작업실이에요.</p>
+      <Link href="/start">
+        <span className="panel-hero group mt-5 flex items-center justify-between gap-4 p-5">
+          <span>
+            <span className="kicker text-gold">배당 투자가 처음이라면</span>
+            <span className="mt-1 block text-[17px] font-bold text-foreground">7단계로 따라 하는 배당 투자 시작하기</span>
+            <span className="mt-0.5 block text-[13px] text-muted-foreground">비상금 → 목표 → 계좌 → 첫 ETF → 자동 투자 → 재투자 → 세금</span>
+          </span>
+          <ArrowUpRight className="h-5 w-5 shrink-0 text-gold" />
+        </span>
+      </Link>
       <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
         {cols.map((c) => (
           <div key={c.title} className="panel p-5">
