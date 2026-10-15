@@ -1,4 +1,5 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { useEffect } from "react";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Calculator from "@/pages/calculator";
@@ -15,6 +16,16 @@ import { LearnIndex, LearnArticle } from "@/pages/learn";
 import EtfDetail from "@/pages/etf-detail";
 import Navigation from "@/components/navigation";
 import Footer from "@/components/footer";
+
+/** 다른 페이지로 넘어가면 맨 위에서 시작해요 (#으로 같은 페이지 안을 이동할 때는 그대로) */
+function ScrollToTop() {
+  const [location] = useLocation();
+  useEffect(() => {
+    if (window.location.hash) return;
+    window.scrollTo(0, 0);
+  }, [location]);
+  return null;
+}
 
 function Router() {
   return (
@@ -49,6 +60,7 @@ function App({ ssrPath }: { ssrPath?: string }) {
   return (
     <WouterRouter ssrPath={ssrPath}>
       <TooltipProvider>
+        <ScrollToTop />
         <div className="flex min-h-screen flex-col">
           <Navigation />
           <main className="flex-1">
