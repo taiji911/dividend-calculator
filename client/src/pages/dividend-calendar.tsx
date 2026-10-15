@@ -24,6 +24,7 @@ export default function DividendCalendar() {
   const [afterTax, setAfterTax] = useState(true);
   const [picking, setPicking] = useState(false);
   const [q, setQ] = useState("");
+  const [filter, setFilter] = useState("all");
 
   // 고른 종목은 이 브라우저에만 저장해요 (화면이 뜬 뒤에 불러와야 미리 만든 HTML과 어긋나지 않아요)
   useEffect(() => {
@@ -56,14 +57,26 @@ export default function DividendCalendar() {
   const update = (id: string, patch: Partial<Holding>) => setHoldings((p) => p.map((h) => (h.id === id ? { ...h, ...patch } : h)));
   const remove = (id: string) => setHoldings((p) => p.filter((h) => h.id !== id));
 
-  const filtered = CAL_ITEMS.filter((i) => !chosen.includes(i.id) && (q === "" || `${i.label} ${i.sub}`.toLowerCase().includes(q.toLowerCase())));
+  const FILTERS: [string, string, (i: (typeof CAL_ITEMS)[number]) => boolean][] = [
+    ["all", "전체", () => true],
+    ["etf", "ETF", (i) => i.kind === "etf"],
+    ["stock", "미국 배당주", (i) => i.kind === "stock"],
+    ["m", "매달", (i) => i.months.length === 12],
+    ["1", "1·4·7·10월", (i) => i.months.length === 4 && i.months.includes(1)],
+    ["2", "2·5·8·11월", (i) => i.months.length === 4 && i.months.includes(2)],
+    ["3", "3·6·9·12월", (i) => i.months.length === 4 && i.months.includes(3)],
+  ];
+  const activeFilter = FILTERS.find((f) => f[0] === filter) ?? FILTERS[0];
+  const filtered = CAL_ITEMS.filter(
+    (i) => !chosen.includes(i.id) && activeFilter[2](i) && (q === "" || `${i.label} ${i.sub}`.toLowerCase().includes(q.toLowerCase()))
+  );
 
   return (
     <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
       <PageHeader
         kicker="배당 달력"
         title={<>매달 배당 받는 <span className="text-gold">포트폴리오 만들기</span></>}
-        subtitle="가진 종목과 금액을 넣으면 몇 월에 얼마가 들어오는지 달력으로 보여줘요. 배당이 비는 달이 있으면 그 달을 채워 줄 종목도 알려줘요."
+        subtitle={`배당 ETF ${CAL_ITEMS.filter((i) => i.kind === "etf").length}개와 미국 배당주 ${CAL_ITEMS.filter((i) => i.kind === "stock").length}개 중에서 골라 금액을 넣으면, 몇 월에 얼마가 들어오는지 달력으로 보여줘요. 배당이 비는 달은 채워 줄 종목도 알려줘요.`}
       />
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[400px_1fr] lg:gap-6">
@@ -129,11 +142,27 @@ export default function DividendCalendar() {
             <div className="mt-3 rounded-xl border border-border p-3">
               <label className="relative block">
                 <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-subtle" />
-                <Input autoFocus className="h-10 pl-9" placeholder="SCHD, JEPI, 코카콜라…" value={q} onChange={(e) => setQ(e.target.value)} />
+                <Input autoFocus className="h-10 pl-9" placeholder="SCHD, JEPI, 코카콜라, 애플…" value={q} onChange={(e) => setQ(e.target.value)} />
               </label>
-              <ul className="mt-2 max-h-72 overflow-y-auto">
-                {filtered.map((i) => (
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {FILTERS.map(([id, label]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setFilter(id)}
+                    data-active={filter === id}
+                    className="rounded-full border border-border px-2.5 py-1 text-[12px] text-muted-foreground data-[active=true]:border-gold/60 data-[active=true]:bg-gold/10 data-[active=true]:text-foreground"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <ul className="mt-2 max-h-80 overflow-y-auto">
+                {filtered.map((i, idx) => (
                   <li key={i.id}>
+                    {(idx === 0 || filtered[idx - 1].kind !== i.kind) && (
+                      <p className="px-2.5 pb-1 pt-2.5 text-[11.5px] font-semibold text-subtle">{i.kind === "etf" ? "ETF" : "미국 배당주"}</p>
+                    )}
                     <button type="button" onClick={() => add(i.id)} className="flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left hover:bg-[hsl(var(--surface-3))]">
                       <span className="min-w-0">
                         <span className="block truncate text-[14px] font-medium text-foreground">{i.label}</span>
