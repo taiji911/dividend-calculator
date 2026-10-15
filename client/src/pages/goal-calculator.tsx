@@ -10,6 +10,7 @@ import CalculatorTabs from "@/components/calculator-tabs";
 import PageHeader from "@/components/page-header";
 import { useSeo } from "@/lib/seo";
 import RiskNote from "@/components/risk-note";
+import { GoalContentKo, GoalContentEn } from "@/content/goal-content";
 import { moneyShort } from "@/lib/format";
 
 interface CalculationResult {
@@ -361,6 +362,8 @@ export default function GoalCalculator() {
       {/* ADSENSE_SLOT_BOTTOM */}
 
       <RiskNote title={t.disclaimer.title}>{t.disclaimer.content}</RiskNote>
+
+      {isEnglish ? <GoalContentEn /> : <GoalContentKo />}
     </div>
   );
 }

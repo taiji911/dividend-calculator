@@ -185,6 +185,10 @@
     @apply transition-colors duration-150 hover:bg-[hsl(var(--surface-2))];
   }
 
+  /* 본문 예시 표 — 휴대폰에서도 옆으로 밀지 않고 한 화면에 */
+  .data-table-tight thead th { @apply whitespace-normal px-2.5 align-bottom leading-snug sm:px-4; overflow-wrap: normal; }
+  .data-table-tight tbody td { @apply px-2.5 text-[13px] sm:px-4 sm:text-[14px]; }
+
   /* 프리셋 칩 */
   .chip {
     @apply rounded-xl border border-border bg-[hsl(var(--surface-2))] px-3 py-2.5 text-left transition-colors duration-200 hover:border-[hsl(var(--border-strong))];
@@ -202,6 +206,15 @@
   .note-warn { border-color: hsl(var(--gold) / 0.3); background: hsl(var(--gold) / 0.07); }
   .note-risk { border-color: hsl(var(--coral) / 0.3); background: hsl(var(--coral) / 0.07); }
   .note-good { border-color: hsl(var(--mint) / 0.3); background: hsl(var(--mint) / 0.07); }
+
+  /* 본문 글 (계산기 아래 설명·예시) */
+  .content-prose {
+    @apply space-y-4 text-[15.5px] leading-[1.8] text-muted-foreground;
+  }
+  .content-prose strong { @apply font-semibold text-foreground; }
+  .content-prose a { @apply font-medium text-gold underline decoration-gold/40 underline-offset-4 hover:decoration-gold; }
+  .content-prose ul { @apply list-disc space-y-2 pl-5 marker:text-subtle; }
+  .content-prose ol { @apply list-decimal space-y-2.5 pl-5 marker:text-subtle; }
 
   /* 범례 점 */
   .dot {

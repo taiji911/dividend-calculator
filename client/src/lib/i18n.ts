@@ -233,8 +233,14 @@ export function getTranslation(language: Language): Translations {
   return translations[language];
 }
 
+/** 빌드할 때(서버에서 HTML을 미리 만들 때) 지금 만드는 페이지 주소 */
+let ssrPath: string | null = null;
+export function setSsrPath(path: string | null) {
+  ssrPath = path;
+}
+
 export function getCurrentLanguage(): Language {
-  const path = window.location.pathname;
+  const path = typeof window === "undefined" ? ssrPath ?? "/" : window.location.pathname;
   if (path.startsWith('/en')) return 'en';
   return 'kr';
 }

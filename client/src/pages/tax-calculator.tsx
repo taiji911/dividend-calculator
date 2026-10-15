@@ -7,6 +7,7 @@ import CalculatorTabs from "@/components/calculator-tabs";
 import PageHeader from "@/components/page-header";
 import { useSeo } from "@/lib/seo";
 import RiskNote from "@/components/risk-note";
+import { TaxContentKo } from "@/content/tax-content";
 import { calcFinancialTax, FIN_TAX, type InsuranceStatus } from "@/lib/financial-tax";
 import { krwShort } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -251,6 +252,8 @@ export default function TaxCalculator() {
       <RiskNote title="세금 계산 안내">
         추정치예요. 소득공제·세액공제, 다른 소득의 실제 결정세액, 환율, 배당 종류에 따라 실제 세금은 달라질 수 있어요. 고배당기업 분리과세는 대상 기업과 적용 기간을 국세청·거래소 공시로 확인하고, 정확한 신고는 홈택스나 세무사와 상담해 주세요.
       </RiskNote>
+
+      <TaxContentKo />
     </div>
   );
 }

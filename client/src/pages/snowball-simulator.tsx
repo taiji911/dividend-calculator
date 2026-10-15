@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { useLocation, Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,19 +26,9 @@ import CalculatorTabs from "@/components/calculator-tabs";
 import PageHeader from "@/components/page-header";
 import { useSeo } from "@/lib/seo";
 import { simulate } from "@/lib/dividend-engine";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  ReferenceLine,
-  Area,
-  ComposedChart,
-} from "recharts";
+import { SnowballContentKo, SnowballContentEn } from "@/content/snowball-content";
+// 차트는 용량이 커서 나중에 불러와요
+const SnowballChart = lazy(() => import("@/components/snowball-chart"));
 
 interface YearlyData {
   year: number;
@@ -429,75 +419,19 @@ export default function SnowballSimulator() {
                 </CardHeader>
                 <CardContent>
                   <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <ComposedChart data={simulationResult.yearlyData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                        <XAxis 
-                          dataKey="year" 
-                          tick={{ fontSize: 12 }}
-                          label={{ 
-                            value: isEnglish ? 'Year' : '연도', 
-                            position: 'insideBottomRight', 
-                            offset: -5,
-                            fontSize: 12 
-                          }}
-                        />
-                        <YAxis 
-                          tick={{ fontSize: 12 }}
-                          tickFormatter={(value) => {
-                            if (value >= 100000000) return `${(value / 100000000).toFixed(0)}${isEnglish ? 'B' : '억'}`;
-                            if (value >= 10000000) return `${(value / 10000).toFixed(0)}${isEnglish ? 'K' : '만'}`;
-                            if (value >= 1000000) return `${(value / 10000).toFixed(0)}${isEnglish ? 'K' : '만'}`;
-                            return value.toLocaleString();
-                          }}
-                        />
-                        <Tooltip 
-                          formatter={(value: number, name: string) => [
-                            formatCurrency(value),
-                            name
-                          ]}
-                          labelFormatter={(label) => `${label}${isEnglish ? ' Year' : '년차'}`}
-                        />
-                        <Legend />
-                        {simulationResult.snowballYear && (
-                          <ReferenceLine 
-                            x={simulationResult.snowballYear} 
-                            stroke="hsl(var(--iris))" 
-                            strokeWidth={2}
-                            strokeDasharray="5 5"
-                            label={{ 
-                              value: isEnglish ? 'Transition' : '전환점', 
-                              position: 'top',
-                              fill: 'hsl(var(--iris))',
-                              fontSize: 12
-                            }}
-                          />
-                        )}
-                        <Area
-                          type="monotone"
-                          dataKey="annualDividend"
-                          name={isEnglish ? "Annual Dividend" : "연 배당금"}
-                          fill="hsl(var(--mint))"
-                          fillOpacity={0.3}
-                          stroke="hsl(var(--mint))"
-                          strokeWidth={2}
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="contributionAnnual"
-                          name={isEnglish ? "Annual Contribution" : "연간 투자금"}
-                          stroke="hsl(var(--gold))"
-                          strokeWidth={2}
-                          strokeDasharray="5 5"
-                          dot={false}
-                        />
-                      </ComposedChart>
-                    </ResponsiveContainer>
+                    <Suspense fallback={null}>
+                      <SnowballChart
+                        data={simulationResult.yearlyData}
+                        snowballYear={simulationResult.snowballYear}
+                        isEnglish={isEnglish}
+                        formatCurrency={formatCurrency}
+                      />
+                    </Suspense>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2 text-center">
                     {isEnglish 
-                      ? "The transition point is where the green area crosses above the orange line"
-                      : "녹색 영역이 주황색 선을 넘는 지점이 전환점입니다"}
+                      ? "The snowball point is where the green area rises above the gold dashed line"
+                      : "초록 영역(연 배당금)이 금색 점선(연간 투자금)을 넘는 지점이 전환점이에요"}
                   </p>
                 </CardContent>
               </Card>
@@ -634,6 +568,8 @@ export default function SnowballSimulator() {
       </div>
 
       {/* ADSENSE_SLOT_BOTTOM */}
+
+      {isEnglish ? <SnowballContentEn /> : <SnowballContentKo />}
     </div>
   );
 }

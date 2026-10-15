@@ -34,23 +34,30 @@ export function krwAxis(amount: number): string {
   return Math.round(amount).toLocaleString("ko-KR");
 }
 
-/** 통화에 맞춰 짧게. 원화면 억·만, 그 외는 compact 표기 */
+const SYMBOL: Record<string, string> = { USD: "$", EUR: "€", GBP: "£", JPY: "¥", CAD: "C$", AUD: "A$", CHF: "CHF ", KRW: "₩" };
+
+/**
+ * 영어식 축약 ($120K, $1.2M) — Intl의 compact 표기는 브라우저·Node마다 결과가 달라서
+ * (미리 만든 HTML과 화면이 어긋나요) 직접 계산해요.
+ */
+function compact(amount: number, currency: string, forceCompact: boolean): string {
+  const sym = SYMBOL[currency] ?? `${currency} `;
+  const sign = amount < 0 ? "-" : "";
+  const n = Math.abs(amount);
+  const trim = (v: number) => (Math.round(v * 10) / 10).toFixed(1).replace(/\.0$/, "");
+  if (n >= 1e9) return `${sign}${sym}${trim(n / 1e9)}B`;
+  if (n >= 1e6) return `${sign}${sym}${trim(n / 1e6)}M`;
+  if (n >= 1e5 || (forceCompact && n >= 1e3)) return `${sign}${sym}${trim(n / 1e3)}K`;
+  return `${sign}${sym}${Math.round(n).toLocaleString("en-US")}`;
+}
+
+/** 통화에 맞춰 짧게. 원화면 억·만, 그 외는 $120K 처럼 */
 export function moneyShort(amount: number, currency: string = "KRW"): string {
   if (currency === "KRW") return krwShort(amount);
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    notation: Math.abs(amount) >= 100_000 ? "compact" : "standard",
-    maximumFractionDigits: Math.abs(amount) >= 100_000 ? 1 : 0,
-  }).format(amount);
+  return compact(amount, currency, false);
 }
 
 export function moneyAxis(amount: number, currency: string = "KRW"): string {
   if (currency === "KRW") return krwAxis(amount);
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency,
-    notation: "compact",
-    maximumFractionDigits: 1,
-  }).format(amount);
+  return compact(amount, currency, true);
 }

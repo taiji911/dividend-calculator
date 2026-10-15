@@ -13,7 +13,7 @@ interface CalculatorFormProps {
   onCalculate: (results: CalculationResults, currency?: string) => void;
 }
 
-type FormState = {
+export type FormState = {
   initialInvestment: number;
   monthlyInvestment: number;
   investmentPeriod: number;
@@ -31,16 +31,9 @@ const num = (v: string | number) => {
   return isFinite(n) ? n : 0;
 };
 
-/**
- * 투자 조건 입력 — 값을 바꾸는 즉시 브라우저에서 바로 계산해요 (서버 왕복 없음).
- */
-export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
-  const language = getCurrentLanguage();
-  const isEn = language === "en";
-  const t = getTranslation(language);
-
-  const [f, setF] = useState<FormState>({
-    // 처음 들어와도 결과가 바로 보이도록 예시 값을 채워 둡니다
+/** 처음 들어왔을 때 채워 둘 예시 값 — 화면과 미리 만든 HTML이 같은 결과를 보여주도록 한 곳에서 정해요 */
+export function defaultForm(isEn: boolean): FormState {
+  return {
     initialInvestment: isEn ? 10000 : 10000000,
     monthlyInvestment: isEn ? 500 : 500000,
     investmentPeriod: 10,
@@ -51,7 +44,32 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
     account: isEn ? "taxable_us" : "taxable_kr",
     customTaxRate: "15",
     currency: isEn ? "USD" : "KRW",
-  });
+  };
+}
+
+export function toSimInput(f: FormState) {
+  return {
+    initialInvestment: f.initialInvestment,
+    monthlyInvestment: f.monthlyInvestment,
+    years: Math.min(Math.max(num(f.investmentPeriod), 1), 50),
+    dividendYield: Math.min(Math.max(num(f.dividendYield), 0), 50),
+    dividendGrowthRate: Math.min(Math.max(num(f.dividendGrowthRate), -20), 50),
+    priceGrowthRate: Math.min(Math.max(num(f.priceGrowthRate), -20), 50),
+    drip: f.dripEnabled,
+    account: f.account,
+    customTaxRate: num(f.customTaxRate),
+  };
+}
+
+/**
+ * 투자 조건 입력 — 값을 바꾸는 즉시 브라우저에서 바로 계산해요 (서버 왕복 없음).
+ */
+export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
+  const language = getCurrentLanguage();
+  const isEn = language === "en";
+  const t = getTranslation(language);
+
+  const [f, setF] = useState<FormState>(() => defaultForm(isEn));
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) => setF((p) => ({ ...p, [k]: v }));
 
   const presets = {
@@ -65,21 +83,7 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
     (k) => num(f.dividendYield) === presets[k].y && num(f.dividendGrowthRate) === presets[k].dg && num(f.priceGrowthRate) === presets[k].pg
   );
 
-  const result = useMemo(
-    () =>
-      simulate({
-        initialInvestment: f.initialInvestment,
-        monthlyInvestment: f.monthlyInvestment,
-        years: Math.min(Math.max(num(f.investmentPeriod), 1), 50),
-        dividendYield: Math.min(Math.max(num(f.dividendYield), 0), 50),
-        dividendGrowthRate: Math.min(Math.max(num(f.dividendGrowthRate), -20), 50),
-        priceGrowthRate: Math.min(Math.max(num(f.priceGrowthRate), -20), 50),
-        drip: f.dripEnabled,
-        account: f.account,
-        customTaxRate: num(f.customTaxRate),
-      }),
-    [f]
-  );
+  const result = useMemo(() => simulate(toSimInput(f)), [f]);
 
   useEffect(() => {
     onCalculate(result, f.currency);

@@ -1,18 +1,20 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Link } from "wouter";
 import { Target, Snowflake, ArrowUpRight, Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import CalculatorForm from "@/components/calculator-form";
-import ResultsCharts from "@/components/results-charts";
+import CalculatorForm, { defaultForm, toSimInput } from "@/components/calculator-form";
+// 차트(용량이 큰 부분)는 나중에 불러와서 첫 화면을 빠르게
+const ResultsCharts = lazy(() => import("@/components/results-charts"));
 import ResultsTable from "@/components/results-table";
 import ResultsSummary from "@/components/results-summary";
 import CalculatorTabs from "@/components/calculator-tabs";
 import PageHeader from "@/components/page-header";
 import RiskNote from "@/components/risk-note";
+import { ReinvestContentKo, ReinvestContentEn } from "@/content/reinvest-content";
 import { getTranslation, formatCurrencyByLanguage, currencyOptions, type Language } from "@/lib/i18n";
 import { moneyShort } from "@/lib/format";
-import type { SimResult } from "@/lib/dividend-engine";
+import { simulate, type SimResult } from "@/lib/dividend-engine";
 import { useSeo } from "@/lib/seo";
 
 /** 계산 결과 모양 — 계산 엔진(lib/dividend-engine.ts)의 결과를 그대로 씁니다 */
@@ -23,7 +25,8 @@ export function ReinvestPage({ lang = "kr" }: { lang?: Language }) {
   const isEn = lang === "en";
   const t = getTranslation(lang);
   useSeo("reinvest", isEn ? "en" : "ko");
-  const [results, setResults] = useState<CalculationResults | null>(null);
+  // 예시 값 결과를 처음부터 채워 두면, 미리 만든 HTML에도 숫자가 바로 보여요
+  const [results, setResults] = useState<CalculationResults | null>(() => simulate(toSimInput(defaultForm(isEn))));
   const [currency, setCurrency] = useState(isEn ? "USD" : "KRW");
   const [target, setTarget] = useState<string>("");
 
@@ -104,7 +107,9 @@ export function ReinvestPage({ lang = "kr" }: { lang?: Language }) {
           {results && results.yearlyData.length > 0 ? (
             <>
               <ResultsSummary results={results} formatCurrency={formatCurrency} formatShort={formatShort} />
-              <ResultsCharts results={results} formatCurrency={formatShort} currency={currency} />
+              <Suspense fallback={<div className="space-y-4"><div className="panel h-[380px]" /><div className="panel h-[350px]" /></div>}>
+                <ResultsCharts results={results} formatCurrency={formatShort} currency={currency} />
+              </Suspense>
               <ResultsTable results={results} formatCurrency={formatShort} targetMonthlyDividend={targetValue || undefined} />
             </>
           ) : (
@@ -155,6 +160,8 @@ export function ReinvestPage({ lang = "kr" }: { lang?: Language }) {
       {/* ADSENSE_SLOT_BOTTOM */}
 
       <RiskNote title={t.disclaimer.title}>{t.disclaimer.content}</RiskNote>
+
+      {isEn ? <ReinvestContentEn /> : <ReinvestContentKo />}
     </div>
   );
 }

@@ -9,10 +9,14 @@ export const SITE_URL = "https://dividendcalcul.jayinform.com";
 export const SITE_NAME_KO = "배당 계산기";
 export const SITE_NAME_EN = "Dividend Calculator";
 export const OG_IMAGE = `${SITE_URL}/thumbnail.png`;
+/** 페이지별 공유 이미지 (빌드 전에 scripts/make-og.py 로 만들어 client/public/og 에 둬요) */
+export const ogImageFor = (key: string, lang: "ko" | "en") => `${SITE_URL}/og/${key}-${lang}.png`;
 
-type Lang = "ko" | "en";
+export type Lang = "ko" | "en";
 interface PageSeo {
   path: Record<Lang, string | null>;
+  /** 짧은 이름 (경로 표시·구조화 데이터용) */
+  name: Record<Lang, string>;
   title: Record<Lang, string>;
   description: Record<Lang, string>;
 }
@@ -20,6 +24,7 @@ interface PageSeo {
 export const SEO_PAGES = {
   reinvest: {
     path: { ko: "/", en: "/en" },
+    name: { ko: "배당 재투자 계산기", en: "Dividend Reinvestment Calculator" },
     title: {
       ko: "배당 재투자 계산기 | 배당금 복리 시뮬레이터 (세후·ISA·연금)",
       en: "Dividend Reinvestment Calculator | DRIP Compound Growth",
@@ -31,6 +36,7 @@ export const SEO_PAGES = {
   },
   goal: {
     path: { ko: "/goal", en: "/en/goal" },
+    name: { ko: "목표 배당금 계산기", en: "Dividend Goal Calculator" },
     title: {
       ko: "목표 배당금 계산기 | 월 배당 100만원 받으려면 원금 얼마?",
       en: "Dividend Goal Calculator | How Much to Invest for Monthly Income",
@@ -42,6 +48,7 @@ export const SEO_PAGES = {
   },
   snowball: {
     path: { ko: "/snowball", en: "/en/snowball" },
+    name: { ko: "배당 스노우볼 계산기", en: "Dividend Snowball Simulator" },
     title: {
       ko: "배당 스노우볼 계산기 | 배당이 월 투자금을 넘는 시점",
       en: "Dividend Snowball Simulator | When Dividends Outrun Contributions",
@@ -53,6 +60,7 @@ export const SEO_PAGES = {
   },
   tax: {
     path: { ko: "/tax", en: null },
+    name: { ko: "금융소득종합과세 계산기", en: "Financial Income Tax Calculator" },
     title: {
       ko: "금융소득종합과세 계산기 | 배당 2천만원 초과 세금·건보료",
       en: "Korean Financial Income Tax Calculator",
@@ -64,6 +72,7 @@ export const SEO_PAGES = {
   },
   guide: {
     path: { ko: "/guide", en: "/en/guide" },
+    name: { ko: "배당 계산기 사용 가이드", en: "Dividend Calculator Guide" },
     title: {
       ko: "배당 계산기 사용 가이드 | 배당 재투자·목표 배당금 계산 방법",
       en: "Dividend Calculator Guide | How to Use",
@@ -118,6 +127,8 @@ export function applySeo(key: SeoKey, lang: Lang) {
   upsertMeta("property", "og:site_name", lang === "ko" ? SITE_NAME_KO : SITE_NAME_EN);
   upsertMeta("name", "twitter:title", title);
   upsertMeta("name", "twitter:description", description);
+  upsertMeta("property", "og:image", ogImageFor(key, lang));
+  upsertMeta("name", "twitter:image", ogImageFor(key, lang));
   upsertLink("canonical", url);
 
   // 언어 연결 — 두 언어가 모두 있는 페이지만
