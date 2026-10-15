@@ -9,7 +9,7 @@ export default function Footer() {
     { href: l || "/", label: isEn ? "Reinvestment" : "재투자 계산기" },
     { href: `${l}/goal`, label: isEn ? "Goal" : "목표 배당금" },
     { href: `${l}/snowball`, label: isEn ? "Snowball" : "스노우볼" },
-    ...(!isEn ? [{ href: "/compare", label: "계좌 비교" }, { href: "/tax", label: "종합과세" }] : []),
+    ...(!isEn ? [{ href: "/etf", label: "배당 ETF" }, { href: "/compare", label: "계좌 비교" }, { href: "/tax", label: "종합과세" }] : []),
     { href: `${l}/guide`, label: isEn ? "Guide" : "가이드" },
   ];
   return (

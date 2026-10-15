@@ -83,6 +83,21 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
     (k) => num(f.dividendYield) === presets[k].y && num(f.dividendGrowthRate) === presets[k].dg && num(f.priceGrowthRate) === presets[k].pg
   );
 
+  // ETF 페이지에서 넘어오면 주소의 값(?y=3.1&dg=6&pg=5&from=SCHD)으로 채워요.
+  // 미리 만든 HTML과 첫 화면이 같아야 해서, 화면이 뜬 뒤에 바꿔요.
+  const [from, setFrom] = useState<string | null>(null);
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const y = q.get("y");
+    if (!y || !isFinite(parseFloat(y))) return;
+    const pick = (k: string, fallback: string) => {
+      const v = q.get(k);
+      return v != null && isFinite(parseFloat(v)) ? v : fallback;
+    };
+    setF((p) => ({ ...p, dividendYield: y, dividendGrowthRate: pick("dg", p.dividendGrowthRate), priceGrowthRate: pick("pg", p.priceGrowthRate) }));
+    setFrom(q.get("from"));
+  }, []);
+
   const result = useMemo(() => simulate(toSimInput(f)), [f]);
 
   useEffect(() => {
@@ -179,6 +194,11 @@ export default function CalculatorForm({ onCalculate }: CalculatorFormProps) {
         <h2 className="text-[17px] font-semibold">{t.calculator.title}</h2>
         <span className="kicker">{isEn ? "Live" : "실시간 계산"}</span>
       </div>
+      {from && (
+        <p className="note note-info mb-5 !py-2.5 text-[13px]">
+          <strong className="text-foreground">{from.slice(0, 40)}</strong> 정보로 배당률을 채웠어요. 배당 성장률·주가 상승률은 예시 가정이니 자유롭게 바꿔 보세요.
+        </p>
+      )}
 
       <div className="space-y-5">
         {/* 금액 */}

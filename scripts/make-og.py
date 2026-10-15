@@ -4,6 +4,7 @@
 결과: client/public/og/{페이지}-{언어}.png
 """
 from pathlib import Path
+import json
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -48,6 +49,18 @@ PAGES = {
     },
 }
 
+# 배당 ETF 페이지 — client/src/content/etf-data.json 에서 자동으로 만들어요
+ETF = json.loads((ROOT / "client/src/content/etf-data.json").read_text(encoding="utf-8"))
+GROUP_TITLE = {g["id"]: g["title"] for g in ETF["groups"]}
+PAGES["etf"] = {"ko": ("배당 ETF 정보", ["인기 배당 ETF,", "한눈에 비교"], f"배당률 · 총보수 · 배당 주기 · {len(ETF['etfs'])}개")}
+def _pct(v):
+    s = f"{v:.4f}".rstrip("0").rstrip(".")
+    return s + "%"
+for e in ETF["etfs"]:
+    label = e["ticker"] if e["market"] == "us" else e["name"]
+    freq = "매달 배당" if e["freq"] == "월" else "분기 배당"
+    PAGES[f"etf-{e['slug']}"] = {"ko": (GROUP_TITLE[e["group"]], [label, f"배당률 {_pct(e['yield'])} · {freq}"], f"총보수 {_pct(e['fee'])} · {e['short']}")}
+
 def glow(img, center, radius, color, alpha):
     layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
     d = ImageDraw.Draw(layer)
@@ -91,6 +104,9 @@ for key, langs in PAGES.items():
         d.text((72, 168), name, font=font("SemiBold", 34), fill=GOLD)
 
         size = 68 if lang == "ko" else 64
+        # 긴 이름(국내 ETF)은 한 줄에 들어가게 글자를 줄여요
+        while size > 36 and max(d.textlength(l, font=font("ExtraBold", size)) for l in lines) > 1056:
+            size -= 2
         y = 228
         for line in lines:
             d.text((72, y), line, font=font("ExtraBold", size), fill=FG)

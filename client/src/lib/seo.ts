@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { ETFS, ETF_AS_OF_LABEL, etfLabel, feeText, yieldText } from "./etf";
 
 /**
  * 페이지별 검색 정보(제목·설명·대표 주소·언어 연결)를 한 곳에서 관리해요.
@@ -21,7 +22,7 @@ interface PageSeo {
   description: Record<Lang, string>;
 }
 
-export const SEO_PAGES = {
+const STATIC_PAGES = {
   reinvest: {
     path: { ko: "/", en: "/en" },
     name: { ko: "배당 재투자 계산기", en: "Dividend Reinvestment Calculator" },
@@ -94,9 +95,43 @@ export const SEO_PAGES = {
       en: "How to use the dividend reinvestment, goal and snowball calculators, and how to read the results.",
     },
   },
+  etf: {
+    path: { ko: "/etf", en: null },
+    name: { ko: "배당 ETF 정보", en: "Dividend ETFs" },
+    title: {
+      ko: "배당 ETF 비교 | SCHD·JEPI·미국배당다우존스 배당률·총보수 한눈에",
+      en: "Dividend ETF Comparison",
+    },
+    description: {
+      ko: "SCHD, VYM, JEPI, JEPQ, TIGER 미국배당다우존스 등 인기 배당 ETF 19개의 배당률·총보수·배당 주기·특징을 한 곳에서 비교해요. 국내 상장과 미국 상장, 계좌별 세금 차이까지.",
+      en: "Compare popular dividend ETFs by yield, fees and payout frequency.",
+    },
+  },
 } satisfies Record<string, PageSeo>;
 
-export type SeoKey = keyof typeof SEO_PAGES;
+/** ETF 상세 페이지 검색 정보 — etf-data.json 에서 자동으로 만들어요 */
+const ETF_PAGES = Object.fromEntries(
+  ETFS.map((e) => {
+    const label = etfLabel(e);
+    const sub = e.market === "us" ? e.name : e.ticker;
+    return [
+      `etf-${e.slug}`,
+      {
+        path: { ko: `/etf/${e.slug}`, en: null },
+        name: { ko: label, en: label },
+        title: { ko: `${label} 배당률·총보수·배당일 정리 | ${sub}`, en: `${label} dividend overview` },
+        description: {
+          ko: `${label}(${e.short}) 최근 배당률 약 ${yieldText(e.yield)}, 총보수 ${feeText(e.fee)}, ${e.freq} 배당. 장단점과 계좌별 세금, 1,000만원 투자 시 예상 배당까지 정리했어요. ${ETF_AS_OF_LABEL} 기준.`,
+          en: `${label} dividend yield, fees and payout frequency.`,
+        },
+      } satisfies PageSeo,
+    ];
+  })
+) as Record<`etf-${string}`, PageSeo>;
+
+export const SEO_PAGES: typeof STATIC_PAGES & Record<`etf-${string}`, PageSeo> = { ...STATIC_PAGES, ...ETF_PAGES };
+
+export type SeoKey = keyof typeof STATIC_PAGES | `etf-${string}`;
 
 function upsertMeta(attr: "name" | "property", key: string, content: string) {
   let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`);
@@ -122,7 +157,7 @@ function upsertLink(rel: string, href: string, hreflang?: string) {
 
 /** 페이지 검색 정보 적용 */
 export function applySeo(key: SeoKey, lang: Lang) {
-  const page: PageSeo = SEO_PAGES[key];
+  const page: PageSeo = (SEO_PAGES as Record<string, PageSeo>)[key];
   const path = page.path[lang] ?? page.path.ko!;
   const url = SITE_URL + (path === "/" ? "/" : path);
   const title = page.title[lang];

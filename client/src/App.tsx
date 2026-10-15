@@ -9,6 +9,8 @@ import Guide from "@/pages/guide";
 import SnowballSimulator from "@/pages/snowball-simulator";
 import TaxCalculator from "@/pages/tax-calculator";
 import AccountCompare from "@/pages/account-compare";
+import EtfIndex from "@/pages/etf-index";
+import EtfDetail from "@/pages/etf-detail";
 import Navigation from "@/components/navigation";
 import Footer from "@/components/footer";
 
@@ -30,6 +32,8 @@ function Router() {
       <Route path="/en/snowball" component={SnowballSimulator} />
       <Route path="/tax" component={TaxCalculator} />
       <Route path="/compare" component={AccountCompare} />
+      <Route path="/etf" component={EtfIndex} />
+      <Route path="/etf/:slug" component={EtfDetail} />
       <Route component={NotFound} />
     </Switch>
   );

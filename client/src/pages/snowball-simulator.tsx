@@ -60,7 +60,6 @@ export default function SnowballSimulator() {
   const [investmentPeriodStr, setInvestmentPeriodStr] = useState("15");
   const [reinvestDividends, setReinvestDividends] = useState(true);
   
-  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isDisclaimerOpen, setIsDisclaimerOpen] = useState(false);
 
   const parseNumber = (str: string): number => {
@@ -182,9 +181,8 @@ export default function SnowballSimulator() {
     return newErrors;
   }, [initialInvestment, monthlyContribution, dividendYield, dividendGrowth, investmentPeriod, t.errors]);
 
-  useEffect(() => {
-    setErrors(validationErrors);
-  }, [validationErrors]);
+  // 입력 오류는 상태로 따로 두지 않고 바로 계산해요 (첫 화면에서 불필요한 다시 그리기를 막아요)
+  const errors = validationErrors;
 
   const isValid = Object.keys(validationErrors).length === 0;
 

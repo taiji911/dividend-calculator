@@ -4,6 +4,7 @@
  */
 import { SEO_PAGES, SITE_URL, SITE_NAME_KO, SITE_NAME_EN, ogImageFor, type SeoKey, type Lang } from "./seo";
 import { FAQ } from "@/content/faq";
+import { ETFS } from "./etf";
 
 export interface RouteDef {
   path: string;
@@ -18,6 +19,8 @@ export const ROUTES: RouteDef[] = [
   { path: "/snowball", key: "snowball", lang: "ko" },
   { path: "/tax", key: "tax", lang: "ko" },
   { path: "/compare", key: "compare", lang: "ko" },
+  { path: "/etf", key: "etf", lang: "ko" },
+  ...ETFS.map((e) => ({ path: `/etf/${e.slug}`, key: `etf-${e.slug}` as SeoKey, lang: "ko" as Lang })),
   { path: "/guide", key: "guide", lang: "ko" },
   { path: "/en", key: "reinvest", lang: "en" },
   { path: "/en/goal", key: "goal", lang: "en" },
@@ -30,7 +33,7 @@ const abs = (path: string) => SITE_URL + (path === "/" ? "/" : path);
 const json = (o: unknown) => JSON.stringify(o).replace(/</g, "\\u003c");
 
 export function headTags(key: SeoKey, lang: Lang): string {
-  const page = SEO_PAGES[key] as (typeof SEO_PAGES)[SeoKey];
+  const page = (SEO_PAGES as Record<string, (typeof SEO_PAGES)["reinvest"] | (typeof SEO_PAGES)["tax"]>)[key];
   const path = (page.path as Record<Lang, string | null>)[lang] ?? page.path.ko!;
   const url = abs(path);
   const title = page.title[lang];
@@ -70,7 +73,8 @@ export function headTags(key: SeoKey, lang: Lang): string {
 
   // 구조화 데이터
   const graph: Record<string, unknown>[] = [];
-  if (key !== "guide") {
+  const isEtf = key === "etf" || key.startsWith("etf-");
+  if (key !== "guide" && !isEtf) {
     graph.push({
       "@type": "WebApplication",
       name: page.name[lang],
@@ -86,12 +90,12 @@ export function headTags(key: SeoKey, lang: Lang): string {
   if (path === homePath) {
     graph.push({ "@type": "WebSite", name: siteName, alternateName: lang === "ko" ? ["배당계산기", "Dividend Calculator"] : ["배당 계산기"], url: abs(homePath), inLanguage: lang });
   } else {
+    const crumbs = [{ name: siteName, item: abs(homePath) }];
+    if (key.startsWith("etf-")) crumbs.push({ name: "배당 ETF 정보", item: abs("/etf") });
+    crumbs.push({ name: page.name[lang], item: url });
     graph.push({
       "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: siteName, item: abs(homePath) },
-        { "@type": "ListItem", position: 2, name: page.name[lang], item: url },
-      ],
+      itemListElement: crumbs.map((c, i) => ({ "@type": "ListItem", position: i + 1, ...c })),
     });
   }
   const faqs = FAQ[key]?.[lang];
@@ -118,7 +122,7 @@ export function sitemapXml(lastmod: string): string {
     `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">`,
   ];
   for (const r of ROUTES) {
-    const page = SEO_PAGES[r.key];
+    const page = (SEO_PAGES as Record<string, { path: Record<Lang, string | null> }>)[r.key];
     out.push(`  <url>`, `    <loc>${abs(r.path)}</loc>`);
     if (page.path.ko && page.path.en) {
       out.push(
