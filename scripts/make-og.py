@@ -39,6 +39,9 @@ PAGES = {
     "tax": {
         "ko": ("금융소득종합과세 계산기", ["배당이 연 2,000만원을", "넘으면 세금은?"], "비교과세 · 해외 배당 · 건보료"),
     },
+    "compare": {
+        "ko": ("계좌별 절세 비교", ["ISA vs 연금저축 vs 일반,", "어디에 담아야 남을까?"], "세금 다 뗀 금액으로 비교"),
+    },
     "guide": {
         "ko": ("배당 계산기 사용 가이드", ["입력값 고르는 법부터", "결과 읽는 법까지"], "배당 재투자 · 목표 배당금 · 스노우볼"),
         "en": ("Dividend Calculator Guide", ["How to use the", "dividend calculators"], "Inputs, results and assumptions"),

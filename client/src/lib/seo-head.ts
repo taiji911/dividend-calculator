@@ -17,6 +17,7 @@ export const ROUTES: RouteDef[] = [
   { path: "/goal", key: "goal", lang: "ko" },
   { path: "/snowball", key: "snowball", lang: "ko" },
   { path: "/tax", key: "tax", lang: "ko" },
+  { path: "/compare", key: "compare", lang: "ko" },
   { path: "/guide", key: "guide", lang: "ko" },
   { path: "/en", key: "reinvest", lang: "en" },
   { path: "/en/goal", key: "goal", lang: "en" },

@@ -70,6 +70,18 @@ export const SEO_PAGES = {
       en: "Estimate additional Korean tax when financial income exceeds KRW 20M.",
     },
   },
+  compare: {
+    path: { ko: "/compare", en: null },
+    name: { ko: "계좌별 절세 비교 계산기", en: "Account Tax Comparison" },
+    title: {
+      ko: "ISA vs 연금저축 vs 일반계좌 비교 계산기 | 배당 ETF 어디에 담을까",
+      en: "Korean ISA vs Pension vs Taxable Account Comparison",
+    },
+    description: {
+      ko: "같은 배당 ETF를 일반계좌·ISA·연금저축(IRP)에 넣었을 때 세금을 다 뗀 뒤 얼마가 남는지 비교해요. 미국 배당 ETF 직접 매수와 국내상장 ETF, 세액공제와 연금소득세까지 반영.",
+      en: "Compare after-tax results of holding dividend ETFs in Korean taxable, ISA and pension accounts.",
+    },
+  },
   guide: {
     path: { ko: "/guide", en: "/en/guide" },
     name: { ko: "배당 계산기 사용 가이드", en: "Dividend Calculator Guide" },

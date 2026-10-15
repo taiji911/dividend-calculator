@@ -19,7 +19,12 @@ export default function CalculatorTabs({ className }: CalculatorTabsProps) {
     },
     { href: locale ? `/${locale}/goal` : "/goal", label: isEnglish ? "Goal" : "목표 배당금", active: location.endsWith("/goal") },
     { href: locale ? `/${locale}/snowball` : "/snowball", label: isEnglish ? "Snowball" : "스노우볼", active: location.endsWith("/snowball") },
-    ...(!isEnglish ? [{ href: "/tax", label: "종합과세", active: location === "/tax" }] : []),
+    ...(!isEnglish
+      ? [
+          { href: "/compare", label: "계좌 비교", active: location === "/compare" },
+          { href: "/tax", label: "종합과세", active: location === "/tax" },
+        ]
+      : []),
   ];
 
   return (

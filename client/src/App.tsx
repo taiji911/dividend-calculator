@@ -8,6 +8,7 @@ import GoalCalculator from "@/pages/goal-calculator";
 import Guide from "@/pages/guide";
 import SnowballSimulator from "@/pages/snowball-simulator";
 import TaxCalculator from "@/pages/tax-calculator";
+import AccountCompare from "@/pages/account-compare";
 import Navigation from "@/components/navigation";
 import Footer from "@/components/footer";
 
@@ -28,6 +29,7 @@ function Router() {
       <Route path="/kr/snowball" component={SnowballSimulator} />
       <Route path="/en/snowball" component={SnowballSimulator} />
       <Route path="/tax" component={TaxCalculator} />
+      <Route path="/compare" component={AccountCompare} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Menu, Target, BookOpen, TrendingUp, Snowflake, Receipt, Languages, ChevronRight } from "lucide-react";
+import { Menu, Target, BookOpen, TrendingUp, Snowflake, Receipt, Scale, Languages, ChevronRight } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import BrandMark from "@/components/brand-mark";
@@ -15,7 +15,7 @@ export default function Navigation() {
     const rest = location.replace(/^\/(en|kr)/, "");
     if (isEnglish) return rest === "" ? "/" : rest;
     // 종합과세는 한국어 전용 → 영어로 바꿀 땐 재투자 계산기로
-    if (rest === "/tax") return "/en";
+    if (rest === "/tax" || rest === "/compare") return "/en";
     return rest === "" || rest === "/" || rest === "/calculator" ? "/en" : `/en${rest}`;
   };
 
@@ -28,7 +28,12 @@ export default function Navigation() {
     },
     { href: `${locale}/goal`, label: isEnglish ? "Goal" : "목표 배당금", icon: Target, active: location.includes("/goal") },
     { href: `${locale}/snowball`, label: isEnglish ? "Snowball" : "스노우볼", icon: Snowflake, active: location.includes("/snowball") },
-    ...(!isEnglish ? [{ href: "/tax", label: "종합과세", icon: Receipt, active: location === "/tax" }] : []),
+    ...(!isEnglish
+      ? [
+          { href: "/compare", label: "계좌 비교", icon: Scale, active: location === "/compare" },
+          { href: "/tax", label: "종합과세", icon: Receipt, active: location === "/tax" },
+        ]
+      : []),
     { href: `${locale}/guide`, label: isEnglish ? "Guide" : "가이드", icon: BookOpen, active: location.includes("/guide") },
   ];
 

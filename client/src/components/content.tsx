@@ -20,7 +20,17 @@ export function Section({ id, kicker, title, children }: { id?: string; kicker?:
   );
 }
 
-export function DataTable({ caption, headers, rows, note }: { caption?: string; headers: string[]; rows: (string | ReactNode)[][]; note?: string }) {
+/**
+ * 본문 표. 기본은 숫자 표(오른쪽 정렬·줄바꿈 없음), text 를 켜면 설명 표(왼쪽 정렬·줄바꿈)예요.
+ */
+export function DataTable({ caption, headers, rows, note, text = false }: { caption?: string; headers: string[]; rows: (string | ReactNode)[][]; note?: string; text?: boolean }) {
+  const thCls = (i: number) => (i === 0 ? "" : text ? "" : "!text-right");
+  const tdCls = (j: number) =>
+    j === 0
+      ? `!whitespace-normal font-medium text-foreground [overflow-wrap:normal] ${text ? "min-w-[6.5rem] align-top" : ""}`
+      : text
+        ? "!whitespace-normal align-top leading-relaxed"
+        : "text-right";
   return (
     <figure className="my-5">
       <div className="overflow-x-auto rounded-[var(--radius)] border border-border">
@@ -29,7 +39,7 @@ export function DataTable({ caption, headers, rows, note }: { caption?: string; 
           <thead>
             <tr>
               {headers.map((h, i) => (
-                <th key={h} className={i > 0 ? "!text-right" : ""}>{h}</th>
+                <th key={h} className={thCls(i)}>{h}</th>
               ))}
             </tr>
           </thead>
@@ -37,7 +47,7 @@ export function DataTable({ caption, headers, rows, note }: { caption?: string; 
             {rows.map((r, i) => (
               <tr key={i}>
                 {r.map((c, j) => (
-                  <td key={j} className={j > 0 ? "text-right" : "!whitespace-normal font-medium text-foreground [overflow-wrap:normal]"}>{c}</td>
+                  <td key={j} className={tdCls(j)}>{c}</td>
                 ))}
               </tr>
             ))}
