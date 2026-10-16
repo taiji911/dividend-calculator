@@ -164,7 +164,7 @@ export default function Start() {
       <PageHeader
         kicker="처음 시작하기"
         title={<>배당 투자, <span className="text-gold">이 순서대로</span> 시작하세요</>}
-        subtitle="뭐부터 해야 할지 막막하다면 질문 6개에 답해 보세요. 나에게 맞는 계좌와 ETF, 첫 달 미션까지 정리해 드려요. 아래에는 7단계 순서를 자세히 적어 뒀어요."
+        subtitle="뭐부터 해야 할지 막막하다면 1분 질문에 답해 보세요. 나에게 맞는 계좌와 ETF, 첫 달 미션까지 정리해 드려요. 아래에는 7단계 순서를 자세히 적어 뒀어요."
       />
 
       <StartQuest />
