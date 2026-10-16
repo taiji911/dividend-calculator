@@ -106,15 +106,24 @@ const PENSION_MONTHLY = 750_000; // 세액공제 한도 연 900만원
 function buildPlan(a: Required<Answers>) {
   const m = a.monthly;
   // 1) 계좌 나누기
+  //  - 배당을 '지금' 생활비로 쓸 사람: ISA·연금저축은 배당을 꺼내 쓸 수 없으니(ISA는 원금만 중도 인출) 일반계좌로
+  //  - 노후용: 연금저축 먼저, 나머지 ISA
+  //  - 5~10년 뒤 / 중간에 쓸 수도: ISA 중심
+  const useNow = a.horizon === "now";
   let pension = 0;
-  if (a.lock === "none" && a.horizon !== "now") pension = Math.min(Math.round(m * 0.6), PENSION_MONTHLY);
-  else if (a.horizon === "long") pension = Math.min(Math.round(m * 0.3), PENSION_MONTHLY);
-  const isa = Math.min(m - pension, ISA_MONTHLY);
+  if (!useNow && a.lock === "none") pension = Math.min(Math.round(m * 0.6), PENSION_MONTHLY);
+  else if (!useNow && a.horizon === "long") pension = Math.min(Math.round(m * 0.3), PENSION_MONTHLY);
+  const isa = useNow ? 0 : Math.min(m - pension, ISA_MONTHLY);
   const general = m - pension - isa;
   const accounts = [
-    { name: "연금저축", amount: pension, why: "세액공제 13.2~16.5% + 배당 과세이연", href: "/learn/pension-savings" },
-    { name: "ISA", amount: isa, why: "배당·이익 200만원까지 비과세, 넘으면 9.9%", href: "/learn/isa" },
-    { name: "일반계좌", amount: general, why: "ISA 한도를 넘는 돈", href: "/compare" },
+    { name: "연금저축", amount: pension, why: "세액공제 13.2~16.5% · 배당은 계좌 안에서 재투자 (55세 이후 연금으로 꺼내 써요)", href: "/learn/pension-savings" },
+    { name: "ISA", amount: isa, why: "배당·이익 200만원까지 비과세 · 배당은 계좌 안에 쌓여요 (3년 뒤 만기 때 꺼내요)", href: "/learn/isa" },
+    {
+      name: "일반계좌",
+      amount: general,
+      why: useNow ? "배당이 들어오는 대로 바로 꺼내 쓸 수 있어요 (세금 약 15%를 떼고 입금돼요)" : "ISA 한도를 넘는 돈",
+      href: useNow ? "/learn/dividend-tax" : "/compare",
+    },
   ].filter((x) => x.amount > 0);
 
   // 2) ETF 유형
@@ -139,7 +148,7 @@ function buildPlan(a: Required<Answers>) {
 
   // 3) 10년 뒤 미리보기 (세전, 예시 가정)
   const assume = type === "growth" ? { y: 3.5, dg: 6, pg: 5 } : type === "high" ? { y: 4.5, dg: 3, pg: 2 } : { y: 4.5, dg: 4, pg: 3 };
-  const sim = simulate({ initialInvestment: 0, monthlyInvestment: m, years: 10, dividendYield: assume.y, dividendGrowthRate: assume.dg, priceGrowthRate: assume.pg, drip: true, account: "custom", customTaxRate: 0 });
+  const sim = simulate({ initialInvestment: 0, monthlyInvestment: m, years: 10, dividendYield: assume.y, dividendGrowthRate: assume.dg, priceGrowthRate: assume.pg, drip: !useNow, account: "custom", customTaxRate: 0 });
   const last = sim.yearlyData[sim.yearlyData.length - 1];
 
   const typeName = type === "growth" ? "배당성장형" : type === "high" ? "고배당형" : "월배당형";
@@ -149,10 +158,14 @@ function buildPlan(a: Required<Answers>) {
   const tips: string[] = [];
   if (a.safety === "no") tips.push(`처음 3~6개월은 매달 ${krwShort(Math.round(m / 2))}을 비상금으로, 나머지만 투자해요.`);
   if (a.nerve === "sell") tips.push("처음 1년은 금액을 절반으로 시작해서 하락장을 한 번 겪어 보세요.");
+  if (useNow)
+    tips.push("ISA·연금저축 안의 배당은 바로 꺼내 쓸 수 없어서 일반계좌로 짰어요. 배당을 쓰지 않고 모아 갈 돈이 따로 있다면 그 돈은 ISA에 넣어 세금을 줄이세요.");
+  if (useNow) tips.push("일반계좌 배당이 이자와 합쳐 1년 1,000만원을 넘으면 건강보험료, 2,000만원을 넘으면 종합과세를 확인해요.");
+  if (!useNow && a.style === "monthly") tips.push("지금은 매달 받는 배당을 계좌 안에서 다시 사고, 은퇴 뒤에 월급처럼 꺼내 쓰는 구조예요.");
   if (a.horizon === "long") tips.push("배당은 무조건 재투자! 10년 뒤부터 차이가 크게 벌어져요.");
   tips.push("매달 같은 날 자동 매수를 걸어 두면 신경 쓸 일이 거의 없어요.");
 
-  return { accounts, etfs, typeName, title, assume, invested: last.totalInvested, assets: sim.finalAssets, monthlyDiv: last.annualDividends / 12, tips };
+  return { accounts, etfs, typeName, title, assume, useNow, totalDiv: sim.totalDividends, invested: last.totalInvested, assets: sim.finalAssets, monthlyDiv: last.annualDividends / 12, tips };
 }
 
 export default function StartQuest() {
@@ -167,7 +180,8 @@ export default function StartQuest() {
     if (ref.current.getBoundingClientRect().top < 64) ref.current.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [i]);
 
-  const answered = Object.keys(answers).length;
+  const total = answers.horizon === "now" ? QUESTIONS.length - 1 : QUESTIONS.length;
+  const answered = QUESTIONS.filter((qq) => answers[qq.key] !== undefined && !(qq.key === "lock" && answers.horizon === "now")).length;
   const level = [...LEVELS].reverse().find((l) => answered >= l.at)!;
   const done = i >= QUESTIONS.length;
   const plan = useMemo(() => (done ? buildPlan(answers as Required<Answers>) : null), [done, answers]);
@@ -178,13 +192,15 @@ export default function StartQuest() {
     setAnswers((p) => ({ ...p, [q.key]: o.value }));
     setPicked(o);
   };
+  // '지금 바로' 쓸 돈이면 '55세 전에 꺼낼지' 질문은 건너뛰어요
+  const skip = (idx: number) => QUESTIONS[idx]?.key === "lock" && answers.horizon === "now";
   const next = () => {
     setPicked(null);
-    setI((x) => x + 1);
+    setI((x) => (skip(x + 1) ? x + 2 : x + 1));
   };
   const back = () => {
     setPicked(null);
-    setI((x) => Math.max(0, x - 1));
+    setI((x) => Math.max(0, skip(x - 1) ? x - 2 : x - 1));
   };
   const restart = () => {
     setAnswers({});
@@ -200,11 +216,11 @@ export default function StartQuest() {
           <level.Icon className="h-4 w-4" /> Lv.{LEVELS.indexOf(level) + 1} {level.name}
         </span>
         <span className="num text-[12.5px] text-subtle">
-          {Math.min(answered, QUESTIONS.length)} / {QUESTIONS.length}
+          {Math.min(answered, total)} / {total}
         </span>
       </div>
       <div className="mt-3 h-2 overflow-hidden rounded-full bg-[hsl(var(--surface-3))]" aria-hidden="true">
-        <div className="h-full rounded-full bg-gold transition-all duration-500" style={{ width: `${(Math.min(answered, QUESTIONS.length) / QUESTIONS.length) * 100}%` }} />
+        <div className="h-full rounded-full bg-gold transition-all duration-500" style={{ width: `${(Math.min(answered, total) / total) * 100}%` }} />
       </div>
 
       {i === -1 && (
@@ -226,7 +242,7 @@ export default function StartQuest() {
       {q && (
         <div className="pt-6">
           <p className="kicker text-gold">
-            Q{i + 1} · {q.stage}
+            Q{QUESTIONS.slice(0, i + 1).filter((_, k) => !skip(k)).length} · {q.stage}
           </p>
           <h2 id="quest" className="mt-1 text-[20px] font-bold leading-snug tracking-[-0.02em] sm:text-[23px]">
             {q.q}
@@ -318,14 +334,16 @@ export default function StartQuest() {
           </div>
 
           <div className="mt-3 rounded-2xl border border-gold/30 bg-gold/5 p-4">
-            <p className="text-[13px] font-semibold text-subtle">③ 10년 동안 꾸준히 하면 (세전 · 예시 가정)</p>
+            <p className="text-[13px] font-semibold text-subtle">
+              ③ 10년 동안 꾸준히 하면 (세전 · 예시 가정{plan.useNow ? " · 배당은 꺼내 쓴다고 가정" : " · 배당 재투자"})
+            </p>
             <div className="mt-2 grid grid-cols-3 gap-2 text-center">
               <div>
                 <p className="text-[12px] text-subtle">넣은 돈</p>
                 <p className="num whitespace-nowrap text-[14px] font-bold text-foreground sm:text-[16px]">{krwShort(plan.invested)}</p>
               </div>
               <div>
-                <p className="text-[12px] text-subtle">모인 돈</p>
+                <p className="text-[12px] text-subtle">{plan.useNow ? "주식 평가액" : "모인 돈"}</p>
                 <p className="num whitespace-nowrap text-[14px] font-bold text-mint sm:text-[16px]">{krwShort(plan.assets)}</p>
               </div>
               <div>
@@ -334,6 +352,7 @@ export default function StartQuest() {
               </div>
             </div>
             <p className="mt-2 text-[11.5px] leading-relaxed text-subtle">
+              {plan.useNow && <>10년 동안 꺼내 쓴 배당은 모두 {krwShort(plan.totalDiv)}이에요. </>}
               배당률 {plan.assume.y}% · 배당 성장 {plan.assume.dg}% · 주가 상승 {plan.assume.pg}%를 가정한 예시예요. 실제 결과는 달라져요.
             </p>
           </div>
