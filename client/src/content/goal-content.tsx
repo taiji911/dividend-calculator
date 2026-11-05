@@ -86,7 +86,7 @@ export function GoalContentKo() {
       <RelatedLinks
         items={[
           { href: "/", title: "배당 재투자 계산기", desc: "매달 모으면서 재투자하면 몇 년 뒤 얼마가 되는지 계산해요." },
-          { href: "/tax", title: "금융소득종합과세 계산기", desc: "배당이 연 2,000만원을 넘을 때 세금과 건보료를 계산해요." },
+          { href: "/tax", title: "배당금 세금 계산기", desc: "배당이 연 2,000만원을 넘을 때 세금과 건보료를 계산해요." },
         ]}
       />
       <Updated>기준: 2026년 10월 · 세율은 2026년 세법을 따라요.</Updated>

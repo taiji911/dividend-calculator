@@ -42,9 +42,9 @@ export function ReinvestPage({ lang = "kr" }: { lang?: Language }) {
   return (
     <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
       <PageHeader
-        kicker={isEn ? "DRIP simulator" : "배당 재투자 시뮬레이터"}
-        title={isEn ? <>Watch dividends <span className="text-gold">compound</span></> : <>배당이 배당을 낳는 <span className="text-gold">복리</span>, 숫자로 보기</>}
-        subtitle={t.subtitle}
+        kicker={isEn ? "Watch dividends compound" : "배당 재투자 계산기"}
+        title={isEn ? <>Dividend <span className="text-gold">reinvestment</span> calculator</> : <>배당금 계산기, <span className="text-gold">재투자</span>하면 얼마가 될까?</>}
+        subtitle={isEn ? t.subtitle : "투자금과 배당률만 넣으면 매달 받는 배당금(세후)과 몇 년 뒤 자산을 바로 계산해요."}
       />
 
       {/* ADSENSE_SLOT_TOP */}

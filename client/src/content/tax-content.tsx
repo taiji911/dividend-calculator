@@ -76,7 +76,7 @@ export function TaxContentKo() {
       <RelatedLinks
         items={[
           { href: "/", title: "배당 재투자 계산기", desc: "일반계좌·ISA·연금계좌별로 몇 년 뒤 자산이 얼마인지 비교해요." },
-          { href: "/goal", title: "목표 배당금 계산기", desc: "월 배당 목표에 필요한 원금을 세후 기준으로 계산해요." },
+          { href: "/goal", title: "월배당 계산기 (목표 배당금)", desc: "월 배당 목표에 필요한 원금을 세후 기준으로 계산해요." },
         ]}
       />
       <Updated>기준: 2026년 10월 · 2026년 귀속 세법과 건강보험 기준을 따라요. 정확한 신고는 홈택스나 세무사와 확인해 주세요.</Updated>

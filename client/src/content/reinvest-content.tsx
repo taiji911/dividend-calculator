@@ -111,9 +111,9 @@ export function ReinvestContentKo() {
 
       <RelatedLinks
         items={[
-          { href: "/goal", title: "목표 배당금 계산기", desc: "월 100만원 배당을 받으려면 원금이 얼마 필요한지 거꾸로 계산해요." },
+          { href: "/goal", title: "월배당 계산기 (목표 배당금)", desc: "월 100만원 배당을 받으려면 원금이 얼마 필요한지 거꾸로 계산해요." },
           { href: "/snowball", title: "배당 스노우볼 계산기", desc: "1년 배당금이 1년 투자금을 넘어서는 시점을 찾아요." },
-          { href: "/tax", title: "금융소득종합과세 계산기", desc: "배당이 연 2,000만원을 넘으면 5월에 더 낼 세금과 건보료 영향을 계산해요." },
+          { href: "/tax", title: "배당금 세금 계산기", desc: "배당이 연 2,000만원을 넘으면 5월에 더 낼 세금과 건보료 영향을 계산해요." },
           { href: "/guide", title: "사용 가이드", desc: "입력값 고르는 법과 결과를 읽는 법을 정리했어요." },
         ]}
       />

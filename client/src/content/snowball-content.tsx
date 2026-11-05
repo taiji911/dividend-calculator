@@ -72,7 +72,7 @@ export function SnowballContentKo() {
       <RelatedLinks
         items={[
           { href: "/", title: "배당 재투자 계산기", desc: "세금과 계좌까지 반영해 몇 년 뒤 자산과 월 배당을 계산해요." },
-          { href: "/goal", title: "목표 배당금 계산기", desc: "월 배당 목표에 필요한 원금을 계산해요." },
+          { href: "/goal", title: "월배당 계산기 (목표 배당금)", desc: "월 배당 목표에 필요한 원금을 계산해요." },
         ]}
       />
       <Updated>기준: 2026년 10월</Updated>

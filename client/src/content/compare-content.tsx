@@ -125,7 +125,7 @@ export function CompareContentKo() {
       <RelatedLinks
         items={[
           { href: "/", title: "배당 재투자 계산기", desc: "계좌를 정했다면, 몇 년 뒤 자산과 월 배당이 얼마인지 자세히 봐요." },
-          { href: "/tax", title: "금융소득종합과세 계산기", desc: "일반계좌 배당이 2,000만원을 넘으면 세금이 얼마나 늘어나는지 계산해요." },
+          { href: "/tax", title: "배당금 세금 계산기", desc: "일반계좌 배당이 2,000만원을 넘으면 세금이 얼마나 늘어나는지 계산해요." },
         ]}
       />
 

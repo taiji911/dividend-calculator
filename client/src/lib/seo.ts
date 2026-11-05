@@ -28,11 +28,11 @@ const STATIC_PAGES = {
     path: { ko: "/", en: "/en" },
     name: { ko: "배당 재투자 계산기", en: "Dividend Reinvestment Calculator" },
     title: {
-      ko: "배당 재투자 계산기 | 배당금 복리 시뮬레이터 (세후·ISA·연금)",
+      ko: "배당금 계산기 · 배당 재투자 계산기 | 세후 월 배당금과 복리 자산",
       en: "Dividend Reinvestment Calculator | DRIP Compound Growth",
     },
     description: {
-      ko: "초기 투자금·월 투자금·배당률·배당 성장률·주가 상승률을 넣으면 몇 년 뒤 자산과 월 배당금을 바로 계산해요. 일반계좌·ISA·연금계좌 세금까지 반영한 배당 재투자(DRIP) 계산기.",
+      ko: "투자금과 배당률만 넣으면 매달 받는 배당금(세후)과 배당 재투자 후 몇 년 뒤 자산을 바로 계산해요. 월배당, SCHD 같은 배당 ETF, 일반계좌·ISA·연금계좌 세금까지 반영한 배당금 계산기.",
       en: "See how dividend reinvestment (DRIP) grows your portfolio. Enter your investment, dividend yield, dividend growth and price growth to project total assets and monthly dividend income.",
     },
   },
@@ -40,7 +40,7 @@ const STATIC_PAGES = {
     path: { ko: "/goal", en: "/en/goal" },
     name: { ko: "목표 배당금 계산기", en: "Dividend Goal Calculator" },
     title: {
-      ko: "목표 배당금 계산기 | 월 배당 100만원 받으려면 원금 얼마?",
+      ko: "월배당 계산기 | 월 배당 100만원 받으려면 원금 얼마? (목표 배당금)",
       en: "Dividend Goal Calculator | How Much to Invest for Monthly Income",
     },
     description: {
@@ -64,11 +64,11 @@ const STATIC_PAGES = {
     path: { ko: "/tax", en: null },
     name: { ko: "금융소득종합과세 계산기", en: "Financial Income Tax Calculator" },
     title: {
-      ko: "금융소득종합과세 계산기 | 배당 2천만원 초과 세금·건보료",
+      ko: "배당금 세금 계산기 | 배당소득세 15.4%·금융소득종합과세·건보료",
       en: "Korean Financial Income Tax Calculator",
     },
     description: {
-      ko: "배당·이자가 연 2,000만원을 넘으면 5월에 얼마를 더 내는지 계산해요. 비교과세, Gross-up, 해외 배당 외국납부세액공제, 고배당기업 분리과세, 건강보험 피부양자 판정까지.",
+      ko: "배당금에서 떼는 배당소득세 15.4%부터, 배당·이자가 연 2,000만원을 넘을 때 5월에 더 내는 세금까지 계산해요. 비교과세, Gross-up, 해외 배당 외국납부세액공제, 고배당기업 분리과세, 건강보험 피부양자 판정까지.",
       en: "Estimate additional Korean tax when financial income exceeds KRW 20M.",
     },
   },
@@ -150,7 +150,7 @@ const ETF_PAGES = Object.fromEntries(
       {
         path: { ko: `/etf/${e.slug}`, en: null },
         name: { ko: label, en: label },
-        title: { ko: `${label} 배당률·총보수·배당일 정리 | ${sub}`, en: `${label} dividend overview` },
+        title: { ko: `${label} 배당률·배당일·재투자 계산 | ${sub}`, en: `${label} dividend overview` },
         description: {
           ko: `${label}(${e.short}) 최근 배당률 약 ${yieldText(e.yield)}, 총보수 ${feeText(e.fee)}, ${e.freq} 배당. 장단점과 계좌별 세금, 1,000만원 투자 시 예상 배당까지 정리했어요. ${ETF_AS_OF_LABEL} 기준.`,
           en: `${label} dividend yield, fees and payout frequency.`,
