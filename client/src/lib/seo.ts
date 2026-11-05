@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { ETFS, ETF_AS_OF_LABEL, etfLabel, feeText, yieldText } from "./etf";
 import { LEARN } from "@/content/learn-meta";
+import { STOCKS, STOCK_AS_OF_LABEL, monthsText } from "./stocks";
 
 /**
  * 페이지별 검색 정보(제목·설명·대표 주소·언어 연결)를 한 곳에서 관리해요.
@@ -108,9 +109,9 @@ const STATIC_PAGES = {
   learn: {
     path: { ko: "/learn", en: null },
     name: { ko: "배당 공부", en: "Learn" },
-    title: { ko: "배당 공부 | 배당소득세·ISA·연금저축·배당락일·커버드콜 쉽게 정리", en: "Learn about dividend investing" },
+    title: { ko: "배당 공부 | 배당소득세·건보료·ISA·연금저축·월배당·배당주 고르는 법", en: "Learn about dividend investing" },
     description: {
-      ko: "배당 투자를 시작할 때 꼭 알아야 할 배당소득세, ISA, 연금저축, 배당락일, 커버드콜 ETF를 2026년 기준으로 쉽게 정리했어요.",
+      ko: "배당 투자를 할 때 꼭 알아야 할 배당소득세와 고배당기업 분리과세, 건강보험료, ISA·연금저축, 월배당 만들기, 배당주 고르는 법을 2026년 기준으로 쉽게 정리했어요.",
       en: "Guides to dividend taxes, accounts and ETFs in Korea.",
     },
   },
@@ -124,6 +125,18 @@ const STATIC_PAGES = {
     description: {
       ko: "가진 배당주·ETF와 금액을 넣으면 몇 월에 배당이 얼마 들어오는지 달력으로 보여줘요. 배당이 비는 달을 채워 줄 종목 추천까지, 월배당 포트폴리오를 쉽게 만들어 보세요.",
       en: "See which months your dividend stocks and ETFs pay, and fill the gaps for monthly income.",
+    },
+  },
+  stock: {
+    path: { ko: "/stock", en: null },
+    name: { ko: "미국 배당주", en: "US Dividend Stocks" },
+    title: {
+      ko: "미국 배당주 배당금 계산기 | 리얼티인컴·코카콜라 등 32종목 배당률·배당일",
+      en: "US Dividend Stocks",
+    },
+    description: {
+      ko: "리얼티 인컴, 코카콜라, 존슨앤드존슨, 알트리아 등 미국 배당주 32종목의 배당률·배당 지급월·연속 배당 증가 기간을 비교하고, 종목별로 내 돈을 넣으면 받을 배당금을 바로 계산해요.",
+      en: "Compare popular US dividend stocks by yield, payout months and dividend growth streak.",
     },
   },
   etf: {
@@ -152,13 +165,32 @@ const ETF_PAGES = Object.fromEntries(
         name: { ko: label, en: label },
         title: { ko: `${label} 배당률·배당일·재투자 계산 | ${sub}`, en: `${label} dividend overview` },
         description: {
-          ko: `${label}(${e.short}) 최근 배당률 약 ${yieldText(e.yield)}, 총보수 ${feeText(e.fee)}, ${e.freq} 배당. 장단점과 계좌별 세금, 1,000만원 투자 시 예상 배당까지 정리했어요. ${ETF_AS_OF_LABEL} 기준.`,
+          ko: `${label}(${e.short}) 최근 배당률 약 ${yieldText(e.yield)}, 총보수 ${feeText(e.fee)}, ${e.freq} 배당. 넣을 돈과 기간만 바꾸면 월 배당금과 재투자 후 자산을 바로 계산하고, 장단점과 계좌별 세금도 정리했어요. ${ETF_AS_OF_LABEL} 기준.`,
           en: `${label} dividend yield, fees and payout frequency.`,
         },
       } satisfies PageSeo,
     ];
   })
 ) as Record<`etf-${string}`, PageSeo>;
+
+/** 미국 배당주 종목 페이지 검색 정보 — dividend-stocks.json 에서 자동으로 만들어요 */
+const STOCK_PAGES = Object.fromEntries(
+  STOCKS.map((st) => {
+    const streak = st.years && st.years >= 10 ? `${st.years}년 연속 증가` : st.freq === "월" ? "월배당" : `${monthsText(st.months)} 지급`;
+    return [
+      `stock-${st.slug}`,
+      {
+        path: { ko: `/stock/${st.slug}`, en: null },
+        name: { ko: st.name, en: st.en },
+        title: { ko: `${st.name} 배당금 계산기 | ${st.ticker} 배당률 ${yieldText(st.yield)}·배당일·${streak}`, en: `${st.ticker} dividend calculator` },
+        description: {
+          ko: `${st.name}(${st.ticker}) 배당률 약 ${yieldText(st.yield)}, 1주당 1년 배당금 $${st.annual.toFixed(2)}, ${st.freq === "월" ? "매달" : monthsText(st.months)} 지급. 내 돈을 넣으면 월 배당금(세후)과 재투자 후 자산을 바로 계산하고, 최근 배당 내역과 세금까지 정리했어요. ${STOCK_AS_OF_LABEL} 기준.`,
+          en: `${st.en} (${st.ticker}) dividend yield, payout dates and calculator.`,
+        },
+      } satisfies PageSeo,
+    ];
+  })
+) as Record<`stock-${string}`, PageSeo>;
 
 /** 배당 공부 글 검색 정보 — content/learn-meta.ts 에서 자동으로 만들어요 */
 const LEARN_PAGES = Object.fromEntries(
@@ -173,9 +205,14 @@ const LEARN_PAGES = Object.fromEntries(
   ])
 ) as Record<`learn-${string}`, PageSeo>;
 
-export const SEO_PAGES: typeof STATIC_PAGES & Record<`etf-${string}` | `learn-${string}`, PageSeo> = { ...STATIC_PAGES, ...ETF_PAGES, ...LEARN_PAGES };
+export const SEO_PAGES: typeof STATIC_PAGES & Record<`etf-${string}` | `learn-${string}` | `stock-${string}`, PageSeo> = {
+  ...STATIC_PAGES,
+  ...ETF_PAGES,
+  ...STOCK_PAGES,
+  ...LEARN_PAGES,
+};
 
-export type SeoKey = keyof typeof STATIC_PAGES | `etf-${string}` | `learn-${string}`;
+export type SeoKey = keyof typeof STATIC_PAGES | `etf-${string}` | `learn-${string}` | `stock-${string}`;
 
 function upsertMeta(attr: "name" | "property", key: string, content: string) {
   let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`);

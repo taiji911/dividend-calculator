@@ -20,6 +20,7 @@ export default function Footer() {
         { href: "/tax", label: "종합과세" },
         { href: "/calendar", label: "배당 달력" },
         { href: "/etf", label: "배당 ETF" },
+        { href: "/stock", label: "미국 배당주" },
         { href: "/learn", label: "배당 공부" },
         { href: "/guide", label: "사용 가이드" },
       ];

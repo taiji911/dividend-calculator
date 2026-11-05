@@ -46,7 +46,7 @@ function DividendTax() {
         </p>
         <p>
           내 경우 얼마를 더 내는지는 <L href="/tax">배당금 세금 계산기</L>에서 바로 계산할 수 있어요. 2026년부터는 거래소가 공시한 고배당기업의 배당을 따로 과세(14~30%)
-          받을 수 있는 제도도 생겼어요.
+          받을 수 있는 제도도 생겼어요. <L href="/learn/high-dividend-separate-tax">고배당기업 분리과세 정리 보기</L>
         </p>
       </Section>
 
@@ -56,6 +56,9 @@ function DividendTax() {
           <li>피부양자는 금융소득을 포함한 소득이 2,000만원을 넘으면 자격을 잃고 지역가입자가 될 수 있어요.</li>
           <li>직장인은 월급 외 소득이 2,000만원을 넘으면 넘는 부분에 보험료가 따로 붙어요.</li>
         </ul>
+        <p>
+          얼마나 오르는지, 언제부터 반영되는지는 <L href="/learn/health-insurance">배당금과 건강보험료 정리</L>에서 자세히 볼 수 있어요.
+        </p>
       </Section>
 
       <Section kicker="절세" title="배당 세금을 줄이는 세 가지 방법">
@@ -330,10 +333,325 @@ function CoveredCall() {
   );
 }
 
+function HighDividendTax() {
+  return (
+    <>
+      <Section kicker="한 줄 요약" title="고배당기업 배당은 따로 떼어서 세금을 매길 수 있어요">
+        <p>
+          원래는 1년 이자·배당이 <strong>2,000만원을 넘으면</strong> 넘는 부분을 월급·사업소득과 합쳐서 최고 45%(지방세 포함 49.5%)까지 세금을 매겨요. 2026년에 받는 배당부터는
+          요건을 갖춘 <strong>고배당기업의 배당</strong>을 다른 소득과 합치지 않고 따로 계산하는 <strong>분리과세</strong>를 고를 수 있어요. 몇 년 동안 한시적으로 운영되는
+          제도라 끝나는 시점은 법이 바뀌면 달라질 수 있어요.
+        </p>
+        <DataTable
+          caption="분리과세를 고르면 적용되는 세율"
+          headers={["고배당기업 배당 (1년)", "세율", "지방세 포함"]}
+          rows={[
+            ["2,000만원 이하", "14%", "15.4%"],
+            ["2,000만원 초과 ~ 3억원", "20%", "22%"],
+            ["3억원 초과 ~ 50억원", "25%", "27.5%"],
+            ["50억원 초과", "30%", "33%"],
+          ]}
+          note="구간마다 넘는 부분에만 높은 세율이 붙는 누진 방식이에요."
+        />
+      </Section>
+
+      <Section kicker="대상" title="어떤 회사의 배당이 해당될까?">
+        <p>국내 상장사 중 아래 둘 중 하나를 채운 회사가 고배당기업이에요.</p>
+        <ul>
+          <li>
+            <strong>배당성향 40% 이상</strong>: 순이익의 40% 이상을 배당으로 주는 회사
+          </li>
+          <li>
+            <strong>배당성향 25% 이상 + 배당 10% 이상 증가</strong>: 전년보다 배당을 10% 넘게 늘린 회사
+          </li>
+        </ul>
+        <p>
+          회사가 정기주주총회에서 배당을 결의하면 다음 날까지 한국거래소 공시시스템(KIND)에 고배당기업인지를 공시해요. 내가 가진 종목이 해당되는지는 KIND 공시나 증권사 안내로
+          확인할 수 있어요. 결산배당뿐 아니라 그해 받은 중간·분기배당도 현금배당이면 함께 들어가요.
+        </p>
+        <div className="note note-warn">
+          <strong>빠지는 것</strong>: 배당 ETF 분배금과 미국 등 해외 주식 배당은 대상이 아니에요. TIGER 미국배당다우존스나 SCHD 배당은 지금처럼 일반 배당소득으로 계산해요.
+        </div>
+      </Section>
+
+      <Section kicker="누구에게 이득?" title="금융소득 2,000만원을 넘는 사람에게 효과가 커요">
+        <p>
+          금융소득이 1년 2,000만원 이하라면 원래도 14%(15.4%)로 세금이 끝나서 달라지는 게 거의 없어요. 효과가 큰 건 <strong>2,000만원을 넘어 종합과세되는 사람</strong>이에요.
+        </p>
+        <DataTable
+          caption="예시: 고배당기업 배당 3,000만원 + 일반 기업 배당 1,000만원을 받은 경우"
+          headers={["구분", "세금 계산"]}
+          text
+          rows={[
+            ["일반 기업 배당 1,000만원", "2,000만원 이하라 지금처럼 14%"],
+            ["고배당기업 배당 3,000만원 (분리과세 선택)", "2,000만원까지 14%, 넘는 1,000만원은 20%"],
+            ["분리과세를 안 고르면", "4,000만원 중 2,000만원을 넘는 부분을 월급과 합쳐 6~45% 누진세율로 계산"],
+          ]}
+          note="월급이 많아서 종합과세 세율이 24% 이상인 사람일수록 분리과세가 유리해요."
+        />
+        <p>
+          내 경우 종합과세로 얼마를 더 내는지는 <L href="/tax">배당금 세금 계산기</L>에서 먼저 확인해 보세요.
+        </p>
+      </Section>
+
+      <Section kicker="신청" title="자동으로 안 돼요, 5월에 직접 골라야 해요">
+        <ol>
+          <li>배당을 받을 때는 지금처럼 15.4%가 먼저 떼여요.</li>
+          <li>다음 해 5월 종합소득세 신고 때 고배당기업 배당에 분리과세를 적용하겠다고 신청해요. 국세청은 홈택스에 신고 화면과 종합과세·분리과세 세금을 비교해 보는 기능을 만들 계획이라고 밝혔어요.</li>
+          <li>이미 뗀 15.4%와 분리과세로 계산한 세금의 차이만큼 더 내거나 돌려받아요.</li>
+        </ol>
+        <p>
+          금융소득이 2,000만원을 넘지 않으면 원래 종합소득세 신고 대상이 아니라서 따로 할 일이 없어요. 자세한 세율과 절차는 세법 개정으로 바뀔 수 있으니 신고 전에 국세청 안내를
+          꼭 확인하세요.
+        </p>
+      </Section>
+    </>
+  );
+}
+
+function HealthInsurance() {
+  return (
+    <>
+      <Section kicker="핵심" title="배당이 늘면 세금보다 건보료를 먼저 확인하세요">
+        <p>
+          배당소득세는 15.4%로 끝나는 경우가 많지만, 건강보험료는 기준을 넘는 순간 크게 달라질 수 있어요. 기억할 숫자는 세 개예요.
+        </p>
+        <DataTable
+          caption="배당과 건강보험료, 꼭 알아야 할 기준 (2026년)"
+          headers={["누구 · 기준", "넘으면"]}
+          text
+          rows={[
+            [<><strong className="text-foreground">피부양자</strong><span className="mt-0.5 block text-[12.5px] text-subtle">1년 소득 합계 2,000만원</span></>, "피부양자에서 빠지고 지역가입자로 바뀌어 보험료를 따로 내요"],
+            [<><strong className="text-foreground">지역가입자</strong><span className="mt-0.5 block text-[12.5px] text-subtle">1년 이자·배당 1,000만원</span></>, "이자·배당 전액이 보험료 계산 소득에 들어가요"],
+            [<><strong className="text-foreground">직장가입자</strong><span className="mt-0.5 block text-[12.5px] text-subtle">월급 외 소득 2,000만원</span></>, "넘는 부분에 '소득월액보험료'가 따로 붙어요 (본인 100% 부담)"],
+          ]}
+        />
+      </Section>
+
+      <Section kicker="피부양자" title="피부양자는 소득 2,000만원이 기준이에요">
+        <p>
+          은퇴한 부모님이나 소득이 없는 배우자처럼 가족 직장보험에 피부양자로 올라 있다면, 1년 소득(이자·배당, 사업, 공적연금, 근로·기타소득 합계)이{" "}
+          <strong>2,000만원을 1원이라도 넘으면</strong> 자격을 잃어요. 이자·배당은 1년 1,000만원 이하면 소득으로 치지 않지만, 넘으면 소득에 합쳐져요.
+        </p>
+        <ul>
+          <li>재산세 과세표준이 5억 4,000만원을 넘으면 소득 기준이 1,000만원으로 낮아지고, 9억원을 넘으면 소득과 관계없이 자격을 잃어요.</li>
+          <li>사업자등록이 있으면 사업소득이 조금만 있어도 자격을 잃을 수 있어요.</li>
+          <li>건강보험공단은 매년 11월에 전년도 소득으로 자격을 다시 판단해요.</li>
+        </ul>
+      </Section>
+
+      <Section kicker="직장인" title="월급 외 배당이 2,000만원을 넘으면 보험료가 붙어요">
+        <p>
+          직장인은 월급에서 건강보험료를 내고 있어서, 배당이 웬만큼 많지 않으면 추가 보험료가 없어요. 다만 이자·배당·임대 같은 <strong>월급 외 소득이 1년 2,000만원을 넘으면</strong>,
+          넘는 부분에 건강보험료율(2026년 7.19%)만큼 보험료가 더 붙어요. 회사가 반을 내 주는 월급 보험료와 달리 본인이 전부 내요. 장기요양보험료(건강보험료의 13.14%)도 함께 붙어요.
+        </p>
+        <DataTable
+          caption="예시: 월급 외 배당 3,000만원을 받은 직장인"
+          headers={["계산", "금액"]}
+          rows={[
+            ["2,000만원을 넘는 부분", "1,000만원"],
+            ["건강보험료 (× 7.19%)", "1년 약 71.9만원"],
+            ["장기요양보험료 (× 13.14%)", "1년 약 9.4만원"],
+            ["합계", "1년 약 81만원 · 한 달 약 6.8만원"],
+          ]}
+          note="실제 계산 방식(소득 반영 비율·상한 등)에 따라 조금 다를 수 있어요. 정확한 금액은 건강보험공단에서 확인하세요."
+        />
+      </Section>
+
+      <Section kicker="시기" title="보험료는 다음 해 11월부터 바뀌어요">
+        <p>
+          올해 받은 배당은 다음 해 5월 국세청 소득 자료로 확정되고, 건강보험공단이 이를 받아 <strong>다음 해 11월</strong>부터 보험료에 반영해요. 그래서 배당을 많이 받은 해와
+          보험료가 오르는 때 사이에 1년 정도 차이가 있어요.
+        </p>
+      </Section>
+
+      <Section kicker="줄이는 법" title="건보료 부담을 줄이는 방법">
+        <ol>
+          <li>
+            <strong>ISA에서 배당 받기</strong>: ISA 안에서 생긴 배당은 금융소득으로 잡히지 않아 건강보험료 계산에 들어가지 않아요. <L href="/learn/isa">ISA 정리 보기</L>
+          </li>
+          <li>
+            <strong>연금저축·IRP에서 배당 받기</strong>: 계좌 안에서 배당이 쌓이는 동안은 소득으로 잡히지 않고, 지금 기준으로는 연금으로 받을 때도 건강보험료를 매기지 않아요.{" "}
+            <L href="/learn/pension-savings">연금저축 정리 보기</L>
+          </li>
+          <li>
+            <strong>가족 명의로 나누기</strong>: 기준은 사람마다 따로 봐요. 다만 증여세와 피부양자 기준을 함께 따져 봐야 해요.
+          </li>
+          <li>
+            <strong>배당성장형으로 담기</strong>: 지금 배당이 많은 고배당형보다 배당이 적게 시작하는 배당성장형을 담으면 금융소득 기준에 닿는 시점을 늦출 수 있어요.
+          </li>
+        </ol>
+        <p>
+          일반계좌 배당이 기준을 넘는지 미리 확인하고 싶다면 <L href="/tax">배당금 세금 계산기</L>에서 금액을 넣어 보세요.
+        </p>
+      </Section>
+    </>
+  );
+}
+
+function MonthlyDividend() {
+  return (
+    <>
+      <Section kicker="세 가지 방법" title="매달 배당을 받는 방법은 세 가지예요">
+        <ol>
+          <li>
+            <strong>월배당 ETF 사기</strong>: 국내 상장 미국 배당 ETF는 대부분 매달 분배금을 줘요. 하나만 사도 매달 들어와서 가장 쉬워요.
+          </li>
+          <li>
+            <strong>월배당 종목 사기</strong>: <L href="/stock/o">리얼티 인컴</L>, <L href="/stock/adc">애그리 리얼티</L>, <L href="/stock/main">메인 스트리트 캐피털</L>처럼 매달 배당하는
+            미국 종목이 있어요.
+          </li>
+          <li>
+            <strong>분기배당 종목 섞기</strong>: 미국 배당주는 지급 달이 1·4·7·10월, 2·5·8·11월, 3·6·9·12월로 나뉘어요. 세 그룹을 섞으면 매달 배당이 들어와요.
+          </li>
+        </ol>
+        <p>
+          월배당이라고 1년에 받는 돈이 더 많아지지는 않아요. 배당률이 같다면 1년 총액은 비슷하고, 돈이 들어오는 <strong>간격</strong>만 짧아져요.
+        </p>
+      </Section>
+
+      <Section kicker="ETF" title="많이 찾는 월배당 ETF">
+        <DataTable
+          caption="2026년 11월 기준 배당률"
+          headers={["ETF", "배당률"]}
+          text
+          rows={[
+            [<><L href="/etf/tiger-us-dividend-dowjones">TIGER 미국배당다우존스</L><span className="mt-0.5 block text-[12px] font-normal text-subtle">배당성장 · ISA·연금 가능</span></>, "약 3.0%"],
+            [<><L href="/etf/kodex-us-dividend-dowjones">KODEX 미국배당다우존스</L><span className="mt-0.5 block text-[12px] font-normal text-subtle">배당성장 · ISA·연금 가능</span></>, "약 2.9%"],
+            [<><L href="/etf/tiger-us-dividend-target-covered-call-2">TIGER 미국배당다우존스타겟커버드콜2호</L><span className="mt-0.5 block text-[12px] font-normal text-subtle">커버드콜 · ISA·연금 가능</span></>, "약 10.2%"],
+            [<><L href="/etf/plus-high-dividend">PLUS 고배당주</L><span className="mt-0.5 block text-[12px] font-normal text-subtle">국내 고배당 · ISA·연금 가능</span></>, "약 4.9%"],
+            [<><L href="/etf/jepi">JEPI</L><span className="mt-0.5 block text-[12px] font-normal text-subtle">커버드콜 · 일반계좌만</span></>, "약 7.9%"],
+            [<><L href="/etf/hdv">HDV</L><span className="mt-0.5 block text-[12px] font-normal text-subtle">고배당 · 일반계좌만</span></>, "약 3.2%"],
+          ]}
+          note="배당률은 매달 바뀌어요. 최신 값은 각 ETF 페이지에서 확인하세요."
+        />
+        <p>
+          배당률이 10% 안팎인 커버드콜 ETF는 매달 받는 돈이 크지만, 배당이 늘지 않고 주가가 오를 때 덜 오르는 구조예요. 자세한 차이는{" "}
+          <L href="/learn/covered-call-etf">커버드콜 ETF 정리</L>에서 볼 수 있어요.
+        </p>
+      </Section>
+
+      <Section kicker="얼마나 필요할까" title="월 100만원을 받으려면 원금은 얼마?">
+        <p>일반계좌에서 배당 세금 15%를 뗀 뒤 매달 100만원(1년 1,200만원)을 받으려면 배당률에 따라 필요한 원금이 크게 달라요.</p>
+        <DataTable
+          caption="세후 월 100만원에 필요한 원금"
+          headers={["배당률", "필요한 원금"]}
+          rows={[
+            [<>3%<span className="mt-0.5 block text-[12px] text-subtle">배당성장 ETF</span></>, "약 4억 7,059만원"],
+            [<>4%<span className="mt-0.5 block text-[12px] text-subtle">고배당 ETF·배당주</span></>, "약 3억 5,294만원"],
+            [<>5%<span className="mt-0.5 block text-[12px] text-subtle">고배당주·리츠</span></>, "약 2억 8,235만원"],
+            [<>8%<span className="mt-0.5 block text-[12px] text-subtle">커버드콜 ETF</span></>, "약 1억 7,647만원"],
+            [<>10%<span className="mt-0.5 block text-[12px] text-subtle">커버드콜 ETF</span></>, "약 1억 4,118만원"],
+          ]}
+          note="원금 = 1,200만원 ÷ (배당률 × 0.85). 배당이 늘거나 줄면 필요한 원금도 달라져요."
+        />
+        <p>
+          지금 배당률만 보면 커버드콜이 가장 빨라 보이지만, 오래 두면 배당이 늘어나는 배당성장형이 더 많이 받게 되는 경우가 많아요. 두 가지를 섞는 것도 방법이에요. 예를 들어
+          배당성장 ETF 60%와 커버드콜 ETF 40%를 섞으면 배당률이 약 5.9%가 되고, 월 100만원에 필요한 원금은 약 2억 4천만원이에요.
+        </p>
+        <p>
+          내 목표 금액에 맞는 원금은 <L href="/goal">월배당 계산기</L>에서, 몇 년 동안 모아야 하는지는 <L href="/">배당 재투자 계산기</L>에서 바로 계산할 수 있어요.
+        </p>
+      </Section>
+
+      <Section kicker="종목으로 만들기" title="미국 분기배당주로 월배당 만드는 예시">
+        <DataTable
+          headers={["지급 달", "이런 종목이 있어요"]}
+          text
+          rows={[
+            ["1·4·7·10월", <><L href="/stock/mo">알트리아</L>, <L href="/stock/pm">필립모리스</L>, <L href="/stock/jpm">JP모간</L>, <L href="/stock/mrk">머크</L></>],
+            ["2·5·8·11월", <><L href="/stock/pg">P&G</L>, <L href="/stock/abbv">애브비</L>, <L href="/stock/vz">버라이즌</L>, <L href="/stock/txn">텍사스 인스트루먼트</L></>],
+            ["3·6·9·12월", <><L href="/stock/jnj">존슨앤드존슨</L>, <L href="/stock/cvx">셰브론</L>, <L href="/stock/mcd">맥도날드</L>, <L href="/stock/msft">마이크로소프트</L></>],
+          ]}
+          note="지급 달은 최근 1년 실제 지급일 기준이에요. 회사 사정에 따라 바뀔 수 있어요."
+        />
+        <p>
+          가진 종목과 금액을 넣으면 몇 월에 얼마가 들어오는지는 <L href="/calendar">배당 달력</L>에서 바로 볼 수 있어요. 비는 달을 채워 줄 종목도 추천해 줘요.
+        </p>
+      </Section>
+    </>
+  );
+}
+
+function PickDividendStocks() {
+  return (
+    <>
+      <Section kicker="왜 필요할까" title="배당률만 보고 고르면 생기는 일">
+        <p>
+          배당률은 <strong>1년 배당 ÷ 지금 주가</strong>예요. 그래서 회사가 어려워져 주가가 떨어지면 배당률이 오히려 높아 보여요. 이렇게 높아 보이는 배당은 얼마 뒤 줄어드는
+          경우가 많아서 '배당 함정'이라고 불러요. 아래 다섯 가지를 함께 보면 이런 종목을 걸러낼 수 있어요.
+        </p>
+      </Section>
+
+      <Section kicker="1" title="배당률 — 높을수록 '왜?'를 물어보세요">
+        <p>
+          미국 대형 배당주는 보통 2~4%예요. 6%를 넘으면 담배·통신처럼 성장이 느린 업종이거나 주가가 많이 내린 경우가 많아요. 예를 들어 <L href="/stock/pfe">화이자</L>는 배당률이 5%대지만
+          최근 배당을 늘리지 않고 있어요.
+        </p>
+      </Section>
+
+      <Section kicker="2" title="배당성향 — 번 돈 중 얼마를 배당으로 주나">
+        <p>
+          배당성향이 <strong>30~60%</strong>면 배당을 주고도 회사에 돈이 남아서 앞으로 배당을 늘릴 여유가 있어요. 80%를 넘으면 실적이 조금만 나빠져도 배당을 줄여야 할 수 있어요.
+        </p>
+        <p>
+          단, <L href="/stock/o">리얼티 인컴</L> 같은 리츠는 건물 감가상각 때문에 순이익이 작게 잡혀서 배당성향이 100%를 넘게 보여요. 리츠는 AFFO(현금 기준 이익)로 따져 봐야 해요.
+        </p>
+      </Section>
+
+      <Section kicker="3" title="연속 배당 증가 — 나쁜 해에도 늘렸나">
+        <p>
+          배당을 몇 년 연속으로 늘려 왔는지 보면 회사가 배당을 얼마나 중요하게 여기는지 알 수 있어요. 금융위기나 코로나 같은 나쁜 해를 지나면서도 늘렸다면 믿을 만해요.{" "}
+          <L href="/stock/ko">코카콜라</L>·<L href="/stock/jnj">존슨앤드존슨</L>은 60년 넘게, <L href="/stock/pg">P&G</L>는 70년 동안 배당을 늘려 왔어요.
+        </p>
+      </Section>
+
+      <Section kicker="4" title="배당 성장률 — 10년 뒤 받을 배당을 정해요">
+        <p>
+          지금 배당률이 낮아도 배당을 해마다 10%씩 늘리면 10년 뒤에는 처음 넣은 돈 대비 배당이 2.6배가 돼요. <L href="/stock/msft">마이크로소프트</L>·<L href="/stock/avgo">브로드컴</L>은
+          배당률이 1% 미만이지만 배당을 빠르게 늘리는 종목이에요. 반대로 배당률이 높아도 배당이 거의 늘지 않으면 물가가 오르는 만큼 실제 가치는 줄어요.
+        </p>
+        <p>
+          배당률과 배당 성장률을 바꿔 넣으며 20년 뒤를 비교하려면 <L href="/">배당 재투자 계산기</L>를 써 보세요.
+        </p>
+      </Section>
+
+      <Section kicker="5" title="현금흐름과 빚 — 배당을 줄 '진짜 돈'이 있나">
+        <p>
+          배당은 결국 현금으로 줘요. 회사가 사업으로 번 현금에서 투자비를 뺀 <strong>잉여현금흐름</strong>이 배당보다 넉넉한지, 빚이 너무 많지 않은지 확인하면 좋아요. 빚이 많은 통신사나
+          유틸리티는 금리가 오르면 배당 여력이 줄어들 수 있어요.
+        </p>
+      </Section>
+
+      <Section kicker="정리" title="한 장으로 보는 체크리스트">
+        <DataTable
+          headers={["기준", "좋은 신호", "조심할 신호"]}
+          text
+          rows={[
+            ["배당률", "업종 평균 수준 (2~4%)", "6% 넘게 갑자기 높아짐"],
+            ["배당성향", "30~60%", "80% 이상 (리츠 제외)"],
+            ["연속 배당 증가", "10년 이상, 위기에도 증가", "최근 배당 동결·삭감"],
+            ["배당 성장률", "연 5% 이상", "몇 년째 0%"],
+            ["현금흐름·빚", "잉여현금흐름 > 배당", "빚으로 배당을 줌"],
+          ]}
+        />
+        <p>
+          미국 배당주 32종목의 배당률·연속 증가 기간·배당성향은 <L href="/stock">미국 배당주</L> 페이지에서 한 번에 비교할 수 있어요. 종목 고르기가 부담스럽다면 여러 회사를 한 번에
+          담는 <L href="/etf">배당 ETF</L>도 좋은 방법이에요.
+        </p>
+      </Section>
+    </>
+  );
+}
+
 export const LEARN_BODY: Record<string, () => JSX.Element> = {
   "dividend-tax": DividendTax,
   isa: Isa,
   "pension-savings": PensionSavings,
   "ex-dividend-date": ExDividend,
   "covered-call-etf": CoveredCall,
+  "high-dividend-separate-tax": HighDividendTax,
+  "health-insurance": HealthInsurance,
+  "monthly-dividend": MonthlyDividend,
+  "how-to-pick-dividend-stocks": PickDividendStocks,
 };

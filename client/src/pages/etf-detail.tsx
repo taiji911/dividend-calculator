@@ -1,9 +1,11 @@
 import { Link, useParams } from "wouter";
-import { ArrowRight, ArrowUpRight, Check, ChevronRight, CircleAlert } from "lucide-react";
+import { ArrowDown, ArrowUpRight, Check, ChevronRight, CircleAlert } from "lucide-react";
+import DividendQuickCalc from "@/components/dividend-quick-calc";
 import PageHeader from "@/components/page-header";
 import RiskNote from "@/components/risk-note";
 import NotFound from "@/pages/not-found";
-import { ETF_AS_OF_LABEL, ETF_GROUPS, calcHref, etfLabel, feeText, findEtf, sinceText, taxableRate, yieldText, type Etf } from "@/lib/etf";
+import { ETF_AS_OF_LABEL, ETF_GROUPS, calcHref, etfFaq, etfLabel, feeText, findEtf, sinceText, taxableRate, yieldText, type Etf } from "@/lib/etf";
+import { FaqList } from "@/components/content";
 import { useSeo } from "@/lib/seo";
 
 const Stat = ({ label, value, sub }: { label: string; value: React.ReactNode; sub?: string }) => (
@@ -60,10 +62,7 @@ export default function EtfDetail() {
   if (!e) return <NotFound />;
 
   const label = etfLabel(e);
-  const won = (n: number) => `${(Math.round(n / 10) * 10).toLocaleString("ko-KR")}원`;
   const group = ETF_GROUPS.find((g) => g.id === e.group)!;
-  const yearly = 10_000_000 * (e.yield / 100);
-  const monthlyAfter = (yearly * (1 - taxableRate(e))) / 12;
   const similar = e.similar.map(findEtf).filter(Boolean) as Etf[];
 
   return (
@@ -80,7 +79,7 @@ export default function EtfDetail() {
         kicker={group.title}
         title={
           <>
-            <span className={label.length > 12 ? "text-[22px] sm:text-[34px]" : undefined}>{label}</span>
+            <span className={label.length > 12 ? "text-[22px] sm:text-[34px]" : undefined}>{label}</span>{" "}
             <span className="mt-1 block text-[15px] font-medium tracking-[-0.01em] text-muted-foreground sm:text-[17px]">
               {e.market === "us" ? e.name : `종목코드 ${e.ticker} · ${e.issuer}`}
             </span>
@@ -98,11 +97,12 @@ export default function EtfDetail() {
               {e.yieldNote} · {ETF_AS_OF_LABEL} 확인
             </p>
           </div>
-          <Link href={calcHref(e)}>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-gold px-5 py-3 text-[14.5px] font-semibold text-gold-foreground transition-opacity hover:opacity-90">
-              이 배당률로 재투자 계산하기 <ArrowRight className="h-4 w-4" />
-            </span>
-          </Link>
+          <a
+            href="#quick-calc"
+            className="inline-flex items-center gap-1.5 rounded-full bg-gold px-5 py-3 text-[14.5px] font-semibold text-gold-foreground transition-opacity hover:opacity-90"
+          >
+            내 돈으로 배당 계산하기 <ArrowDown className="h-4 w-4" />
+          </a>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
           <Stat label="총보수 (1년)" value={feeText(e.fee)} />
@@ -114,17 +114,17 @@ export default function EtfDetail() {
         </div>
       </section>
 
-      <section className="mt-6 panel p-5 sm:p-6" aria-labelledby="ex">
-        <h2 id="ex" className="text-[18px] font-bold tracking-[-0.02em]">
-          1,000만원을 넣으면 배당은 얼마?
-        </h2>
-        <p className="mt-1 text-[13.5px] text-muted-foreground">지금 배당률이 1년 동안 그대로라고 가정한 단순 계산이에요.</p>
-        <div className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-          <Stat label="1년 배당 (세전)" value={<span className="num text-gold">{won(yearly)}</span>} />
-          <Stat label="한 달 평균 (세전)" value={<span className="num">{won(yearly / 12)}</span>} />
-          <Stat label="한 달 평균 (일반계좌 세후)" value={<span className="num">{won(monthlyAfter)}</span>} sub={`세금 약 ${(taxableRate(e) * 100).toFixed(1)}% 반영`} />
-        </div>
-      </section>
+      <div className="mt-6">
+        <DividendQuickCalc
+          name={label}
+          yieldPct={e.yield}
+          dg={e.assume.dg}
+          pg={e.assume.pg}
+          taxPct={Math.round(taxableRate(e) * 1000) / 10}
+          detailHref={calcHref(e)}
+          detailLabel={e.market === "kr" ? "ISA·연금계좌로 자세히" : "더 자세히 계산하기"}
+        />
+      </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <section className="panel p-5" aria-labelledby="pros">
@@ -164,6 +164,10 @@ export default function EtfDetail() {
           )}
         </div>
       </section>
+
+      <div className="mt-10">
+        <FaqList items={etfFaq(e)} />
+      </div>
 
       {similar.length > 0 && (
         <section className="mt-10" aria-labelledby="similar">

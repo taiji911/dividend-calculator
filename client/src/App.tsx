@@ -15,6 +15,8 @@ import DividendCalendar from "@/pages/dividend-calendar";
 import { LearnIndex, LearnArticle } from "@/pages/learn";
 import Start from "@/pages/start";
 import EtfDetail from "@/pages/etf-detail";
+import StockIndex from "@/pages/stock-index";
+import StockDetail from "@/pages/stock-detail";
 import Navigation from "@/components/navigation";
 import Footer from "@/components/footer";
 import ErrorBoundary from "@/components/error-boundary";
@@ -63,6 +65,8 @@ function Router() {
       <Route path="/learn/:slug" component={LearnArticle} />
       <Route path="/etf" component={EtfIndex} />
       <Route path="/etf/:slug" component={EtfDetail} />
+      <Route path="/stock" component={StockIndex} />
+      <Route path="/stock/:slug" component={StockDetail} />
       <Route component={NotFound} />
     </Switch>
   );

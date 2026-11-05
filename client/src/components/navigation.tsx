@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Menu, Target, BookOpen, TrendingUp, Snowflake, Calculator, CalendarDays, LayoutGrid, Footprints, Languages, ChevronRight } from "lucide-react";
+import { Menu, Target, BookOpen, TrendingUp, Snowflake, Calculator, CalendarDays, LayoutGrid, Footprints, Coins, Languages, ChevronRight } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetClose } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import BrandMark from "@/components/brand-mark";
@@ -15,7 +15,7 @@ export default function Navigation() {
     const rest = location.replace(/^\/(en|kr)/, "");
     if (isEnglish) return rest === "" ? "/" : rest;
     // 종합과세는 한국어 전용 → 영어로 바꿀 땐 재투자 계산기로
-    if (["/tax", "/compare", "/calendar", "/start"].includes(rest) || rest.startsWith("/etf") || rest.startsWith("/learn")) return "/en";
+    if (["/tax", "/compare", "/calendar", "/start"].includes(rest) || rest.startsWith("/etf") || rest.startsWith("/stock") || rest.startsWith("/learn")) return "/en";
     return rest === "" || rest === "/" || rest === "/calculator" ? "/en" : `/en${rest}`;
   };
 
@@ -32,6 +32,7 @@ export default function Navigation() {
         { href: "/", label: "계산기", icon: Calculator, active: calcPaths.includes(location) || location.startsWith("/kr/") },
         { href: "/calendar", label: "배당 달력", icon: CalendarDays, active: location === "/calendar" },
         { href: "/etf", label: "배당 ETF", icon: LayoutGrid, active: location.startsWith("/etf") },
+        { href: "/stock", label: "배당주", icon: Coins, active: location.startsWith("/stock") },
         { href: "/learn", label: "배당 공부", icon: BookOpen, active: location.startsWith("/learn") || location === "/guide" },
       ];
 

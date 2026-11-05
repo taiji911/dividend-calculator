@@ -96,7 +96,9 @@ export default function DividendCalendar() {
                 <li key={h.id} className="rounded-xl border border-border bg-[hsl(var(--surface-2))] p-3.5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <p className="truncate text-[15px] font-semibold text-foreground">{it.label}</p>
+                      <Link href={it.kind === "etf" ? `/etf/${it.id}` : `/stock/${it.id}`}>
+                        <span className="block truncate text-[15px] font-semibold text-foreground underline-offset-4 hover:text-gold hover:underline">{it.label}</span>
+                      </Link>
                       <p className="truncate text-[12px] text-subtle">
                         {it.sub} · {it.months.length === 12 ? "매달" : it.months.map((m) => `${m}월`).join("·")}
                       </p>

@@ -24,9 +24,9 @@ export default function HomeHub() {
       desc: "사기 전에 숫자를 비교해요",
       links: [
         { href: "/etf", label: "인기 배당 ETF 19개 비교" },
+        { href: "/stock", label: "미국 배당주 32종목 배당금 계산" },
         { href: "/calendar", label: "배당 달력 · 월배당 만들기" },
-        { href: "/etf/schd", label: "SCHD 배당률·총보수" },
-        { href: "/etf/tiger-us-dividend-dowjones", label: "TIGER 미국배당다우존스" },
+        { href: "/etf/schd", label: "SCHD 배당금 계산기" },
       ],
     },
     {

@@ -4,8 +4,9 @@
  */
 import { SEO_PAGES, SITE_URL, SITE_NAME_KO, SITE_NAME_EN, ogImageFor, type SeoKey, type Lang } from "./seo";
 import { FAQ } from "@/content/faq";
-import { ETFS } from "./etf";
+import { ETFS, etfFaq } from "./etf";
 import { LEARN } from "@/content/learn-meta";
+import { STOCKS, stockFaq } from "./stocks";
 
 export interface RouteDef {
   path: string;
@@ -26,6 +27,8 @@ export const ROUTES: RouteDef[] = [
   ...LEARN.map((a) => ({ path: `/learn/${a.slug}`, key: `learn-${a.slug}` as SeoKey, lang: "ko" as Lang })),
   { path: "/etf", key: "etf", lang: "ko" },
   ...ETFS.map((e) => ({ path: `/etf/${e.slug}`, key: `etf-${e.slug}` as SeoKey, lang: "ko" as Lang })),
+  { path: "/stock", key: "stock", lang: "ko" },
+  ...STOCKS.map((st) => ({ path: `/stock/${st.slug}`, key: `stock-${st.slug}` as SeoKey, lang: "ko" as Lang })),
   { path: "/guide", key: "guide", lang: "ko" },
   { path: "/en", key: "reinvest", lang: "en" },
   { path: "/en/goal", key: "goal", lang: "en" },
@@ -78,7 +81,7 @@ export function headTags(key: SeoKey, lang: Lang): string {
 
   // 구조화 데이터
   const graph: Record<string, unknown>[] = [];
-  const isContent = key === "etf" || key.startsWith("etf-") || key === "learn" || key.startsWith("learn-") || key === "start";
+  const isContent = key === "etf" || key.startsWith("etf-") || key === "stock" || key.startsWith("stock-") || key === "learn" || key.startsWith("learn-") || key === "start";
   if (key !== "guide" && !isContent) {
     graph.push({
       "@type": "WebApplication",
@@ -98,6 +101,7 @@ export function headTags(key: SeoKey, lang: Lang): string {
     const crumbs = [{ name: siteName, item: abs(homePath) }];
     if (key.startsWith("etf-")) crumbs.push({ name: "배당 ETF 정보", item: abs("/etf") });
     if (key.startsWith("learn-")) crumbs.push({ name: "배당 공부", item: abs("/learn") });
+    if (key.startsWith("stock-")) crumbs.push({ name: "미국 배당주", item: abs("/stock") });
     crumbs.push({ name: page.name[lang], item: url });
     graph.push({
       "@type": "BreadcrumbList",
@@ -119,7 +123,9 @@ export function headTags(key: SeoKey, lang: Lang): string {
       publisher: { "@type": "Organization", name: SITE_NAME_KO, url: abs("/") },
     });
   }
-  const faqs = article ? article.faq : FAQ[key]?.[lang];
+  const stock = key.startsWith("stock-") ? STOCKS.find((st) => `stock-${st.slug}` === key) : undefined;
+  const etf = key.startsWith("etf-") ? ETFS.find((e) => `etf-${e.slug}` === key) : undefined;
+  const faqs = article ? article.faq : stock ? stockFaq(stock) : etf ? etfFaq(etf) : FAQ[key]?.[lang];
   if (faqs?.length) {
     graph.push({
       "@type": "FAQPage",

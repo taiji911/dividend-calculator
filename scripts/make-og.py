@@ -54,13 +54,17 @@ ETF = json.loads((ROOT / "client/src/content/etf-data.json").read_text(encoding=
 GROUP_TITLE = {g["id"]: g["title"] for g in ETF["groups"]}
 PAGES["calendar"] = {"ko": ("배당 달력", ["매달 배당 받는", "포트폴리오 만들기"], "지급 월 한눈에 · 빈 달 채우기")}
 PAGES["start"] = {"ko": ("처음 시작하기", ["배당 투자,", "이 순서대로 시작하세요"], "비상금 · 계좌 · 첫 ETF · 자동 투자 · 세금")}
-PAGES["learn"] = {"ko": ("배당 공부", ["배당 투자,", "이것만 알면 돼요"], "세금 · ISA · 연금저축 · 배당락일 · 커버드콜")}
+PAGES["learn"] = {"ko": ("배당 공부", ["배당 투자,", "이것만 알면 돼요"], "세금 · 건보료 · 절세 계좌 · 월배당 · 종목 고르기")}
 _LEARN_OG = {
     "dividend-tax": ("세금", ["배당소득세 15.4%,", "한 번에 정리"], "국내·미국 배당 세금 · 종합과세 · 건보료"),
     "isa": ("절세 계좌", ["ISA 계좌로", "배당 투자하는 법"], "비과세 200만원 · 9.9% 분리과세"),
     "pension-savings": ("절세 계좌", ["연금저축으로", "배당 ETF 모으기"], "세액공제 16.5% · 과세이연 · 연금 수령"),
     "ex-dividend-date": ("배당 기초", ["배당락일, 언제까지", "사야 배당을 받을까?"], "미국·한국 주식 · 국내 월배당 ETF"),
     "covered-call-etf": ("ETF 이해", ["커버드콜 ETF,", "분배율 10%의 진짜 의미"], "JEPI · JEPQ · QYLD · 국내 커버드콜"),
+    "high-dividend-separate-tax": ("세금", ["고배당기업 배당", "분리과세 14~30%"], "대상 요건 · 누구에게 이득 · 신청 방법"),
+    "health-insurance": ("건강보험", ["배당금이 늘면", "건보료는 얼마나 오를까?"], "피부양자 2,000만원 · 금융소득 1,000만원"),
+    "monthly-dividend": ("월배당", ["월배당으로", "매달 100만원 받으려면"], "월배당 ETF · 월배당주 · 필요한 원금"),
+    "how-to-pick-dividend-stocks": ("종목 고르기", ["좋은 배당주", "고르는 5가지 기준"], "배당률 · 배당성향 · 연속 증가 · 성장률"),
 }
 for _k, _v in _LEARN_OG.items():
     PAGES[f"learn-{_k}"] = {"ko": _v}
@@ -72,6 +76,14 @@ for e in ETF["etfs"]:
     label = e["ticker"] if e["market"] == "us" else e["name"]
     freq = "매달 배당" if e["freq"] == "월" else "분기 배당"
     PAGES[f"etf-{e['slug']}"] = {"ko": (GROUP_TITLE[e["group"]], [label, f"배당률 {_pct(e['yield'])} · {freq}"], f"총보수 {_pct(e['fee'])} · {e['short']}")}
+
+# 미국 배당주 페이지 — client/src/content/dividend-stocks.json 에서 자동으로 만들어요
+STOCKS = json.loads((ROOT / "client/src/content/dividend-stocks.json").read_text(encoding="utf-8"))
+PAGES["stock"] = {"ko": ("미국 배당주", ["미국 배당주,", "배당금 바로 계산"], f"배당률 · 배당일 · 연속 증가 · {len(STOCKS['stocks'])}종목")}
+for st in STOCKS["stocks"]:
+    when = "매달 배당" if st["freq"] == "월" else "·".join(str(m) for m in st["months"]) + "월 배당"
+    streak = f" · {st['years']}년 연속 증가" if st.get("years") and st["years"] >= 10 else ""
+    PAGES[f"stock-{st['ticker'].lower()}"] = {"ko": (f"미국 배당주 · {st['desc']}", [f"{st['name']} 배당금", f"배당률 {_pct(st['yield'])} · {when}"], f"티커 {st['ticker']}{streak}")}
 
 def glow(img, center, radius, color, alpha):
     layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
